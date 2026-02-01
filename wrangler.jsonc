@@ -1,5 +1,7 @@
 {
-  "name": "mohitpamar",
-  "main": "src/index.ts",
-  "compatibility_date": "2026-02-01"
+  "name": "static-html-site",
+  "compatibility_date": "2026-02-01",
+  "assets": {
+    "directory": "."
+  }
 }
