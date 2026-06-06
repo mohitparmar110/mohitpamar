@@ -3,18 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mohit Parmar | Growth Systems Architect</title>
-    <meta name="description" content="Growth Systems Architect. Specializing in High-Ticket Scale, CRO, and Creative Automation.">
-    
-    <!-- Tailwind CSS -->
+
+    <!-- SEO: replace mohitparmar.com with your real domain -->
+    <title>Mohit Parmar | Creative Strategist & CRO for High-Ticket D2C Brands</title>
+    <meta name="description" content="Paid creative audit and freelance creative strategy for high-ticket D2C and e-commerce brands. Ad creative review + PDP audit delivered in 48 hours. Working with brands across the UK, Ireland, Canada & EU.">
+    <link rel="canonical" href="https://www.mohitparmar.com/">
+    <meta name="robots" content="index, follow">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Mohit Parmar | Creative Strategist & CRO for High-Ticket D2C">
+    <meta property="og:description" content="Find out exactly why your ads and product pages aren't converting — paid creative audit in 48 hours.">
+    <meta property="og:url" content="https://www.mohitparmar.com/">
+    <meta property="og:image" content="https://www.mohitparmar.com/og-image.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Fonts: Playfair Display (Luxury) & Manrope (Modern) -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
-    
-    <!-- FontAwesome for Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script>
@@ -22,13 +29,8 @@
             theme: {
                 extend: {
                     colors: {
-                        gold: {
-                            500: '#C5A059', 
-                            600: '#A3803B',
-                        },
-                        slate: {
-                            900: '#0F172A',
-                        }
+                        gold: { 500: '#C5A059', 600: '#A3803B' },
+                        slate: { 900: '#0F172A' }
                     },
                     fontFamily: {
                         sans: ['Manrope', 'sans-serif'],
@@ -38,201 +40,800 @@
             }
         }
     </script>
-    
+
     <style>
-        .fade-in-up {
-            animation: fadeInUp 1s ease-out forwards;
+        /* Hero entrance — fast so mobile screenshot never catches blank */
+        .hero-content {
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(20px);
+            animation: heroIn 0.5s ease-out 0.1s forwards;
         }
-        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
-        
-        /* Ultra-subtle noise for premium paper feel */
+        @keyframes heroIn { to { opacity: 1; transform: translateY(0); } }
+
+        /* Scroll reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* Premium paper noise */
         .bg-noise {
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
         }
+
+        /* Placeholder image tiles */
+        .placeholder-img {
+            background: repeating-linear-gradient(45deg,#f1efec,#f1efec 12px,#eae7e2 12px,#eae7e2 24px);
+        }
+
+        /* Portfolio marquee */
+        @keyframes scrollLeft  { from { transform: translateX(0); }    to { transform: translateX(-50%); } }
+        @keyframes scrollRight { from { transform: translateX(-50%); } to { transform: translateX(0); }    }
+        .marquee-l { display: flex; width: max-content; animation: scrollLeft  35s linear infinite; }
+        .marquee-r { display: flex; width: max-content; animation: scrollRight 35s linear infinite; }
+        .marquee-wrap:hover .marquee-l,
+        .marquee-wrap:hover .marquee-r { animation-play-state: paused; }
+
+        .port-card {
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.35s ease, box-shadow 0.35s ease;
+        }
+        .port-card:hover {
+            transform: scale(1.04);
+            box-shadow: 0 16px 48px rgba(0,0,0,.18);
+            z-index: 10;
+        }
+        .port-card img {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+
+        /* Audit form inputs */
+        .audit-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: white;
+            font-size: 0.875rem;
+            font-family: 'Manrope', sans-serif;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        .audit-input:focus { border-color: #C5A059; }
+        .audit-input::placeholder { color: #64748b; }
+        .audit-select option { background: #1e293b; color: white; }
     </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Mohit Parmar",
+      "jobTitle": "Creative Strategist & CRO Consultant",
+      "url": "https://www.mohitparmar.com/",
+      "email": "mailto:mohit.parmar1005@gmail.com",
+      "sameAs": ["https://www.linkedin.com/in/REPLACE-YOUR-HANDLE"],
+      "knowsAbout": ["Creative Strategy","Conversion Rate Optimization","Performance Max","D2C Marketing","Shopify","Ad Creative"],
+      "address": { "@type": "PostalAddress", "addressLocality": "Mumbai", "addressCountry": "IN" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ProfessionalService",
+      "name": "Mohit Parmar — Creative Strategy & CRO",
+      "description": "Paid creative audit and creative strategy for high-ticket D2C and e-commerce brands.",
+      "url": "https://www.mohitparmar.com/",
+      "priceRange": "£150 – £2,500",
+      "areaServed": ["United Kingdom","Ireland","Canada","European Union"],
+      "serviceType": ["Creative Audit","Creative Strategy","CRO","Ad Creative Direction"]
+    }
+    </script>
 </head>
+
 <body class="bg-[#FAFAF9] text-slate-900 font-sans antialiased bg-noise selection:bg-slate-900 selection:text-white">
 
-    <!-- Minimal Nav -->
-    <nav class="fixed w-full z-50 bg-[#FAFAF9]/90 backdrop-blur-sm transition-all duration-300 py-6">
-        <div class="max-w-6xl mx-auto px-6 flex justify-between items-center">
-            <a href="#" class="text-lg font-serif font-bold tracking-widest text-slate-900">MOHIT PARMAR</a>
-            
-            <a href="#contact" class="hidden md:block text-xs font-bold tracking-[0.2em] uppercase text-slate-500 hover:text-slate-900 transition-colors">
-                Initiate Protocol
+<!-- ===================== NAV ===================== -->
+<!-- lg: breakpoint so hamburger always shows on phones/tablets -->
+<nav id="nav" class="fixed w-full z-50 bg-[#FAFAF9]/95 backdrop-blur-sm transition-all duration-300 py-5">
+    <div class="max-w-6xl mx-auto px-5 flex justify-between items-center">
+
+        <a href="#" class="text-base font-serif font-bold tracking-widest text-slate-900">MOHIT PARMAR</a>
+
+        <!-- Desktop links — only shows at lg (1024px+) -->
+        <div class="hidden lg:flex items-center gap-8 text-xs font-bold tracking-[0.18em] uppercase text-slate-500">
+            <a href="#audit"    class="hover:text-slate-900 transition-colors">Audit</a>
+            <a href="#services" class="hover:text-slate-900 transition-colors">Services</a>
+            <a href="#work"     class="hover:text-slate-900 transition-colors">Work</a>
+            <a href="#about"    class="hover:text-slate-900 transition-colors">About</a>
+            <!-- Replace with your Cal.com / Calendly link -->
+            <a href="#audit" class="bg-slate-900 text-white px-5 py-2.5 hover:bg-gold-600 transition-colors text-xs">
+                Get Your Audit — £150
             </a>
         </div>
-    </nav>
 
-    <!-- Hero Section: Pure Typography -->
-    <header class="min-h-screen flex items-center justify-center relative">
-        <div class="max-w-4xl mx-auto px-6 text-center space-y-10 fade-in-up">
-            
-            <p class="text-xs font-bold tracking-[0.3em] uppercase text-gold-600">Growth Systems Architect</p>
-            
-            <h1 class="text-5xl md:text-8xl font-serif text-slate-900 leading-[1.1]">
-                Creative that converts.<br>
-                <span class="italic text-slate-400">Strategy that scales.</span>
-            </h1>
-            
-            <p class="text-lg md:text-xl text-slate-600 max-w-lg mx-auto font-light leading-relaxed">
-                I don't design ads. I engineer <span class="font-medium text-slate-900">revenue infrastructure</span>. Bridging the gap between high-end aesthetics and aggressive performance algorithms.
+        <!-- Hamburger — shows below lg -->
+        <button id="menuBtn" class="lg:hidden flex items-center justify-center w-10 h-10 text-slate-900" aria-label="Menu">
+            <i id="menuIcon" class="fas fa-bars text-lg"></i>
+        </button>
+    </div>
+
+    <!-- Mobile dropdown -->
+    <div id="mobileMenu" class="hidden lg:hidden bg-[#FAFAF9] border-t border-slate-200 mt-4 px-5 pb-5">
+        <div class="flex flex-col gap-4 pt-4 text-sm font-bold tracking-[0.15em] uppercase">
+            <a href="#audit"    class="mobile-link text-slate-700 hover:text-gold-600 transition-colors py-2 border-b border-slate-100">Audit — £150</a>
+            <a href="#services" class="mobile-link text-slate-700 hover:text-gold-600 transition-colors py-2 border-b border-slate-100">Services</a>
+            <a href="#work"     class="mobile-link text-slate-700 hover:text-gold-600 transition-colors py-2 border-b border-slate-100">Work</a>
+            <a href="#about"    class="mobile-link text-slate-700 hover:text-gold-600 transition-colors py-2 border-b border-slate-100">About</a>
+            <a href="mailto:mohit.parmar1005@gmail.com" class="text-gold-600 py-2">mohit.parmar1005@gmail.com</a>
+        </div>
+    </div>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<!-- Mobile: generous padding instead of full-viewport height -->
+<header class="pt-36 pb-24 md:pt-0 md:pb-0 md:min-h-screen md:flex md:items-center md:justify-center">
+    <div class="max-w-4xl mx-auto px-5 text-center hero-content">
+
+        <p class="text-xs font-bold tracking-[0.3em] uppercase text-gold-600 mb-6">
+            Creative Strategy &amp; CRO · UK · Ireland · Canada · EU
+        </p>
+
+        <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif text-slate-900 leading-[1.08] mb-8">
+            Creative that converts.<br>
+            <span class="italic text-slate-400">Strategy that scales.</span>
+        </h1>
+
+        <p class="text-base md:text-xl text-slate-600 max-w-2xl mx-auto font-light leading-relaxed mb-10">
+            I help high-ticket D2C and e-commerce brands find out exactly why their
+            ads and product pages aren't converting — and fix it.
+            Starting with a <span class="font-medium text-slate-900">paid creative audit, delivered in 48 hours.</span>
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+            <a href="#audit"
+               class="w-full sm:w-auto bg-slate-900 text-white px-8 py-4 text-xs font-bold tracking-[0.2em] uppercase hover:bg-gold-600 transition-colors duration-300">
+                Get Your Creative Audit — £150
+            </a>
+            <a href="#work"
+               class="w-full sm:w-auto border border-slate-300 text-slate-700 px-8 py-4 text-xs font-bold tracking-[0.2em] uppercase hover:border-slate-900 transition-colors duration-300">
+                See the Work
+            </a>
+        </div>
+
+        <p class="text-xs tracking-[0.12em] uppercase text-slate-400 mb-2">
+            Remote · UK · Ireland · Canada · EU
+        </p>
+        <p class="text-xs tracking-[0.12em] uppercase text-gold-600">
+            <i class="fas fa-circle text-[5px] align-middle mr-2 animate-pulse"></i>Currently taking on 2 new clients
+        </p>
+
+    </div>
+</header>
+
+<!-- ===================== TRUST BAR ===================== -->
+<section class="py-10 border-y border-slate-200 bg-white/60 reveal">
+    <div class="max-w-5xl mx-auto px-5 text-center">
+        <p class="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-400 mb-5">Stack &amp; tools</p>
+        <div class="flex flex-wrap justify-center gap-x-6 gap-y-3 text-slate-500 font-light text-sm">
+            <span>Shopify</span><span class="text-gold-500">•</span>
+            <span>Meta Ads</span><span class="text-gold-500">•</span>
+            <span>Google PMAX</span><span class="text-gold-500">•</span>
+            <span>GA4</span><span class="text-gold-500">•</span>
+            <span>GenAI Production</span><span class="text-gold-500">•</span>
+            <span>Cinema 4D</span>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== STATS ===================== -->
+<section class="py-24">
+    <div class="max-w-6xl mx-auto px-5">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-0 reveal">
+
+            <div class="text-center px-8 py-12 md:py-0 border-b md:border-b-0 md:border-r border-slate-200 space-y-3">
+                <span class="block text-7xl md:text-8xl font-serif text-slate-900">4.8<span class="text-gold-500 text-6xl">x</span></span>
+                <p class="text-xs font-bold tracking-[0.2em] uppercase text-slate-500">ROAS on High-Ticket</p>
+                <p class="text-sm text-slate-400 font-light">Up from 2.1x baseline via Performance Max creative structuring.</p>
+            </div>
+
+            <div class="text-center px-8 py-12 md:py-0 border-b md:border-b-0 md:border-r border-slate-200 space-y-3">
+                <span class="block text-7xl md:text-8xl font-serif text-slate-900">5<span class="text-gold-500 text-6xl">x</span></span>
+                <p class="text-xs font-bold tracking-[0.2em] uppercase text-slate-500">Faster Asset Output</p>
+                <p class="text-sm text-slate-400 font-light">Across a 40,000+ SKU catalogue via GenAI production pipeline.</p>
+            </div>
+
+            <div class="text-center px-8 py-12 md:py-0 space-y-3">
+                <span class="block text-7xl md:text-8xl font-serif text-slate-900">32<span class="text-gold-500 text-6xl">%</span></span>
+                <p class="text-xs font-bold tracking-[0.2em] uppercase text-slate-500">Conversion Uplift</p>
+                <p class="text-sm text-slate-400 font-light">From restructuring product-page hierarchy on luxury furniture.</p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ===================== PHILOSOPHY ===================== -->
+<section class="py-24 bg-white">
+    <div class="max-w-3xl mx-auto px-5 text-center reveal">
+        <h2 class="text-3xl md:text-4xl font-serif text-slate-900 mb-10 leading-tight">
+            Most designers are <span class="italic text-slate-400">residential architects</span>.<br>
+            I work like a <span class="border-b-2 border-gold-500 pb-1">commercial architect</span>.
+        </h2>
+        <div class="space-y-5 text-lg font-light text-slate-600 leading-relaxed">
+            <p>Residential architects build for comfort. Commercial architects build structures that generate return.</p>
+            <p>My work isn't decoration. It's building visual systems that carry real revenue targets — using code, data, and design to build the machine that scales your brand.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== PAID AUDIT ===================== -->
+<section id="audit" class="py-24 bg-slate-900 text-white scroll-mt-20">
+    <div class="max-w-5xl mx-auto px-5">
+
+        <!-- Header -->
+        <div class="text-center mb-14 reveal">
+            <p class="text-xs font-bold tracking-[0.3em] uppercase text-gold-500 mb-4">Start Here</p>
+            <h2 class="text-4xl md:text-5xl font-serif mb-5">The Creative Audit</h2>
+            <p class="text-slate-400 font-light max-w-xl mx-auto text-base md:text-lg leading-relaxed">
+                A no-fluff review of your ad creative and product pages —
+                delivered as a Loom recording plus a written fix list, in 48 hours.
             </p>
-
-            <div class="pt-8">
-                 <i class="fas fa-arrow-down text-slate-300 animate-bounce"></i>
+            <div class="mt-8 inline-flex items-baseline gap-3 border border-gold-500/50 px-8 py-3">
+                <span class="text-gold-500 font-serif text-3xl">£150</span>
+                <span class="text-slate-500 text-sm font-light">· €175 · CA$265 · ₹16,000</span>
             </div>
         </div>
-    </header>
 
-    <!-- The Multipliers (Replacing standard stats) -->
-    <section class="py-32 border-t border-slate-200">
-        <div class="max-w-6xl mx-auto px-6">
-            <div class="grid md:grid-cols-3 gap-16 md:gap-0 text-center divide-y md:divide-y-0 md:divide-x divide-slate-200">
-                
-                <!-- Stat 1 -->
-                <div class="px-8 space-y-4">
-                    <span class="block text-7xl md:text-8xl font-serif text-slate-900">4.8<span class="text-gold-500 text-6xl">x</span></span>
-                    <p class="text-xs font-bold tracking-[0.2em] uppercase text-slate-500">ROAS Efficiency</p>
-                    <p class="text-sm text-slate-400 font-light">Achieved on high-ticket inventory via PMAX optimization.</p>
+        <!-- What's inside -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-16 reveal">
+
+            <div class="border border-slate-700 hover:border-gold-500 transition-colors duration-400 p-7">
+                <p class="text-gold-500 text-xs font-bold tracking-[0.2em] uppercase mb-4">Section 01</p>
+                <h3 class="font-serif text-xl text-white mb-5">Ad Creative Review</h3>
+                <ul class="text-slate-400 font-light text-sm space-y-3">
+                    <li class="flex gap-3"><i class="fas fa-check text-gold-500 mt-0.5 flex-shrink-0"></i>Hook analysis — working or not and why</li>
+                    <li class="flex gap-3"><i class="fas fa-check text-gold-500 mt-0.5 flex-shrink-0"></i>Angles you're missing entirely</li>
+                    <li class="flex gap-3"><i class="fas fa-check text-gold-500 mt-0.5 flex-shrink-0"></i>What your creative says vs what it should</li>
+                    <li class="flex gap-3"><i class="fas fa-check text-gold-500 mt-0.5 flex-shrink-0 text-white"></i><span class="text-white font-medium">3 specific changes to make immediately</span></li>
+                </ul>
+            </div>
+
+            <div class="border border-slate-700 hover:border-gold-500 transition-colors duration-400 p-7">
+                <p class="text-gold-500 text-xs font-bold tracking-[0.2em] uppercase mb-4">Section 02</p>
+                <h3 class="font-serif text-xl text-white mb-5">Product Page Audit</h3>
+                <ul class="text-slate-400 font-light text-sm space-y-3">
+                    <li class="flex gap-3"><i class="fas fa-check text-gold-500 mt-0.5 flex-shrink-0"></i>Trust signals missing or broken</li>
+                    <li class="flex gap-3"><i class="fas fa-check text-gold-500 mt-0.5 flex-shrink-0"></i>Visual hierarchy killing conversions</li>
+                    <li class="flex gap-3"><i class="fas fa-check text-gold-500 mt-0.5 flex-shrink-0"></i>Copy that's unclear, buried, or wrong</li>
+                    <li class="flex gap-3"><i class="fas fa-check text-gold-500 mt-0.5 flex-shrink-0 text-white"></i><span class="text-white font-medium">3 specific fixes with examples</span></li>
+                </ul>
+            </div>
+
+            <div class="border border-slate-700 hover:border-gold-500 transition-colors duration-400 p-7">
+                <p class="text-gold-500 text-xs font-bold tracking-[0.2em] uppercase mb-4">Section 03</p>
+                <h3 class="font-serif text-xl text-white mb-5">Priority Fix List</h3>
+                <ul class="text-slate-400 font-light text-sm space-y-3">
+                    <li class="flex gap-3"><i class="fas fa-check text-gold-500 mt-0.5 flex-shrink-0"></i>Top 5 issues ranked by revenue impact</li>
+                    <li class="flex gap-3"><i class="fas fa-check text-gold-500 mt-0.5 flex-shrink-0"></i>"Do this, not that" for each one</li>
+                    <li class="flex gap-3"><i class="fas fa-check text-gold-500 mt-0.5 flex-shrink-0"></i>Quick wins vs structural fixes separated</li>
+                    <li class="flex gap-3"><i class="fas fa-check text-gold-500 mt-0.5 flex-shrink-0 text-white"></i><span class="text-white font-medium">In your inbox within 48 hours</span></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <!-- How it works -->
+        <div class="border-t border-slate-800 pt-14 mb-14 reveal">
+            <p class="text-xs font-bold tracking-[0.2em] uppercase text-slate-500 text-center mb-10">How it works</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div>
+                    <span class="block text-5xl font-serif text-slate-700 mb-3">01</span>
+                    <h4 class="text-white font-medium mb-2">Submit your store</h4>
+                    <p class="text-slate-400 font-light text-sm leading-relaxed">Fill in the form below with your store URL. That's all I need to get started.</p>
                 </div>
-
-                <!-- Stat 2 -->
-                <div class="px-8 space-y-4">
-                    <span class="block text-7xl md:text-8xl font-serif text-slate-900">5<span class="text-gold-500 text-6xl">x</span></span>
-                    <p class="text-xs font-bold tracking-[0.2em] uppercase text-slate-500">Output Velocity</p>
-                    <p class="text-sm text-slate-400 font-light">Increase in asset production speed via GenAI workflows.</p>
+                <div>
+                    <span class="block text-5xl font-serif text-slate-700 mb-3">02</span>
+                    <h4 class="text-white font-medium mb-2">Pay the audit fee</h4>
+                    <p class="text-slate-400 font-light text-sm leading-relaxed">You'll receive a secure payment link within 2 hours. Once paid, your slot is confirmed.</p>
                 </div>
-
-                <!-- Stat 3 -->
-                <div class="px-8 space-y-4">
-                    <span class="block text-7xl md:text-8xl font-serif text-slate-900">32<span class="text-gold-500 text-6xl">%</span></span>
-                    <p class="text-xs font-bold tracking-[0.2em] uppercase text-slate-500">Conversion Uplift</p>
-                    <p class="text-sm text-slate-400 font-light">Pure structural improvement to PDP UX and visual clarity.</p>
+                <div>
+                    <span class="block text-5xl font-serif text-slate-700 mb-3">03</span>
+                    <h4 class="text-white font-medium mb-2">Receive your audit</h4>
+                    <p class="text-slate-400 font-light text-sm leading-relaxed">Loom walkthrough + written fix list delivered to your inbox within 48 hours.</p>
                 </div>
-
             </div>
         </div>
-    </section>
 
-    <!-- Philosophy -->
-    <section class="py-32 bg-white">
-        <div class="max-w-3xl mx-auto px-6 text-center">
-            <h2 class="text-3xl md:text-4xl font-serif text-slate-900 mb-12 leading-tight">
-                Most designers are <span class="italic text-slate-400">Residential Architects</span>.<br>
-                I am a <span class="border-b-2 border-gold-500 pb-1">Commercial Architect</span>.
-            </h2>
-            <div class="space-y-6 text-lg font-light text-slate-600 leading-relaxed">
-                <p>
-                    Residential architects build for comfort. Commercial architects build skyscrapers that generate ROI. 
-                </p>
-                <p>
-                    My work is not about decoration. It is about building load-bearing visual systems that support aggressive revenue targets. I use code, data, and design to build the machine that scales your brand.
-                </p>
-            </div>
+        <!-- Audit form -->
+        <!-- Replace action URL with your Formspree endpoint (free at formspree.io) -->
+        <div class="max-w-2xl mx-auto reveal">
+            <p class="text-center text-xs font-bold tracking-[0.2em] uppercase text-slate-500 mb-7">Apply for your audit</p>
+            <form action="https://formspree.io/f/REPLACE-YOUR-ID" method="POST">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <input class="audit-input" type="text"  name="name"      required placeholder="Your name">
+                    <input class="audit-input" type="email" name="email"     required placeholder="Email address">
+                    <input class="audit-input" type="text"  name="brand"     required placeholder="Brand / company name">
+                    <input class="audit-input" type="url"   name="store_url" required placeholder="Store URL">
+                    <input class="audit-input" type="url"   name="ad_url"    placeholder="Link to a live ad (optional)">
+                    <select class="audit-input" name="market">
+                        <option value="">Your market</option>
+                        <option value="UK">UK — £150</option>
+                        <option value="Ireland">Ireland — €175</option>
+                        <option value="Canada">Canada — CA$265</option>
+                        <option value="EU">EU — €175</option>
+                        <option value="India">India — ₹16,000</option>
+                    </select>
+                </div>
+                <textarea class="audit-input mb-4" name="problem" rows="3" placeholder="What's the main thing you want me to look at?"></textarea>
+                <button type="submit"
+                        class="w-full bg-gold-500 text-slate-900 py-4 text-xs font-bold tracking-[0.2em] uppercase hover:bg-white transition-colors duration-300">
+                    Submit — I'll Send Your Payment Link Within 2 Hours
+                </button>
+            </form>
+            <p class="text-center text-slate-600 text-xs mt-5 font-light">No retainer. No commitment. Just a clear picture of what to fix.</p>
         </div>
-    </section>
 
-    <!-- Systems Deployed (Replacing Resume) -->
-    <section class="py-32 bg-[#FAFAF9]">
-        <div class="max-w-5xl mx-auto px-6">
-            <div class="flex items-center gap-4 mb-20">
-                <div class="h-px bg-slate-300 flex-1"></div>
-                <span class="text-xs font-bold tracking-[0.2em] uppercase text-slate-400">Systems Deployed</span>
-                <div class="h-px bg-slate-300 flex-1"></div>
-            </div>
+    </div>
+</section>
 
-            <div class="grid md:grid-cols-2 gap-12">
-                
-                <!-- System 1 -->
-                <div class="group">
-                    <div class="border-l-2 border-slate-200 pl-8 py-2 group-hover:border-gold-500 transition-colors duration-500">
-                        <h3 class="text-2xl font-serif text-slate-900 mb-2">Automated Scale Engine</h3>
-                        <p class="text-xs font-bold uppercase tracking-wider text-gold-600 mb-4">Focus: Production Velocity</p>
-                        <p class="text-slate-600 font-light mb-4">
-                            Implemented a GenAI-assisted workflow for a 40,000+ SKU catalog. Reduced cost-per-asset while increasing variation testing speed.
-                        </p>
-                        <div class="text-3xl font-serif text-slate-900">5x <span class="text-base font-sans text-slate-400 font-light">Faster Output</span></div>
-                    </div>
+<!-- ===================== PORTFOLIO MARQUEE ===================== -->
+<!--
+    TO ADD REAL IMAGES: Inside any port-card, add:
+    <img src="your-screenshot.jpg" alt="Creative description">
+    Row 1 optimal size: 800 × 500px
+    Row 2 optimal size: 600 × 700px
+-->
+<section class="py-20 bg-[#FAFAF9] overflow-hidden">
+
+    <div class="max-w-6xl mx-auto px-5 text-center mb-12 reveal">
+        <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-600 mb-3">Portfolio</p>
+        <h2 class="text-3xl md:text-4xl font-serif text-slate-900">The work, at a glance</h2>
+        <p class="text-slate-400 font-light mt-2 text-sm">Hover to pause.</p>
+    </div>
+
+    <!-- Row 1 → scrolls left — landscape banners 320×200 -->
+    <div class="marquee-wrap mb-4">
+        <div class="marquee-l gap-4 px-2">
+
+            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#0F172A;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-500">Meta Ad · Furniture</span>
+                    <div><p class="font-serif text-white text-xl leading-tight mb-1">High-Ticket<br>Ad Creative</p>
+                    <span class="text-[10px] tracking-widest uppercase text-slate-500">D2C · UK</span></div>
                 </div>
-
-                <!-- System 2 -->
-                <div class="group">
-                    <div class="border-l-2 border-slate-200 pl-8 py-2 group-hover:border-gold-500 transition-colors duration-500">
-                        <h3 class="text-2xl font-serif text-slate-900 mb-2">High-Ticket CRO Core</h3>
-                        <p class="text-xs font-bold uppercase tracking-wider text-gold-600 mb-4">Focus: Conversion Rate</p>
-                        <p class="text-slate-600 font-light mb-4">
-                            Redesigned PDP architecture for Luxury Furniture. Shifted from "product display" to "trust engineering" via visual hierarchy.
-                        </p>
-                        <div class="text-3xl font-serif text-slate-900">32% <span class="text-base font-sans text-slate-400 font-light">Uplift</span></div>
-                    </div>
-                </div>
-
-                <!-- System 3 -->
-                <div class="group">
-                    <div class="border-l-2 border-slate-200 pl-8 py-2 group-hover:border-gold-500 transition-colors duration-500">
-                        <h3 class="text-2xl font-serif text-slate-900 mb-2">PMAX Alpha Protocol</h3>
-                        <p class="text-xs font-bold uppercase tracking-wider text-gold-600 mb-4">Focus: ROAS</p>
-                        <p class="text-slate-600 font-light mb-4">
-                            Structured asset optimization for Google Performance Max across 145 brands. Aligned creative signals with algorithmic intent.
-                        </p>
-                        <div class="text-3xl font-serif text-slate-900">4.8x <span class="text-base font-sans text-slate-400 font-light">ROAS</span></div>
-                    </div>
-                </div>
-
-                <!-- System 4 -->
-                <div class="group">
-                    <div class="border-l-2 border-slate-200 pl-8 py-2 group-hover:border-gold-500 transition-colors duration-500">
-                        <h3 class="text-2xl font-serif text-slate-900 mb-2">Visual Trust Framework</h3>
-                        <p class="text-xs font-bold uppercase tracking-wider text-gold-600 mb-4">Focus: Engagement</p>
-                        <p class="text-slate-600 font-light mb-4">
-                            Overhauled visual identity for SaaS & E-com clients to bridge the gap between "Brand" feel and "Direct Response" metrics.
-                        </p>
-                        <div class="text-3xl font-serif text-slate-900">55% <span class="text-base font-sans text-slate-400 font-light">Engagement</span></div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- Simple Capabilities List -->
-    <section class="py-24 bg-white border-t border-slate-100">
-        <div class="max-w-4xl mx-auto px-6 text-center">
-            <p class="text-xs font-bold tracking-[0.2em] uppercase text-slate-400 mb-10">Technical Arsenal</p>
-            <div class="flex flex-wrap justify-center gap-x-8 gap-y-4 text-slate-600 font-light">
-                <span>Shopify Liquid</span>
-                <span class="text-gold-500">•</span>
-                <span>Python Data</span>
-                <span class="text-gold-500">•</span>
-                <span>Midjourney AI</span>
-                <span class="text-gold-500">•</span>
-                <span>Cinema 4D</span>
-                <span class="text-gold-500">•</span>
-                <span>GA4 Analytics</span>
-                <span class="text-gold-500">•</span>
-                <span>Performance Max</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact -->
-    <section id="contact" class="py-32 bg-slate-900 text-white text-center">
-        <div class="max-w-3xl mx-auto px-6">
-            <p class="text-xs font-bold tracking-[0.3em] uppercase text-gold-500 mb-8">Initiate Collaboration</p>
-            <h2 class="text-4xl md:text-5xl font-serif mb-12">Ready to architect your scale?</h2>
-            
-            <a href="mailto:mohit.parmar1005@gmail.com" class="inline-block border border-slate-700 hover:border-gold-500 hover:text-gold-500 px-10 py-4 text-xs font-bold tracking-[0.2em] uppercase transition-all duration-300">
-                Request Blueprint
+                <div class="absolute right-0 top-0 w-20 h-full opacity-10" style="background:linear-gradient(135deg,#C5A059,transparent);"></div>
             </a>
 
-            <div class="mt-16 text-slate-600 text-xs tracking-widest uppercase">
-                Mumbai • London • Dubai
+            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#C5A059;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-slate-900/60">Performance Max · E-Commerce</span>
+                    <div><p class="font-serif text-slate-900 text-xl leading-tight mb-1">PMAX<br>Asset Suite</p>
+                    <span class="text-[10px] tracking-widest uppercase text-slate-900/50">145 Brands · Google</span></div>
+                </div>
+                <div class="absolute right-5 top-1/2 -translate-y-1/2 text-6xl font-serif text-slate-900/10">4.8x</div>
+            </a>
+
+            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#F0ECE6;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-600">Hero Banner · D2C</span>
+                    <div><p class="font-serif text-slate-900 text-xl leading-tight mb-1">Brand Campaign<br>Creative</p>
+                    <span class="text-[10px] tracking-widest uppercase text-slate-400">Shopify · Ireland</span></div>
+                </div>
+                <div class="absolute right-0 bottom-0 w-28 h-28 rounded-full opacity-20 -mr-6 -mb-6" style="background:#C5A059;"></div>
+            </a>
+
+            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#BFA77F;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-white/70">Email Creative · Lifestyle</span>
+                    <div><p class="font-serif text-white text-xl leading-tight mb-1">Email Header<br>System</p>
+                    <span class="text-[10px] tracking-widest uppercase text-white/50">D2C · EU</span></div>
+                </div>
+            </a>
+
+            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#1E293B;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-500">YouTube · Thumbnail</span>
+                    <div><p class="font-serif text-white text-xl leading-tight mb-1">Video Creative<br>Thumbnail</p>
+                    <span class="text-[10px] tracking-widest uppercase text-slate-500">SaaS · Canada</span></div>
+                </div>
+                <div class="absolute right-5 top-5 w-9 h-9 flex items-center justify-center rounded-full border border-gold-500/40">
+                    <i class="fas fa-play text-gold-500 text-xs ml-0.5"></i>
+                </div>
+            </a>
+
+            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#FAFAF9;border:1px solid #ddd8d0;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-600">Story Ad · Beauty</span>
+                    <div><p class="font-serif text-slate-900 text-xl leading-tight mb-1">Social Creative<br>System</p>
+                    <span class="text-[10px] tracking-widest uppercase text-slate-400">Meta · UK</span></div>
+                </div>
+            </a>
+
+            <!-- Duplicate for seamless loop -->
+            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#0F172A;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-500">Meta Ad · Furniture</span>
+                    <div><p class="font-serif text-white text-xl leading-tight mb-1">High-Ticket<br>Ad Creative</p>
+                    <span class="text-[10px] tracking-widest uppercase text-slate-500">D2C · UK</span></div>
+                </div>
+                <div class="absolute right-0 top-0 w-20 h-full opacity-10" style="background:linear-gradient(135deg,#C5A059,transparent);"></div>
+            </a>
+            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#C5A059;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-slate-900/60">Performance Max · E-Commerce</span>
+                    <div><p class="font-serif text-slate-900 text-xl leading-tight mb-1">PMAX<br>Asset Suite</p>
+                    <span class="text-[10px] tracking-widest uppercase text-slate-900/50">145 Brands · Google</span></div>
+                </div>
+                <div class="absolute right-5 top-1/2 -translate-y-1/2 text-6xl font-serif text-slate-900/10">4.8x</div>
+            </a>
+            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#F0ECE6;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-600">Hero Banner · D2C</span>
+                    <div><p class="font-serif text-slate-900 text-xl leading-tight mb-1">Brand Campaign<br>Creative</p>
+                    <span class="text-[10px] tracking-widest uppercase text-slate-400">Shopify · Ireland</span></div>
+                </div>
+                <div class="absolute right-0 bottom-0 w-28 h-28 rounded-full opacity-20 -mr-6 -mb-6" style="background:#C5A059;"></div>
+            </a>
+            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#BFA77F;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-white/70">Email Creative · Lifestyle</span>
+                    <div><p class="font-serif text-white text-xl leading-tight mb-1">Email Header<br>System</p>
+                    <span class="text-[10px] tracking-widest uppercase text-white/50">D2C · EU</span></div>
+                </div>
+            </a>
+            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#1E293B;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-500">YouTube · Thumbnail</span>
+                    <div><p class="font-serif text-white text-xl leading-tight mb-1">Video Creative<br>Thumbnail</p>
+                    <span class="text-[10px] tracking-widest uppercase text-slate-500">SaaS · Canada</span></div>
+                </div>
+                <div class="absolute right-5 top-5 w-9 h-9 flex items-center justify-center rounded-full border border-gold-500/40">
+                    <i class="fas fa-play text-gold-500 text-xs ml-0.5"></i>
+                </div>
+            </a>
+            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#FAFAF9;border:1px solid #ddd8d0;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-600">Story Ad · Beauty</span>
+                    <div><p class="font-serif text-slate-900 text-xl leading-tight mb-1">Social Creative<br>System</p>
+                    <span class="text-[10px] tracking-widest uppercase text-slate-400">Meta · UK</span></div>
+                </div>
+            </a>
+
+        </div>
+    </div>
+
+    <!-- Row 2 → scrolls right — portrait 220×280 -->
+    <div class="marquee-wrap">
+        <div class="marquee-r gap-4 px-2">
+
+            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#0F172A;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-500">PDP Design · High-Ticket</span>
+                    <div><p class="font-serif text-white text-lg leading-tight mb-1">Product Page<br>Architecture</p>
+                    <span class="text-[10px] tracking-widest uppercase text-slate-500">Shopify · UK</span></div>
+                </div>
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl font-serif text-white/5">+32%</div>
+            </a>
+
+            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#C5A059;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-slate-900/60">Brand Identity · D2C</span>
+                    <div><p class="font-serif text-slate-900 text-lg leading-tight mb-1">Visual Trust<br>Framework</p>
+                    <span class="text-[10px] tracking-widest uppercase text-slate-900/50">EU · Canada</span></div>
+                </div>
+            </a>
+
+            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#F0ECE6;border:1px solid #ddd8d0;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-600">Ad Creative · Shopify</span>
+                    <div><p class="font-serif text-slate-900 text-lg leading-tight mb-1">Creative<br>System Build</p>
+                    <span class="text-[10px] tracking-widest uppercase text-slate-400">Meta · Ireland</span></div>
+                </div>
+                <div class="absolute top-10 right-4 w-10 h-10 rounded-full border-2 border-gold-500/30"></div>
+            </a>
+
+            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#1E293B;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-500">Motion · Video</span>
+                    <div><p class="font-serif text-white text-lg leading-tight mb-1">Video Ad<br>Production</p>
+                    <span class="text-[10px] tracking-widest uppercase text-slate-500">SaaS · UK</span></div>
+                </div>
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-full border border-gold-500/30">
+                    <i class="fas fa-play text-gold-500 text-xs ml-0.5"></i>
+                </div>
+            </a>
+
+            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#AEA393;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-white/70">CRO Design · Furniture</span>
+                    <div><p class="font-serif text-white text-lg leading-tight mb-1">Conversion<br>Architecture</p>
+                    <span class="text-[10px] tracking-widest uppercase text-white/50">High-Ticket · UK</span></div>
+                </div>
+            </a>
+
+            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#FAFAF9;border:1px solid #ddd8d0;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-600">Campaign · EU</span>
+                    <div><p class="font-serif text-slate-900 text-lg leading-tight mb-1">Full Campaign<br>Creative</p>
+                    <span class="text-[10px] tracking-widest uppercase text-slate-400">D2C · Europe</span></div>
+                </div>
+            </a>
+
+            <!-- Duplicate for seamless loop -->
+            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#0F172A;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-500">PDP Design · High-Ticket</span>
+                    <div><p class="font-serif text-white text-lg leading-tight mb-1">Product Page<br>Architecture</p>
+                    <span class="text-[10px] tracking-widest uppercase text-slate-500">Shopify · UK</span></div>
+                </div>
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl font-serif text-white/5">+32%</div>
+            </a>
+            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#C5A059;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-slate-900/60">Brand Identity · D2C</span>
+                    <div><p class="font-serif text-white text-lg leading-tight mb-1">Visual Trust<br>Framework</p>
+                    <span class="text-[10px] tracking-widest uppercase text-slate-900/50">EU · Canada</span></div>
+                </div>
+            </a>
+            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#F0ECE6;border:1px solid #ddd8d0;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-600">Ad Creative · Shopify</span>
+                    <div><p class="font-serif text-slate-900 text-lg leading-tight mb-1">Creative<br>System Build</p>
+                    <span class="text-[10px] tracking-widest uppercase text-slate-400">Meta · Ireland</span></div>
+                </div>
+                <div class="absolute top-10 right-4 w-10 h-10 rounded-full border-2 border-gold-500/30"></div>
+            </a>
+            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#1E293B;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-500">Motion · Video</span>
+                    <div><p class="font-serif text-white text-lg leading-tight mb-1">Video Ad<br>Production</p>
+                    <span class="text-[10px] tracking-widest uppercase text-slate-500">SaaS · UK</span></div>
+                </div>
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-full border border-gold-500/30">
+                    <i class="fas fa-play text-gold-500 text-xs ml-0.5"></i>
+                </div>
+            </a>
+            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#AEA393;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-white/70">CRO Design · Furniture</span>
+                    <div><p class="font-serif text-white text-lg leading-tight mb-1">Conversion<br>Architecture</p>
+                    <span class="text-[10px] tracking-widest uppercase text-white/50">High-Ticket · UK</span></div>
+                </div>
+            </a>
+            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#FAFAF9;border:1px solid #ddd8d0;">
+                <div class="absolute inset-0 p-5 flex flex-col justify-between">
+                    <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-600">Campaign · EU</span>
+                    <div><p class="font-serif text-slate-900 text-lg leading-tight mb-1">Full Campaign<br>Creative</p>
+                    <span class="text-[10px] tracking-widest uppercase text-slate-400">D2C · Europe</span></div>
+                </div>
+            </a>
+
+        </div>
+    </div>
+
+</section>
+
+<!-- ===================== SERVICES ===================== -->
+<section id="services" class="py-24 bg-white scroll-mt-20">
+    <div class="max-w-5xl mx-auto px-5">
+        <div class="text-center mb-14 reveal">
+            <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-600 mb-3">What Comes Next</p>
+            <h2 class="text-3xl md:text-4xl font-serif text-slate-900">Ongoing engagements</h2>
+            <p class="text-slate-500 font-light mt-3 max-w-lg mx-auto text-sm">Most clients start with the audit. These are the options once we know what needs building.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 reveal">
+            <div class="border border-slate-200 hover:border-gold-500 transition-colors duration-500 p-8 flex flex-col">
+                <p class="text-xs font-bold uppercase tracking-wider text-gold-600 mb-3">Ongoing · 3-month minimum</p>
+                <h3 class="text-2xl font-serif text-slate-900 mb-3">Creative Strategy Retainer</h3>
+                <p class="text-slate-600 font-light mb-5 flex-1 leading-relaxed">Monthly creative direction for your paid channels — the angles, hooks, and briefs your team executes against, plus a performance review call.</p>
+                <ul class="text-sm text-slate-500 font-light space-y-2 mb-6">
+                    <li class="flex gap-2"><i class="fas fa-check text-gold-500 mt-0.5"></i>Monthly creative strategy document</li>
+                    <li class="flex gap-2"><i class="fas fa-check text-gold-500 mt-0.5"></i>Ad-angle and hook frameworks</li>
+                    <li class="flex gap-2"><i class="fas fa-check text-gold-500 mt-0.5"></i>Creative briefs + monthly review call</li>
+                </ul>
+                <a href="mailto:mohit.parmar1005@gmail.com" class="text-xs font-bold tracking-[0.2em] uppercase text-slate-900 hover:text-gold-600 transition-colors">Enquire →</a>
+            </div>
+            <div class="border border-slate-200 hover:border-gold-500 transition-colors duration-500 p-8 flex flex-col">
+                <p class="text-xs font-bold uppercase tracking-wider text-gold-600 mb-3">For Scaling Brands</p>
+                <h3 class="text-2xl font-serif text-slate-900 mb-3">Fractional Creative Lead</h3>
+                <p class="text-slate-600 font-light mb-5 flex-1 leading-relaxed">End-to-end ownership of your creative engine — strategy, production oversight, and reporting — without the overhead of a full-time hire.</p>
+                <ul class="text-sm text-slate-500 font-light space-y-2 mb-6">
+                    <li class="flex gap-2"><i class="fas fa-check text-gold-500 mt-0.5"></i>Everything in the retainer</li>
+                    <li class="flex gap-2"><i class="fas fa-check text-gold-500 mt-0.5"></i>Video and motion production briefing</li>
+                    <li class="flex gap-2"><i class="fas fa-check text-gold-500 mt-0.5"></i>Weekly updates + monthly reporting deck</li>
+                </ul>
+                <a href="mailto:mohit.parmar1005@gmail.com" class="text-xs font-bold tracking-[0.2em] uppercase text-slate-900 hover:text-gold-600 transition-colors">Enquire →</a>
             </div>
         </div>
-    </section>
+    </div>
+</section>
+
+<!-- ===================== WORK ===================== -->
+<section id="work" class="py-24 bg-[#FAFAF9] scroll-mt-20">
+    <div class="max-w-5xl mx-auto px-5">
+        <div class="flex items-center gap-4 mb-16 reveal">
+            <div class="h-px bg-slate-300 flex-1"></div>
+            <span class="text-xs font-bold tracking-[0.2em] uppercase text-slate-400">Selected Work</span>
+            <div class="h-px bg-slate-300 flex-1"></div>
+        </div>
+        <div class="space-y-16">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center reveal">
+                <div class="placeholder-img aspect-[4/3] flex items-center justify-center text-slate-400 text-xs tracking-widest uppercase">
+                    <span><i class="fas fa-image mr-2"></i>Before / after screenshot</span>
+                </div>
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-gold-600 mb-3">UK Luxury Furniture · CRO</p>
+                    <h3 class="text-2xl font-serif text-slate-900 mb-3">High-Ticket Product Pages</h3>
+                    <p class="text-slate-600 font-light mb-2 leading-relaxed"><span class="text-slate-900 font-medium">Problem:</span> Premium furniture, product pages reading like a catalogue — no trust, no hierarchy.</p>
+                    <p class="text-slate-600 font-light mb-5 leading-relaxed"><span class="text-slate-900 font-medium">What I did:</span> Rebuilt the PDP around trust signals and visual hierarchy, guiding the eye to the decision.</p>
+                    <div class="text-3xl font-serif text-slate-900">+32% <span class="text-base font-sans text-slate-400 font-light">conversion uplift</span></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center reveal">
+                <div class="order-2 md:order-1">
+                    <p class="text-xs font-bold uppercase tracking-wider text-gold-600 mb-3">Multi-Brand Furniture Group · Paid Media</p>
+                    <h3 class="text-2xl font-serif text-slate-900 mb-3">Performance Max at Scale</h3>
+                    <p class="text-slate-600 font-light mb-2 leading-relaxed"><span class="text-slate-900 font-medium">Problem:</span> ROAS stuck near 2.1x across a large product range on Google PMAX.</p>
+                    <p class="text-slate-600 font-light mb-5 leading-relaxed"><span class="text-slate-900 font-medium">What I did:</span> Restructured creative assets to align with algorithmic intent across 145 brands.</p>
+                    <div class="text-3xl font-serif text-slate-900">4.8x <span class="text-base font-sans text-slate-400 font-light">ROAS</span></div>
+                </div>
+                <div class="placeholder-img aspect-[4/3] flex items-center justify-center text-slate-400 text-xs tracking-widest uppercase order-1 md:order-2">
+                    <span><i class="fas fa-image mr-2"></i>Campaign screenshot</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center reveal">
+                <div class="placeholder-img aspect-[4/3] flex items-center justify-center text-slate-400 text-xs tracking-widest uppercase">
+                    <span><i class="fas fa-image mr-2"></i>Workflow / asset grid</span>
+                </div>
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-gold-600 mb-3">40,000+ SKU Catalogue · Production</p>
+                    <h3 class="text-2xl font-serif text-slate-900 mb-3">GenAI Production Pipeline</h3>
+                    <p class="text-slate-600 font-light mb-2 leading-relaxed"><span class="text-slate-900 font-medium">Problem:</span> Asset production couldn't keep pace with testing demand at catalogue scale.</p>
+                    <p class="text-slate-600 font-light mb-5 leading-relaxed"><span class="text-slate-900 font-medium">What I did:</span> Built a GenAI-assisted workflow that cut cost-per-asset and sped up variation testing.</p>
+                    <div class="text-3xl font-serif text-slate-900">5x <span class="text-base font-sans text-slate-400 font-light">faster output</span></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ===================== ABOUT ===================== -->
+<section id="about" class="py-24 bg-white scroll-mt-20">
+    <div class="max-w-5xl mx-auto px-5">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-10 items-center reveal">
+            <div class="md:col-span-2">
+                <!-- Replace with: <img src="mohit.jpg" alt="Mohit Parmar" class="w-full rounded-sm"> -->
+                <div class="placeholder-img aspect-[4/5] flex items-center justify-center text-slate-400 text-xs tracking-widest uppercase">
+                    <span><i class="fas fa-user mr-2"></i>Your photo</span>
+                </div>
+            </div>
+            <div class="md:col-span-3 space-y-5">
+                <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-600">About</p>
+                <h2 class="text-3xl md:text-4xl font-serif text-slate-900 leading-tight">Ten years turning creative into revenue.</h2>
+                <p class="text-slate-600 font-light leading-relaxed">
+                    I'm Mohit — a creative strategist with a decade across motion, VFX, and performance marketing.
+                    I sit at the gap between high-end visual craft and the hard metrics of paid media, which means
+                    I can both build the creative and tell you exactly why it will or won't convert.
+                </p>
+                <p class="text-slate-600 font-light leading-relaxed">
+                    I work remotely with high-ticket D2C and e-commerce brands across the UK, Ireland, Canada, and the EU.
+                </p>
+                <ul class="text-sm text-slate-500 font-light space-y-2 pt-1">
+                    <li class="flex gap-3"><i class="fas fa-check text-gold-500 mt-0.5"></i>10+ years in motion, VFX &amp; performance marketing</li>
+                    <li class="flex gap-3"><i class="fas fa-check text-gold-500 mt-0.5"></i>Worked with UK furniture &amp; e-commerce brands</li>
+                    <li class="flex gap-3"><i class="fas fa-check text-gold-500 mt-0.5"></i>ISO 27001 Internal ISMS Lead Auditor</li>
+                </ul>
+                <!-- Replace with your real LinkedIn URL -->
+                <a href="https://www.linkedin.com/in/REPLACE-YOUR-HANDLE" target="_blank" rel="noopener"
+                   class="inline-flex items-center gap-2 text-xs font-bold tracking-[0.2em] uppercase text-slate-900 hover:text-gold-600 transition-colors pt-1">
+                    <i class="fab fa-linkedin"></i> Connect on LinkedIn
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== TESTIMONIALS ===================== -->
+<section class="py-24 bg-[#FAFAF9]">
+    <div class="max-w-5xl mx-auto px-5">
+        <div class="text-center mb-12 reveal">
+            <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-600 mb-3">What Clients Say</p>
+            <h2 class="text-3xl md:text-4xl font-serif text-slate-900">Words from the brands</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 reveal">
+            <figure class="bg-white border border-slate-200 p-7">
+                <i class="fas fa-quote-left text-gold-500 mb-4 block"></i>
+                <blockquote class="text-slate-600 font-light leading-relaxed mb-5 text-sm">[Replace with a real client quote about the result you delivered and what it was like to work with you.]</blockquote>
+                <figcaption class="text-sm"><span class="font-medium text-slate-900">Client Name</span><br><span class="text-slate-400 text-xs">Role, Brand · UK</span></figcaption>
+            </figure>
+            <figure class="bg-white border border-slate-200 p-7">
+                <i class="fas fa-quote-left text-gold-500 mb-4 block"></i>
+                <blockquote class="text-slate-600 font-light leading-relaxed mb-5 text-sm">[Replace with a real client quote — ideally one that mentions a specific metric or outcome.]</blockquote>
+                <figcaption class="text-sm"><span class="font-medium text-slate-900">Client Name</span><br><span class="text-slate-400 text-xs">Role, Brand · Ireland</span></figcaption>
+            </figure>
+            <figure class="bg-white border border-slate-200 p-7">
+                <i class="fas fa-quote-left text-gold-500 mb-4 block"></i>
+                <blockquote class="text-slate-600 font-light leading-relaxed mb-5 text-sm">[Replace with a real client quote. LinkedIn recommendations are a strong source for these.]</blockquote>
+                <figcaption class="text-sm"><span class="font-medium text-slate-900">Client Name</span><br><span class="text-slate-400 text-xs">Role, Brand · Canada</span></figcaption>
+            </figure>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== FINAL CTA ===================== -->
+<section class="py-20 bg-white border-y border-slate-200 text-center">
+    <div class="max-w-xl mx-auto px-5 reveal">
+        <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-600 mb-4">Ready to start?</p>
+        <h2 class="text-3xl md:text-4xl font-serif text-slate-900 mb-5 leading-tight">Find out exactly what's costing you conversions.</h2>
+        <p class="text-slate-500 font-light mb-8 text-sm leading-relaxed">Start with the £150 creative audit. No retainer. No commitment. A clear fix list in 48 hours.</p>
+        <a href="#audit" class="inline-block bg-slate-900 text-white px-10 py-4 text-xs font-bold tracking-[0.2em] uppercase hover:bg-gold-600 transition-colors duration-300">
+            Get Your Creative Audit — £150
+        </a>
+    </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="bg-slate-900 border-t border-slate-800 py-10">
+    <div class="max-w-6xl mx-auto px-5 flex flex-col md:flex-row justify-between items-center gap-5 text-xs tracking-widest uppercase text-slate-500">
+        <span class="font-serif text-slate-300 tracking-[0.2em]">Mohit Parmar</span>
+        <span>UK · Ireland · Canada · EU — Remote</span>
+        <div class="flex gap-6">
+            <a href="https://www.linkedin.com/in/REPLACE-YOUR-HANDLE" target="_blank" rel="noopener" class="hover:text-gold-500 transition-colors"><i class="fab fa-linkedin text-lg"></i></a>
+            <a href="mailto:mohit.parmar1005@gmail.com" class="hover:text-gold-500 transition-colors"><i class="fas fa-envelope text-lg"></i></a>
+        </div>
+    </div>
+</footer>
+
+<!-- ===================== SCRIPTS ===================== -->
+<script>
+    // Mobile menu toggle
+    const menuBtn  = document.getElementById('menuBtn');
+    const menuIcon = document.getElementById('menuIcon');
+    const menu     = document.getElementById('mobileMenu');
+
+    menuBtn.addEventListener('click', () => {
+        const open = menu.classList.toggle('hidden');
+        menuIcon.className = open ? 'fas fa-bars text-lg' : 'fas fa-times text-lg';
+    });
+
+    document.querySelectorAll('.mobile-link').forEach(link =>
+        link.addEventListener('click', () => {
+            menu.classList.add('hidden');
+            menuIcon.className = 'fas fa-bars text-lg';
+        })
+    );
+
+    // Nav style on scroll
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+        nav.classList.toggle('shadow-sm', window.scrollY > 30);
+        nav.classList.toggle('py-3',     window.scrollY > 30);
+        nav.classList.toggle('py-5',     window.scrollY <= 30);
+    }, { passive: true });
+
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.classList.add('visible');
+                observer.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
 
 </body>
 </html>
