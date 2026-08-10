@@ -4,17 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- SEO: replace mohitparmar.com with your real domain -->
     <title>Mohit Parmar | Creative Strategist & CRO for High-Ticket D2C Brands</title>
     <meta name="description" content="Paid creative audit and freelance creative strategy for high-ticket D2C and e-commerce brands. Ad creative review + PDP audit delivered in 48 hours. Working with brands across the UK, Ireland, Canada & EU.">
-    <link rel="canonical" href="https://www.mohitparmar.com/">
+    <link rel="canonical" href="https://www.mohitparmar.co.in/">
     <meta name="robots" content="index, follow">
 
     <meta property="og:type" content="website">
     <meta property="og:title" content="Mohit Parmar | Creative Strategist & CRO for High-Ticket D2C">
     <meta property="og:description" content="Find out exactly why your ads and product pages aren't converting — paid creative audit in 48 hours.">
-    <meta property="og:url" content="https://www.mohitparmar.com/">
-    <meta property="og:image" content="https://www.mohitparmar.com/og-image.jpg">
+    <meta property="og:url" content="https://www.mohitparmar.co.in/">
     <meta name="twitter:card" content="summary_large_image">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -108,6 +106,26 @@
         .audit-input:focus { border-color: #C5A059; }
         .audit-input::placeholder { color: #64748b; }
         .audit-select option { background: #1e293b; color: white; }
+
+        :focus-visible {
+            outline: 3px solid #C5A059;
+            outline-offset: 4px;
+        }
+        .skip-link {
+            position: fixed; left: 1rem; top: -5rem; z-index: 100;
+            background: #fff; color: #0F172A; padding: .75rem 1rem;
+            font-weight: 700;
+        }
+        .skip-link:focus { top: 1rem; }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+            }
+            .hero-content, .reveal { opacity: 1; transform: none; }
+        }
     </style>
 
     <script type="application/ld+json">
@@ -116,9 +134,8 @@
       "@type": "Person",
       "name": "Mohit Parmar",
       "jobTitle": "Creative Strategist & CRO Consultant",
-      "url": "https://www.mohitparmar.com/",
-      "email": "mailto:mohit.parmar1005@gmail.com",
-      "sameAs": ["https://www.linkedin.com/in/REPLACE-YOUR-HANDLE"],
+      "url": "https://www.mohitparmar.co.in/",
+      "email": "mailto:mohit.parmar110@gmail.com",
       "knowsAbout": ["Creative Strategy","Conversion Rate Optimization","Performance Max","D2C Marketing","Shopify","Ad Creative"],
       "address": { "@type": "PostalAddress", "addressLocality": "Mumbai", "addressCountry": "IN" }
     }
@@ -129,7 +146,7 @@
       "@type": "ProfessionalService",
       "name": "Mohit Parmar — Creative Strategy & CRO",
       "description": "Paid creative audit and creative strategy for high-ticket D2C and e-commerce brands.",
-      "url": "https://www.mohitparmar.com/",
+      "url": "https://www.mohitparmar.co.in/",
       "priceRange": "£150 – £2,500",
       "areaServed": ["United Kingdom","Ireland","Canada","European Union"],
       "serviceType": ["Creative Audit","Creative Strategy","CRO","Ad Creative Direction"]
@@ -138,13 +155,14 @@
 </head>
 
 <body class="bg-[#FAFAF9] text-slate-900 font-sans antialiased bg-noise selection:bg-slate-900 selection:text-white">
+<a class="skip-link" href="#main-content">Skip to main content</a>
 
 <!-- ===================== NAV ===================== -->
 <!-- lg: breakpoint so hamburger always shows on phones/tablets -->
 <nav id="nav" class="fixed w-full z-50 bg-[#FAFAF9]/95 backdrop-blur-sm transition-all duration-300 py-5">
     <div class="max-w-6xl mx-auto px-5 flex justify-between items-center">
 
-        <a href="#" class="text-base font-serif font-bold tracking-widest text-slate-900">MOHIT PARMAR</a>
+        <a href="#main-content" class="text-base font-serif font-bold tracking-widest text-slate-900" aria-label="Mohit Parmar, home">MOHIT PARMAR</a>
 
         <!-- Desktop links — only shows at lg (1024px+) -->
         <div class="hidden lg:flex items-center gap-8 text-xs font-bold tracking-[0.18em] uppercase text-slate-500">
@@ -159,7 +177,7 @@
         </div>
 
         <!-- Hamburger — shows below lg -->
-        <button id="menuBtn" class="lg:hidden flex items-center justify-center w-10 h-10 text-slate-900" aria-label="Menu">
+        <button id="menuBtn" class="lg:hidden flex items-center justify-center w-11 h-11 text-slate-900" aria-label="Open navigation menu" aria-controls="mobileMenu" aria-expanded="false">
             <i id="menuIcon" class="fas fa-bars text-lg"></i>
         </button>
     </div>
@@ -171,14 +189,15 @@
             <a href="#services" class="mobile-link text-slate-700 hover:text-gold-600 transition-colors py-2 border-b border-slate-100">Services</a>
             <a href="#work"     class="mobile-link text-slate-700 hover:text-gold-600 transition-colors py-2 border-b border-slate-100">Work</a>
             <a href="#about"    class="mobile-link text-slate-700 hover:text-gold-600 transition-colors py-2 border-b border-slate-100">About</a>
-            <a href="mailto:mohit.parmar1005@gmail.com" class="text-gold-600 py-2">mohit.parmar1005@gmail.com</a>
+            <a href="mailto:mohit.parmar110@gmail.com" class="text-gold-600 py-2 normal-case tracking-normal">mohit.parmar110@gmail.com</a>
         </div>
     </div>
 </nav>
 
 <!-- ===================== HERO ===================== -->
 <!-- Mobile: generous padding instead of full-viewport height -->
-<header class="pt-36 pb-24 md:pt-0 md:pb-0 md:min-h-screen md:flex md:items-center md:justify-center">
+<main id="main-content">
+<header class="pt-32 pb-20 sm:pt-36 sm:pb-24 md:pt-0 md:pb-0 md:min-h-screen md:flex md:items-center md:justify-center">
     <div class="max-w-4xl mx-auto px-5 text-center hero-content">
 
         <p class="text-xs font-bold tracking-[0.3em] uppercase text-gold-600 mb-6">
@@ -351,18 +370,23 @@
             </div>
         </div>
 
-        <!-- Audit form -->
-        <!-- Replace action URL with your Formspree endpoint (free at formspree.io) -->
+        <!-- Audit enquiry form: opens the visitor's email app with the details pre-filled. -->
         <div class="max-w-2xl mx-auto reveal">
             <p class="text-center text-xs font-bold tracking-[0.2em] uppercase text-slate-500 mb-7">Apply for your audit</p>
-            <form action="https://formspree.io/f/REPLACE-YOUR-ID" method="POST">
+            <form id="auditForm">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <input class="audit-input" type="text"  name="name"      required placeholder="Your name">
-                    <input class="audit-input" type="email" name="email"     required placeholder="Email address">
-                    <input class="audit-input" type="text"  name="brand"     required placeholder="Brand / company name">
-                    <input class="audit-input" type="url"   name="store_url" required placeholder="Store URL">
-                    <input class="audit-input" type="url"   name="ad_url"    placeholder="Link to a live ad (optional)">
-                    <select class="audit-input" name="market">
+                    <label class="sr-only" for="audit-name">Your name</label>
+                    <input id="audit-name" class="audit-input" type="text" name="name" autocomplete="name" required placeholder="Your name">
+                    <label class="sr-only" for="audit-email">Email address</label>
+                    <input id="audit-email" class="audit-input" type="email" name="email" autocomplete="email" required placeholder="Email address">
+                    <label class="sr-only" for="audit-brand">Brand or company name</label>
+                    <input id="audit-brand" class="audit-input" type="text" name="brand" autocomplete="organization" required placeholder="Brand / company name">
+                    <label class="sr-only" for="audit-store">Store URL</label>
+                    <input id="audit-store" class="audit-input" type="url" name="store_url" inputmode="url" required placeholder="Store URL">
+                    <label class="sr-only" for="audit-ad">Link to a live ad (optional)</label>
+                    <input id="audit-ad" class="audit-input" type="url" name="ad_url" inputmode="url" placeholder="Link to a live ad (optional)">
+                    <label class="sr-only" for="audit-market">Your market</label>
+                    <select id="audit-market" class="audit-input audit-select" name="market">
                         <option value="">Your market</option>
                         <option value="UK">UK — £150</option>
                         <option value="Ireland">Ireland — €175</option>
@@ -371,13 +395,14 @@
                         <option value="India">India — ₹16,000</option>
                     </select>
                 </div>
-                <textarea class="audit-input mb-4" name="problem" rows="3" placeholder="What's the main thing you want me to look at?"></textarea>
+                <label class="sr-only" for="audit-problem">What should Mohit review?</label>
+                <textarea id="audit-problem" class="audit-input mb-4" name="problem" rows="3" placeholder="What's the main thing you want me to look at?"></textarea>
                 <button type="submit"
                         class="w-full bg-gold-500 text-slate-900 py-4 text-xs font-bold tracking-[0.2em] uppercase hover:bg-white transition-colors duration-300">
-                    Submit — I'll Send Your Payment Link Within 2 Hours
+                    Email Your Audit Request
                 </button>
             </form>
-            <p class="text-center text-slate-600 text-xs mt-5 font-light">No retainer. No commitment. Just a clear picture of what to fix.</p>
+            <p class="text-center text-slate-500 text-xs mt-5 font-light">This opens your email app with your answers pre-filled. No retainer. No commitment.</p>
         </div>
 
     </div>
@@ -395,14 +420,14 @@
     <div class="max-w-6xl mx-auto px-5 text-center mb-12 reveal">
         <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-600 mb-3">Portfolio</p>
         <h2 class="text-3xl md:text-4xl font-serif text-slate-900">The work, at a glance</h2>
-        <p class="text-slate-400 font-light mt-2 text-sm">Hover to pause.</p>
+        <p class="text-slate-500 font-light mt-2 text-sm">Select a tile to jump to the related case-study summary.</p>
     </div>
 
     <!-- Row 1 → scrolls left — landscape banners 320×200 -->
     <div class="marquee-wrap mb-4">
         <div class="marquee-l gap-4 px-2">
 
-            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#0F172A;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[300px] h-[190px]" style="background:#0F172A;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-500">Meta Ad · Furniture</span>
                     <div><p class="font-serif text-white text-xl leading-tight mb-1">High-Ticket<br>Ad Creative</p>
@@ -411,7 +436,7 @@
                 <div class="absolute right-0 top-0 w-20 h-full opacity-10" style="background:linear-gradient(135deg,#C5A059,transparent);"></div>
             </a>
 
-            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#C5A059;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[300px] h-[190px]" style="background:#C5A059;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-slate-900/60">Performance Max · E-Commerce</span>
                     <div><p class="font-serif text-slate-900 text-xl leading-tight mb-1">PMAX<br>Asset Suite</p>
@@ -420,7 +445,7 @@
                 <div class="absolute right-5 top-1/2 -translate-y-1/2 text-6xl font-serif text-slate-900/10">4.8x</div>
             </a>
 
-            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#F0ECE6;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[300px] h-[190px]" style="background:#F0ECE6;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-600">Hero Banner · D2C</span>
                     <div><p class="font-serif text-slate-900 text-xl leading-tight mb-1">Brand Campaign<br>Creative</p>
@@ -429,7 +454,7 @@
                 <div class="absolute right-0 bottom-0 w-28 h-28 rounded-full opacity-20 -mr-6 -mb-6" style="background:#C5A059;"></div>
             </a>
 
-            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#BFA77F;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[300px] h-[190px]" style="background:#BFA77F;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-white/70">Email Creative · Lifestyle</span>
                     <div><p class="font-serif text-white text-xl leading-tight mb-1">Email Header<br>System</p>
@@ -437,7 +462,7 @@
                 </div>
             </a>
 
-            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#1E293B;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[300px] h-[190px]" style="background:#1E293B;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-500">YouTube · Thumbnail</span>
                     <div><p class="font-serif text-white text-xl leading-tight mb-1">Video Creative<br>Thumbnail</p>
@@ -448,7 +473,7 @@
                 </div>
             </a>
 
-            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#FAFAF9;border:1px solid #ddd8d0;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[300px] h-[190px]" style="background:#FAFAF9;border:1px solid #ddd8d0;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-600">Story Ad · Beauty</span>
                     <div><p class="font-serif text-slate-900 text-xl leading-tight mb-1">Social Creative<br>System</p>
@@ -457,7 +482,7 @@
             </a>
 
             <!-- Duplicate for seamless loop -->
-            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#0F172A;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[300px] h-[190px]" style="background:#0F172A;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-500">Meta Ad · Furniture</span>
                     <div><p class="font-serif text-white text-xl leading-tight mb-1">High-Ticket<br>Ad Creative</p>
@@ -465,7 +490,7 @@
                 </div>
                 <div class="absolute right-0 top-0 w-20 h-full opacity-10" style="background:linear-gradient(135deg,#C5A059,transparent);"></div>
             </a>
-            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#C5A059;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[300px] h-[190px]" style="background:#C5A059;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-slate-900/60">Performance Max · E-Commerce</span>
                     <div><p class="font-serif text-slate-900 text-xl leading-tight mb-1">PMAX<br>Asset Suite</p>
@@ -473,7 +498,7 @@
                 </div>
                 <div class="absolute right-5 top-1/2 -translate-y-1/2 text-6xl font-serif text-slate-900/10">4.8x</div>
             </a>
-            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#F0ECE6;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[300px] h-[190px]" style="background:#F0ECE6;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-600">Hero Banner · D2C</span>
                     <div><p class="font-serif text-slate-900 text-xl leading-tight mb-1">Brand Campaign<br>Creative</p>
@@ -481,14 +506,14 @@
                 </div>
                 <div class="absolute right-0 bottom-0 w-28 h-28 rounded-full opacity-20 -mr-6 -mb-6" style="background:#C5A059;"></div>
             </a>
-            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#BFA77F;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[300px] h-[190px]" style="background:#BFA77F;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-white/70">Email Creative · Lifestyle</span>
                     <div><p class="font-serif text-white text-xl leading-tight mb-1">Email Header<br>System</p>
                     <span class="text-[10px] tracking-widest uppercase text-white/50">D2C · EU</span></div>
                 </div>
             </a>
-            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#1E293B;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[300px] h-[190px]" style="background:#1E293B;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-500">YouTube · Thumbnail</span>
                     <div><p class="font-serif text-white text-xl leading-tight mb-1">Video Creative<br>Thumbnail</p>
@@ -498,7 +523,7 @@
                     <i class="fas fa-play text-gold-500 text-xs ml-0.5"></i>
                 </div>
             </a>
-            <a href="#audit" class="port-card w-[300px] h-[190px]" style="background:#FAFAF9;border:1px solid #ddd8d0;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[300px] h-[190px]" style="background:#FAFAF9;border:1px solid #ddd8d0;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-600">Story Ad · Beauty</span>
                     <div><p class="font-serif text-slate-900 text-xl leading-tight mb-1">Social Creative<br>System</p>
@@ -513,7 +538,7 @@
     <div class="marquee-wrap">
         <div class="marquee-r gap-4 px-2">
 
-            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#0F172A;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[210px] h-[270px]" style="background:#0F172A;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-500">PDP Design · High-Ticket</span>
                     <div><p class="font-serif text-white text-lg leading-tight mb-1">Product Page<br>Architecture</p>
@@ -522,7 +547,7 @@
                 <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl font-serif text-white/5">+32%</div>
             </a>
 
-            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#C5A059;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[210px] h-[270px]" style="background:#C5A059;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-slate-900/60">Brand Identity · D2C</span>
                     <div><p class="font-serif text-slate-900 text-lg leading-tight mb-1">Visual Trust<br>Framework</p>
@@ -530,7 +555,7 @@
                 </div>
             </a>
 
-            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#F0ECE6;border:1px solid #ddd8d0;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[210px] h-[270px]" style="background:#F0ECE6;border:1px solid #ddd8d0;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-600">Ad Creative · Shopify</span>
                     <div><p class="font-serif text-slate-900 text-lg leading-tight mb-1">Creative<br>System Build</p>
@@ -539,7 +564,7 @@
                 <div class="absolute top-10 right-4 w-10 h-10 rounded-full border-2 border-gold-500/30"></div>
             </a>
 
-            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#1E293B;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[210px] h-[270px]" style="background:#1E293B;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-500">Motion · Video</span>
                     <div><p class="font-serif text-white text-lg leading-tight mb-1">Video Ad<br>Production</p>
@@ -550,7 +575,7 @@
                 </div>
             </a>
 
-            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#AEA393;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[210px] h-[270px]" style="background:#AEA393;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-white/70">CRO Design · Furniture</span>
                     <div><p class="font-serif text-white text-lg leading-tight mb-1">Conversion<br>Architecture</p>
@@ -558,7 +583,7 @@
                 </div>
             </a>
 
-            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#FAFAF9;border:1px solid #ddd8d0;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[210px] h-[270px]" style="background:#FAFAF9;border:1px solid #ddd8d0;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-600">Campaign · EU</span>
                     <div><p class="font-serif text-slate-900 text-lg leading-tight mb-1">Full Campaign<br>Creative</p>
@@ -567,7 +592,7 @@
             </a>
 
             <!-- Duplicate for seamless loop -->
-            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#0F172A;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[210px] h-[270px]" style="background:#0F172A;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-500">PDP Design · High-Ticket</span>
                     <div><p class="font-serif text-white text-lg leading-tight mb-1">Product Page<br>Architecture</p>
@@ -575,14 +600,14 @@
                 </div>
                 <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl font-serif text-white/5">+32%</div>
             </a>
-            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#C5A059;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[210px] h-[270px]" style="background:#C5A059;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-slate-900/60">Brand Identity · D2C</span>
                     <div><p class="font-serif text-white text-lg leading-tight mb-1">Visual Trust<br>Framework</p>
                     <span class="text-[10px] tracking-widest uppercase text-slate-900/50">EU · Canada</span></div>
                 </div>
             </a>
-            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#F0ECE6;border:1px solid #ddd8d0;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[210px] h-[270px]" style="background:#F0ECE6;border:1px solid #ddd8d0;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-600">Ad Creative · Shopify</span>
                     <div><p class="font-serif text-slate-900 text-lg leading-tight mb-1">Creative<br>System Build</p>
@@ -590,7 +615,7 @@
                 </div>
                 <div class="absolute top-10 right-4 w-10 h-10 rounded-full border-2 border-gold-500/30"></div>
             </a>
-            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#1E293B;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[210px] h-[270px]" style="background:#1E293B;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-500">Motion · Video</span>
                     <div><p class="font-serif text-white text-lg leading-tight mb-1">Video Ad<br>Production</p>
@@ -600,14 +625,14 @@
                     <i class="fas fa-play text-gold-500 text-xs ml-0.5"></i>
                 </div>
             </a>
-            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#AEA393;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[210px] h-[270px]" style="background:#AEA393;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-white/70">CRO Design · Furniture</span>
                     <div><p class="font-serif text-white text-lg leading-tight mb-1">Conversion<br>Architecture</p>
                     <span class="text-[10px] tracking-widest uppercase text-white/50">High-Ticket · UK</span></div>
                 </div>
             </a>
-            <a href="#audit" class="port-card w-[210px] h-[270px]" style="background:#FAFAF9;border:1px solid #ddd8d0;">
+            <a href="#work" aria-label="View the related case-study summary" class="port-card w-[210px] h-[270px]" style="background:#FAFAF9;border:1px solid #ddd8d0;">
                 <div class="absolute inset-0 p-5 flex flex-col justify-between">
                     <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-gold-600">Campaign · EU</span>
                     <div><p class="font-serif text-slate-900 text-lg leading-tight mb-1">Full Campaign<br>Creative</p>
@@ -638,7 +663,7 @@
                     <li class="flex gap-2"><i class="fas fa-check text-gold-500 mt-0.5"></i>Ad-angle and hook frameworks</li>
                     <li class="flex gap-2"><i class="fas fa-check text-gold-500 mt-0.5"></i>Creative briefs + monthly review call</li>
                 </ul>
-                <a href="mailto:mohit.parmar1005@gmail.com" class="text-xs font-bold tracking-[0.2em] uppercase text-slate-900 hover:text-gold-600 transition-colors">Enquire →</a>
+                <a href="mailto:mohit.parmar110@gmail.com" class="text-xs font-bold tracking-[0.2em] uppercase text-slate-900 hover:text-gold-600 transition-colors">Enquire →</a>
             </div>
             <div class="border border-slate-200 hover:border-gold-500 transition-colors duration-500 p-8 flex flex-col">
                 <p class="text-xs font-bold uppercase tracking-wider text-gold-600 mb-3">For Scaling Brands</p>
@@ -649,7 +674,7 @@
                     <li class="flex gap-2"><i class="fas fa-check text-gold-500 mt-0.5"></i>Video and motion production briefing</li>
                     <li class="flex gap-2"><i class="fas fa-check text-gold-500 mt-0.5"></i>Weekly updates + monthly reporting deck</li>
                 </ul>
-                <a href="mailto:mohit.parmar1005@gmail.com" class="text-xs font-bold tracking-[0.2em] uppercase text-slate-900 hover:text-gold-600 transition-colors">Enquire →</a>
+                <a href="mailto:mohit.parmar110@gmail.com" class="text-xs font-bold tracking-[0.2em] uppercase text-slate-900 hover:text-gold-600 transition-colors">Enquire →</a>
             </div>
         </div>
     </div>
@@ -666,8 +691,10 @@
         <div class="space-y-16">
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center reveal">
-                <div class="placeholder-img aspect-[4/3] flex items-center justify-center text-slate-400 text-xs tracking-widest uppercase">
-                    <span><i class="fas fa-image mr-2"></i>Before / after screenshot</span>
+                <div class="aspect-[4/3] flex flex-col items-center justify-center bg-slate-900 text-white" aria-hidden="true">
+                    <span class="text-gold-500 text-xs font-bold tracking-[0.25em] uppercase mb-3">CRO · PDP</span>
+                    <span class="font-serif text-5xl">+32%</span>
+                    <span class="text-slate-400 text-xs tracking-widest uppercase mt-2">Conversion uplift</span>
                 </div>
                 <div>
                     <p class="text-xs font-bold uppercase tracking-wider text-gold-600 mb-3">UK Luxury Furniture · CRO</p>
@@ -686,14 +713,18 @@
                     <p class="text-slate-600 font-light mb-5 leading-relaxed"><span class="text-slate-900 font-medium">What I did:</span> Restructured creative assets to align with algorithmic intent across 145 brands.</p>
                     <div class="text-3xl font-serif text-slate-900">4.8x <span class="text-base font-sans text-slate-400 font-light">ROAS</span></div>
                 </div>
-                <div class="placeholder-img aspect-[4/3] flex items-center justify-center text-slate-400 text-xs tracking-widest uppercase order-1 md:order-2">
-                    <span><i class="fas fa-image mr-2"></i>Campaign screenshot</span>
+                <div class="aspect-[4/3] flex flex-col items-center justify-center bg-gold-500 text-slate-900 order-1 md:order-2" aria-hidden="true">
+                    <span class="text-xs font-bold tracking-[0.25em] uppercase mb-3">Performance Max</span>
+                    <span class="font-serif text-5xl">4.8x</span>
+                    <span class="text-slate-900/60 text-xs tracking-widest uppercase mt-2">ROAS</span>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center reveal">
-                <div class="placeholder-img aspect-[4/3] flex items-center justify-center text-slate-400 text-xs tracking-widest uppercase">
-                    <span><i class="fas fa-image mr-2"></i>Workflow / asset grid</span>
+                <div class="aspect-[4/3] flex flex-col items-center justify-center bg-[#EDE8E0] text-slate-900" aria-hidden="true">
+                    <span class="text-gold-600 text-xs font-bold tracking-[0.25em] uppercase mb-3">GenAI Production</span>
+                    <span class="font-serif text-5xl">5x</span>
+                    <span class="text-slate-500 text-xs tracking-widest uppercase mt-2">Faster output</span>
                 </div>
                 <div>
                     <p class="text-xs font-bold uppercase tracking-wider text-gold-600 mb-3">40,000+ SKU Catalogue · Production</p>
@@ -711,14 +742,8 @@
 <!-- ===================== ABOUT ===================== -->
 <section id="about" class="py-24 bg-white scroll-mt-20">
     <div class="max-w-5xl mx-auto px-5">
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-10 items-center reveal">
-            <div class="md:col-span-2">
-                <!-- Replace with: <img src="mohit.jpg" alt="Mohit Parmar" class="w-full rounded-sm"> -->
-                <div class="placeholder-img aspect-[4/5] flex items-center justify-center text-slate-400 text-xs tracking-widest uppercase">
-                    <span><i class="fas fa-user mr-2"></i>Your photo</span>
-                </div>
-            </div>
-            <div class="md:col-span-3 space-y-5">
+        <div class="reveal">
+            <div class="max-w-3xl mx-auto space-y-5">
                 <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-600">About</p>
                 <h2 class="text-3xl md:text-4xl font-serif text-slate-900 leading-tight">Ten years turning creative into revenue.</h2>
                 <p class="text-slate-600 font-light leading-relaxed">
@@ -734,39 +759,11 @@
                     <li class="flex gap-3"><i class="fas fa-check text-gold-500 mt-0.5"></i>Worked with UK furniture &amp; e-commerce brands</li>
                     <li class="flex gap-3"><i class="fas fa-check text-gold-500 mt-0.5"></i>ISO 27001 Internal ISMS Lead Auditor</li>
                 </ul>
-                <!-- Replace with your real LinkedIn URL -->
-                <a href="https://www.linkedin.com/in/REPLACE-YOUR-HANDLE" target="_blank" rel="noopener"
+                <a href="mailto:mohit.parmar110@gmail.com"
                    class="inline-flex items-center gap-2 text-xs font-bold tracking-[0.2em] uppercase text-slate-900 hover:text-gold-600 transition-colors pt-1">
-                    <i class="fab fa-linkedin"></i> Connect on LinkedIn
+                    <i class="fas fa-envelope" aria-hidden="true"></i> Email Mohit
                 </a>
             </div>
-        </div>
-    </div>
-</section>
-
-<!-- ===================== TESTIMONIALS ===================== -->
-<section class="py-24 bg-[#FAFAF9]">
-    <div class="max-w-5xl mx-auto px-5">
-        <div class="text-center mb-12 reveal">
-            <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-600 mb-3">What Clients Say</p>
-            <h2 class="text-3xl md:text-4xl font-serif text-slate-900">Words from the brands</h2>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 reveal">
-            <figure class="bg-white border border-slate-200 p-7">
-                <i class="fas fa-quote-left text-gold-500 mb-4 block"></i>
-                <blockquote class="text-slate-600 font-light leading-relaxed mb-5 text-sm">[Replace with a real client quote about the result you delivered and what it was like to work with you.]</blockquote>
-                <figcaption class="text-sm"><span class="font-medium text-slate-900">Client Name</span><br><span class="text-slate-400 text-xs">Role, Brand · UK</span></figcaption>
-            </figure>
-            <figure class="bg-white border border-slate-200 p-7">
-                <i class="fas fa-quote-left text-gold-500 mb-4 block"></i>
-                <blockquote class="text-slate-600 font-light leading-relaxed mb-5 text-sm">[Replace with a real client quote — ideally one that mentions a specific metric or outcome.]</blockquote>
-                <figcaption class="text-sm"><span class="font-medium text-slate-900">Client Name</span><br><span class="text-slate-400 text-xs">Role, Brand · Ireland</span></figcaption>
-            </figure>
-            <figure class="bg-white border border-slate-200 p-7">
-                <i class="fas fa-quote-left text-gold-500 mb-4 block"></i>
-                <blockquote class="text-slate-600 font-light leading-relaxed mb-5 text-sm">[Replace with a real client quote. LinkedIn recommendations are a strong source for these.]</blockquote>
-                <figcaption class="text-sm"><span class="font-medium text-slate-900">Client Name</span><br><span class="text-slate-400 text-xs">Role, Brand · Canada</span></figcaption>
-            </figure>
         </div>
     </div>
 </section>
@@ -784,14 +781,14 @@
 </section>
 
 <!-- ===================== FOOTER ===================== -->
+</main>
 <footer class="bg-slate-900 border-t border-slate-800 py-10">
     <div class="max-w-6xl mx-auto px-5 flex flex-col md:flex-row justify-between items-center gap-5 text-xs tracking-widest uppercase text-slate-500">
         <span class="font-serif text-slate-300 tracking-[0.2em]">Mohit Parmar</span>
         <span>UK · Ireland · Canada · EU — Remote</span>
-        <div class="flex gap-6">
-            <a href="https://www.linkedin.com/in/REPLACE-YOUR-HANDLE" target="_blank" rel="noopener" class="hover:text-gold-500 transition-colors"><i class="fab fa-linkedin text-lg"></i></a>
-            <a href="mailto:mohit.parmar1005@gmail.com" class="hover:text-gold-500 transition-colors"><i class="fas fa-envelope text-lg"></i></a>
-        </div>
+        <a href="mailto:mohit.parmar110@gmail.com" class="hover:text-gold-500 transition-colors normal-case tracking-normal" aria-label="Email Mohit Parmar">
+            mohit.parmar110@gmail.com
+        </a>
     </div>
 </footer>
 
@@ -803,16 +800,50 @@
     const menu     = document.getElementById('mobileMenu');
 
     menuBtn.addEventListener('click', () => {
-        const open = menu.classList.toggle('hidden');
-        menuIcon.className = open ? 'fas fa-bars text-lg' : 'fas fa-times text-lg';
+        const isHidden = menu.classList.toggle('hidden');
+        menuBtn.setAttribute('aria-expanded', String(!isHidden));
+        menuBtn.setAttribute('aria-label', isHidden ? 'Open navigation menu' : 'Close navigation menu');
+        menuIcon.className = isHidden ? 'fas fa-bars text-lg' : 'fas fa-times text-lg';
     });
 
     document.querySelectorAll('.mobile-link').forEach(link =>
         link.addEventListener('click', () => {
             menu.classList.add('hidden');
+            menuBtn.setAttribute('aria-expanded', 'false');
+            menuBtn.setAttribute('aria-label', 'Open navigation menu');
             menuIcon.className = 'fas fa-bars text-lg';
         })
     );
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !menu.classList.contains('hidden')) {
+            menu.classList.add('hidden');
+            menuBtn.setAttribute('aria-expanded', 'false');
+            menuBtn.setAttribute('aria-label', 'Open navigation menu');
+            menuIcon.className = 'fas fa-bars text-lg';
+            menuBtn.focus();
+        }
+    });
+
+    const auditForm = document.getElementById('auditForm');
+    auditForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const data = new FormData(auditForm);
+        const value = (name) => String(data.get(name) || '').trim();
+        const subject = `Creative audit request — ${value('brand')}`;
+        const body = [
+            `Name: ${value('name')}`,
+            `Email: ${value('email')}`,
+            `Brand: ${value('brand')}`,
+            `Store: ${value('store_url')}`,
+            `Live ad: ${value('ad_url') || 'Not supplied'}`,
+            `Market: ${value('market') || 'Not supplied'}`,
+            '',
+            'Main review request:',
+            value('problem') || 'Not supplied'
+        ].join('\n');
+        window.location.href = `mailto:mohit.parmar110@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    });
 
     // Nav style on scroll
     const nav = document.getElementById('nav');
