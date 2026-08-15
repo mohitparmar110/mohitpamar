@@ -4,8 +4,13 @@
 > e-commerce brands across the UK, Ireland, Canada, and the EU. Ten years
 > across motion design, VFX, and performance marketing.
 
-## Free tools
-- [Website Audit Tool](https://www.mohitparmar.co.in/audit-tool.html): Instant automated audit covering CRO, SEO, GEO (AI-search visibility), AEO (answer engines), and branding consistency.
+## Website audit tool
+- [Website Audit Tool](https://www.mohitparmar.co.in/audit-tool): Paid automated audit covering CRO, SEO, GEO (AI-search visibility), AEO (answer engines), and branding consistency.
+
+## Legal
+- [Terms of Service](https://www.mohitparmar.co.in/terms-of-service)
+- [Privacy Policy](https://www.mohitparmar.co.in/privacy-policy)
+- [Refund Policy](https://www.mohitparmar.co.in/refund-policy)
 
 ## Services
 - [Creative Audit — £150](https://www.mohitparmar.co.in/#audit): Ad creative review, product page audit, and a priority fix list, delivered as a Loom walkthrough plus written notes within 48 hours.
