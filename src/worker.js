@@ -4,9 +4,12 @@
 // only runs when no static file matched the request. That means our
 // /api/* routes reach this handler naturally, with zero extra routing
 // config needed (no run_worker_first required).
+//
+// Note: there's no /api/create-order route. Paddle's checkout opens
+// directly from the browser using a public client-side token — no
+// server-side order creation needed, unlike the old Razorpay flow.
 
 import { handleAudit } from "./audit.js";
-import { handleCreateOrder } from "./create-order.js";
 import { handleVerifyPayment } from "./verify-payment.js";
 
 export default {
@@ -19,9 +22,6 @@ export default {
 
     if (url.pathname === "/api/audit" && request.method === "POST") {
       return handleAudit(request, env);
-    }
-    if (url.pathname === "/api/create-order" && request.method === "POST") {
-      return handleCreateOrder(request, env);
     }
     if (url.pathname === "/api/verify-payment" && request.method === "POST") {
       return handleVerifyPayment(request, env);
