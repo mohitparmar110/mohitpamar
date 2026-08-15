@@ -129,6 +129,10 @@
         <button id="payBtn" class="w-full min-h-14 bg-gold-500 text-slate-900 px-8 py-4 text-xs font-bold tracking-[0.2em] uppercase hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
           <span data-i18n="payButton">Pay &amp; Run Audit</span>
         </button>
+        <button id="demoBtn" type="button" class="w-full mt-3 min-h-12 border border-slate-600 text-slate-200 px-6 py-3 text-xs font-bold tracking-[0.16em] uppercase hover:border-gold-500 hover:text-gold-500 transition-colors">
+          Preview sample report
+        </button>
+        <p class="text-[11px] text-slate-500 mt-2">No payment required. Uses fictional sample data and does not audit your URL.</p>
         <p id="statusLine" class="text-xs text-slate-500 mt-4 min-h-[1rem]" role="status" aria-live="polite"></p>
         <div class="trust-row mt-5"><span class="trust-pill"><i class="fas fa-lock mr-1 text-gold-500"></i> Secure Razorpay checkout</span><span class="trust-pill">No subscription</span><span class="trust-pill">24-hour report access</span></div>
         <p class="text-[11px] text-slate-500 mt-5 leading-relaxed">By continuing, you agree to the <a class="text-gold-500 hover:text-white" href="/terms-of-service">Terms</a> and acknowledge the <a class="text-gold-500 hover:text-white" href="/privacy-policy">Privacy</a> and <a class="text-gold-500 hover:text-white" href="/refund-policy">Refund</a> policies.</p>
@@ -138,7 +142,7 @@
     <!-- Results -->
     <div id="results" class="hidden space-y-8 mt-16 pt-12 border-t border-slate-800">
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 report-panel">
-        <div><p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-500 mb-2">Paid evidence-based audit</p><h2 id="reportTitle" class="font-serif text-3xl md:text-5xl mb-2"></h2><p id="reportMeta" class="text-slate-400 text-sm"></p></div>
+        <div><p id="reportKicker" class="text-xs font-bold tracking-[0.2em] uppercase text-gold-500 mb-2">Paid evidence-based audit</p><h2 id="reportTitle" class="font-serif text-3xl md:text-5xl mb-2"></h2><p id="reportMeta" class="text-slate-400 text-sm"></p></div>
         <button class="pdf-button no-print" type="button" onclick="window.print()"><i class="fas fa-file-pdf mr-2"></i>Download PDF</button>
       </div>
       <div id="scoreGrid" class="score-grid"></div>
@@ -417,6 +421,59 @@ function resetPayBtn() {
   $('payBtn').innerHTML = `<span data-i18n="payButton">${t('payButton')}</span>`;
 }
 
+const SAMPLE_REPORT = {
+  demo: true, url: 'https://sample-business.example/', generatedAt: '2026-08-16T00:00:00.000Z',
+  scores: { performance:62, seo:78, geo:54, aeo:48, cro:71, branding:84 },
+  pageSpeed: {
+    mobile: { available:true, scores:{ performance:62, accessibility:91, bestPractices:96, seo:78 },
+      lab:{ fcpMs:2100, lcpMs:3400, tbtMs:280, cls:.14, speedIndexMs:3900, ttfbMs:720 },
+      field:{ lcpMs:3200, inpMs:240, cls:.12, fcpMs:1900, ttfbMs:690 },
+      opportunities:[
+        { title:'Serve images in next-generation formats', savingsMs:980 },
+        { title:'Remove unused JavaScript', savingsMs:640 },
+        { title:'Eliminate render-blocking resources', savingsMs:420 },
+      ] },
+    desktop: { available:true, scores:{ performance:88, accessibility:94, bestPractices:96, seo:82 }, lab:{} },
+  },
+  competitors: [
+    { url:'https://competitor-alpha.example/', available:true, scores:{ performance:76, seo:85, geo:63, aeo:58, cro:68, branding:79 } },
+    { url:'https://competitor-beta.example/', available:true, scores:{ performance:55, seo:72, geo:67, aeo:65, cro:74, branding:70 } },
+  ],
+  signals: { topColors:[{color:'#0F172A',count:18},{color:'#C5A059',count:12},{color:'#F8FAFC',count:9}], botAccess:{blockedAiBots:[]} },
+  analysis: {
+    topPriorities:[
+      'Compress the hero media and preload the primary visual to improve mobile LCP.',
+      'Add clear Organization and Service structured data with consistent entity details.',
+      'Rewrite the primary CTA around one outcome and support it with proof near the decision point.',
+    ],
+    cro:[
+      {severity:'high',finding:'The primary action competes with several secondary links above the fold.',fix:'Use one outcome-led primary CTA and move exploratory links below the first proof section.'},
+      {severity:'medium',finding:'Trust evidence appears late in the journey.',fix:'Place a concise testimonial or verified result directly beside the primary CTA.'},
+    ],
+    seo:[
+      {severity:'high',finding:'The title communicates the brand but not the main search intent.',fix:'Lead with the core service and audience, then append the brand name.'},
+      {severity:'medium',finding:'Important service pages have limited internal-link support.',fix:'Create contextual links from relevant case studies using descriptive anchor text.'},
+    ],
+    geo:[
+      {severity:'high',finding:'The business entity is not clearly defined in structured data.',fix:'Add Organization and Service schema with consistent identity and sameAs references.'},
+      {severity:'medium',finding:'Key expertise statements are spread across long marketing paragraphs.',fix:'Add concise, attributable answer blocks describing the audience and delivered outcome.'},
+    ],
+    aeo:[
+      {severity:'high',finding:'Few headings use the questions prospects actually ask.',fix:'Add question-led sections with a direct 40–60 word answer and supporting detail.'},
+      {severity:'medium',finding:'No FAQ structured data was detected.',fix:'Add a focused FAQ for genuine on-page questions and mark it up accurately.'},
+    ],
+    branding:[
+      {severity:'low',finding:'The core navy and gold palette is distinctive and consistently repeated.',fix:'Document the palette as design tokens so new pages preserve the hierarchy.'},
+      {severity:'medium',finding:'Several text sizes create unnecessary visual variation.',fix:'Use a repeatable display, heading, body, and caption scale.'},
+    ],
+  },
+};
+
+$('demoBtn').addEventListener('click', () => {
+  setStatus('Showing a fictional demonstration. No payment or live audit was performed.');
+  renderResults(SAMPLE_REPORT);
+});
+
 $('payBtn').addEventListener('click', async () => {
   const raw = $('urlInput').value.trim();
   if (!raw) { setStatus(t('errNoUrl'), true); return; }
@@ -547,8 +604,11 @@ function escapeHtml(s) {
 
 function renderResults(data) {
   $('results').classList.remove('hidden');
+  $('reportKicker').textContent = data.demo ? 'Sample report · Fictional data' : 'Paid evidence-based audit';
   $('reportTitle').textContent = `Audit report for ${new URL(data.url).hostname}`;
-  $('reportMeta').textContent = `Generated ${new Date(data.generatedAt).toLocaleString()} · Measured lab data and extracted public website signals`;
+  $('reportMeta').textContent = data.demo
+    ? 'Demonstration only · Values are illustrative and are not measurements of a real website'
+    : `Generated ${new Date(data.generatedAt).toLocaleString()} · Measured lab data and extracted public website signals`;
 
   const scoreLabels = { performance:'Performance', seo:'SEO', geo:'GEO', aeo:'AEO', cro:'CRO', branding:'Brand' };
   $('scoreGrid').innerHTML = Object.entries(scoreLabels).map(([key,label]) => {
@@ -557,8 +617,8 @@ function renderResults(data) {
   }).join('');
 
   $('performanceSection').innerHTML = renderPerformance(data.pageSpeed);
+  $('competitorSection').classList.toggle('hidden', !data.competitors?.length);
   if (data.competitors?.length) {
-    $('competitorSection').classList.remove('hidden');
     $('competitorSection').innerHTML = renderCompetitors(data);
   }
 
