@@ -14,41 +14,70 @@ export async function handleCreateOrder(request, env) {
     return json({ error: "Invalid request body." }, 400);
   }
 
-  const url = body.url;
-  if (!url) return json({ error: "Missing url." }, 400);
+  const url = normalizeUrl(body.url);
+  if (!url) return json({ error: "Enter a valid website URL." }, 400);
 
-  if (!env.RAZORPAY_KEY_ID || !env.RAZORPAY_KEY_SECRET) {
+  if (!env.RAZORPAY_KEY_ID || !env.RAZORPAY_KEY_SECRET || !env.AUDIT_KV) {
     return json({ error: "Payments not configured yet." }, 500);
   }
 
   const amountPaise = parseInt(env.AUDIT_PRICE_PAISE || "49900", 10);
+  if (!Number.isInteger(amountPaise) || amountPaise < 100) {
+    return json({ error: "Payment amount is not configured correctly." }, 500);
+  }
   const auth = btoa(`${env.RAZORPAY_KEY_ID}:${env.RAZORPAY_KEY_SECRET}`);
 
-  const res = await fetch("https://api.razorpay.com/v1/orders", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Basic ${auth}`,
-    },
-    body: JSON.stringify({
-      amount: amountPaise,
-      currency: "INR",
-      notes: { audit_url: url },
-    }),
-  });
+  let res;
+  try {
+    res = await fetch("https://api.razorpay.com/v1/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Basic ${auth}`,
+      },
+      body: JSON.stringify({
+        amount: amountPaise,
+        currency: "INR",
+        receipt: `audit_${crypto.randomUUID().replaceAll("-", "").slice(0, 24)}`,
+        notes: { audit_url: url },
+      }),
+    });
+  } catch {
+    return json({ error: "Could not reach the payment service. Please try again." }, 502);
+  }
 
   if (!res.ok) {
-    const detail = await res.text();
-    return json({ error: "Could not create payment order.", detail }, 502);
+    return json({ error: "Could not create payment order. Please try again." }, 502);
   }
 
   const order = await res.json();
+  if (!order?.id || order.amount !== amountPaise || order.currency !== "INR") {
+    return json({ error: "Payment service returned an invalid order." }, 502);
+  }
+
+  await env.AUDIT_KV.put(
+    `razorpay-order:${order.id}`,
+    JSON.stringify({ url, amount: amountPaise, currency: "INR" }),
+    { expirationTtl: 60 * 60 }
+  );
+
   return json({
     orderId: order.id,
     amount: order.amount,
     currency: order.currency,
     keyId: env.RAZORPAY_KEY_ID,
   });
+}
+
+function normalizeUrl(input) {
+  if (!input) return null;
+  let value = String(input).trim();
+  if (!/^https?:\/\//i.test(value)) value = `https://${value}`;
+  try {
+    return new URL(value).href;
+  } catch {
+    return null;
+  }
 }
 
 function json(data, status = 200) {

@@ -8,8 +8,8 @@
 <link rel="canonical" href="https://www.mohitparmar.co.in/audit-tool">
 <meta name="robots" content="index, follow">
 <script src="https://cdn.tailwindcss.com"></script>
-<!-- Paddle Billing overlay checkout -->
-<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+<!-- Razorpay Standard Checkout -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
@@ -87,15 +87,14 @@
       <section class="checkout-card" aria-labelledby="checkoutHeading">
         <p class="text-[11px] font-bold tracking-[0.22em] uppercase text-gold-500 mb-3">One website · One report</p>
         <h2 id="checkoutHeading" class="text-3xl font-serif mb-3">Run your paid audit</h2>
-        <p class="text-slate-400 text-sm font-light mb-6" data-i18n="priceNote">Price is shown automatically in your local currency at checkout.</p>
+        <p class="text-slate-400 text-sm font-light mb-6">One-time payment: <strong class="text-white">₹499</strong>. Taxes may apply.</p>
         <label for="urlInput" class="block text-xs font-bold tracking-[0.14em] uppercase text-slate-300 mb-2">Website URL</label>
         <input id="urlInput" class="audit-input mb-3" type="url" inputmode="url" data-i18n-placeholder="urlPlaceholder" placeholder="yourstore.com" autocomplete="url" required>
         <button id="payBtn" class="w-full min-h-14 bg-gold-500 text-slate-900 px-8 py-4 text-xs font-bold tracking-[0.2em] uppercase hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
           <span data-i18n="payButton">Pay &amp; Run Audit</span>
         </button>
-        <p id="configNotice" class="config-notice hidden text-xs text-amber-100 mt-4">Checkout price configuration is still required.</p>
         <p id="statusLine" class="text-xs text-slate-500 mt-4 min-h-[1rem]" role="status" aria-live="polite"></p>
-        <div class="trust-row mt-5"><span class="trust-pill"><i class="fas fa-lock mr-1 text-gold-500"></i> Secure Paddle checkout</span><span class="trust-pill">No subscription</span><span class="trust-pill">24-hour report access</span></div>
+        <div class="trust-row mt-5"><span class="trust-pill"><i class="fas fa-lock mr-1 text-gold-500"></i> Secure Razorpay checkout</span><span class="trust-pill">No subscription</span><span class="trust-pill">24-hour report access</span></div>
         <p class="text-[11px] text-slate-500 mt-5 leading-relaxed">By continuing, you agree to the <a class="text-gold-500 hover:text-white" href="/terms-of-service">Terms</a> and acknowledge the <a class="text-gold-500 hover:text-white" href="/privacy-policy">Privacy</a> and <a class="text-gold-500 hover:text-white" href="/refund-policy">Refund</a> policies.</p>
       </section>
     </div>
@@ -125,16 +124,6 @@
 </main>
 
 <script>
-// =====================================================================
-// CONFIG — fill these in from your Paddle dashboard (Developer Tools →
-// Authentication for the client token; Catalog → Prices for the price
-// ID). Both are safe to be public — the client-side token can only open
-// checkouts, not move money or read account data.
-// =====================================================================
-const PADDLE_CLIENT_TOKEN = 'live_eab015497fd8425372b36a7b6f8';
-const PADDLE_PRICE_ID = 'pri_01m03p3zm95ksj86tkz3fp7wk8';
-const CHECKOUT_CONFIGURED = PADDLE_CLIENT_TOKEN.startsWith('live_') && PADDLE_PRICE_ID.startsWith('pri_');
-
 const API_BASE = ''; // same-origin — Worker routes live at /api/*
 
 // =====================================================================
@@ -379,41 +368,17 @@ $('langSelect').addEventListener('change', (e) => {
   applyTranslations();
 });
 
-// --- Paddle init ---
-Paddle.Initialize({
-  token: PADDLE_CLIENT_TOKEN,
-  eventCallback: function (event) {
-    if (event.name === 'checkout.completed') {
-      const txnId = event?.data?.transaction_id || event?.data?.id;
-      if (txnId) onPaymentComplete(txnId);
-      else setStatus(t('errGeneric'), true);
-    } else if (event.name === 'checkout.closed' && !event?.data?.transaction_id) {
-      setStatus(t('errCancelled'), true);
-      resetPayBtn();
-    }
-  },
-});
-
-if (!CHECKOUT_CONFIGURED) {
-  $('payBtn').disabled = true;
-  $('configNotice').classList.remove('hidden');
-}
-
 function setStatus(msg, isError) {
   $('statusLine').textContent = msg;
   $('statusLine').className = 'text-xs mt-4 min-h-[1rem] ' + (isError ? 'text-red-400' : 'text-slate-500');
 }
 
 function resetPayBtn() {
-  $('payBtn').disabled = !CHECKOUT_CONFIGURED;
+  $('payBtn').disabled = false;
   $('payBtn').innerHTML = `<span data-i18n="payButton">${t('payButton')}</span>`;
 }
 
-$('payBtn').addEventListener('click', () => {
-  if (!CHECKOUT_CONFIGURED) {
-    setStatus('Checkout is not available until the Paddle price is configured.', true);
-    return;
-  }
+$('payBtn').addEventListener('click', async () => {
   const raw = $('urlInput').value.trim();
   if (!raw) { setStatus(t('errNoUrl'), true); return; }
 
@@ -427,28 +392,67 @@ $('payBtn').addEventListener('click', () => {
   setStatus(t('statusOpening'));
 
   try {
-    Paddle.Checkout.open({
-      items: [{ priceId: PADDLE_PRICE_ID, quantity: 1 }],
-      customData: { audit_url: currentUrl },
-      settings: { displayMode: 'overlay', theme: 'dark', locale: currentLang },
+    const orderRes = await fetch(`${API_BASE}/api/create-order`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: currentUrl }),
     });
+    const order = await orderRes.json();
+    if (!orderRes.ok) {
+      setStatus(order.error || t('errGeneric'), true);
+      resetPayBtn();
+      return;
+    }
+
+    const checkout = new Razorpay({
+      key: order.keyId,
+      amount: order.amount,
+      currency: order.currency,
+      order_id: order.orderId,
+      name: 'Mohit Parmar',
+      description: 'Instant Website Audit — One Report',
+      theme: { color: '#C5A059' },
+      retry: { enabled: true },
+      handler: (payment) => onPaymentComplete(payment, order.orderId),
+      modal: {
+        ondismiss: () => {
+          setStatus(t('errCancelled'), true);
+          resetPayBtn();
+        },
+      },
+    });
+    checkout.on('payment.failed', () => {
+      setStatus('Payment was not completed. No report has been unlocked.', true);
+      resetPayBtn();
+    });
+    checkout.open();
   } catch {
     setStatus('Secure checkout could not be opened. Please try again shortly.', true);
     resetPayBtn();
   }
 });
 
-async function onPaymentComplete(transactionId) {
+async function onPaymentComplete(payment, expectedOrderId) {
   setStatus(t('statusVerifying'));
   try {
-    const verifyRes = await fetch(`${API_BASE}/api/verify-payment`, {
+    if (payment.razorpay_order_id !== expectedOrderId) {
+      setStatus('Payment order did not match. Please contact support.', true);
+      resetPayBtn();
+      return;
+    }
+    const verifyRes = await fetch(`${API_BASE}/api/verify-razorpay`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ transactionId, url: currentUrl }),
+      body: JSON.stringify({
+        razorpayPaymentId: payment.razorpay_payment_id,
+        razorpayOrderId: payment.razorpay_order_id,
+        razorpaySignature: payment.razorpay_signature,
+      }),
     });
     const verifyData = await verifyRes.json();
     if (!verifyRes.ok) { setStatus(verifyData.error || t('errGeneric'), true); resetPayBtn(); return; }
 
+    currentUrl = verifyData.url;
     setStatus(t('statusRunning'));
     const auditRes = await fetch(`${API_BASE}/api/audit`, {
       method: 'POST',

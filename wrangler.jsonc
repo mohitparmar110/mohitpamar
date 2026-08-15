@@ -9,6 +9,10 @@
     "directory": "./public",
     "binding": "ASSETS"
   },
+  "vars": {
+    "RAZORPAY_KEY_ID": "rzp_live_TQCyJWTCHOy8MO",
+    "AUDIT_PRICE_PAISE": "49900"
+  },
   "kv_namespaces": [
     {
       "binding": "AUDIT_KV",
