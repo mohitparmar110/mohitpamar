@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Free Website Audit — CRO, SEO, GEO & AEO | Mohit Parmar</title>
-<meta name="description" content="Run a free instant audit of your website's conversion, SEO, AI-search visibility (GEO/AEO), and branding — then unlock the full prioritized fix list.">
+<title>Website Audit — CRO, SEO, GEO & AEO | Mohit Parmar</title>
+<meta name="description" content="Full paid audit of your website's conversion, SEO, AI-search visibility (GEO/AEO), and branding — priced for your region, delivered instantly.">
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<!-- Paddle Billing overlay checkout -->
+<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
@@ -28,11 +29,14 @@
   }
   .audit-input:focus { border-color: #C5A059; }
   .audit-input::placeholder { color: #64748b; }
+  .lang-select {
+    background: #1e293b; border: 1px solid #334155; color: #cbd5e1; font-size: 0.8rem;
+    padding: 0.5rem 0.75rem; outline: none;
+  }
   .sev-high { color: #f87171; }
   .sev-medium { color: #C5A059; }
   .sev-low { color: #94a3b8; }
   .swatch { width: 28px; height: 28px; border-radius: 4px; border: 1px solid rgba(255,255,255,.15); display:inline-block; }
-  .locked { filter: blur(5px); user-select: none; pointer-events: none; }
   .spinner {
     width: 22px; height: 22px; border: 3px solid #334155; border-top-color: #C5A059;
     border-radius: 50%; animation: spin 0.8s linear infinite; display:inline-block;
@@ -45,70 +49,54 @@
 <section class="min-h-screen py-20 px-5">
   <div class="max-w-3xl mx-auto">
 
+    <div class="flex justify-end mb-6">
+      <select id="langSelect" class="lang-select" aria-label="Language">
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+        <option value="de">Deutsch</option>
+        <option value="es">Español</option>
+        <option value="it">Italiano</option>
+        <option value="nl">Nederlands</option>
+        <option value="pt">Português</option>
+        <option value="pl">Polski</option>
+      </select>
+    </div>
+
     <div class="text-center mb-12">
-      <p class="text-xs font-bold tracking-[0.3em] uppercase text-gold-500 mb-4">Instant Website Audit</p>
+      <p class="text-xs font-bold tracking-[0.3em] uppercase text-gold-500 mb-4" data-i18n="kicker">Full Website Audit</p>
       <h1 class="text-4xl md:text-5xl font-serif mb-5 leading-tight">CRO · SEO · GEO · AEO · Branding</h1>
-      <p class="text-slate-400 font-light max-w-xl mx-auto leading-relaxed">
-        Drop in your URL. I'll pull real signals from your live site — colors, headings, meta
-        tags, structured data, and whether AI answer engines can even see you — and turn them
-        into a prioritized fix list.
+      <p class="text-slate-400 font-light max-w-xl mx-auto leading-relaxed" data-i18n="intro">
+        Drop in your URL and pay securely to get the full report: real signals pulled from
+        your live site — colors, headings, meta tags, structured data, and whether AI
+        answer engines can even see you — turned into a prioritized fix list.
+      </p>
+      <p class="text-slate-500 text-xs font-light mt-3" data-i18n="priceNote">
+        Price is shown automatically in your local currency at checkout.
       </p>
     </div>
 
-    <!-- Input -->
+    <!-- Input + pay -->
     <div class="flex flex-col sm:flex-row gap-3 mb-3">
-      <input id="urlInput" class="audit-input" type="text" placeholder="yourstore.com" autocomplete="off">
-      <button id="runBtn" class="bg-gold-500 text-slate-900 px-8 py-4 text-xs font-bold tracking-[0.2em] uppercase hover:bg-white transition-colors whitespace-nowrap">
-        Run Free Audit
+      <input id="urlInput" class="audit-input" type="text" data-i18n-placeholder="urlPlaceholder" placeholder="yourstore.com" autocomplete="off">
+      <button id="payBtn" class="bg-gold-500 text-slate-900 px-8 py-4 text-xs font-bold tracking-[0.2em] uppercase hover:bg-white transition-colors whitespace-nowrap">
+        <span data-i18n="payButton">Pay &amp; Run Audit</span>
       </button>
     </div>
     <p id="statusLine" class="text-xs text-slate-500 mb-10 min-h-[1rem]"></p>
 
     <!-- Results -->
-    <div id="results" class="hidden space-y-10">
+    <div id="results" class="hidden space-y-8">
 
-      <!-- Free teaser -->
-      <div id="freeSection">
-        <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-500 mb-4">What I found — free preview</p>
-        <div id="freeFindings" class="space-y-4"></div>
-
-        <div class="mt-6 border border-slate-700 p-5">
-          <p class="text-xs font-bold tracking-[0.2em] uppercase text-slate-500 mb-3">Dominant colors detected</p>
-          <div id="colorSwatches" class="flex gap-2 flex-wrap"></div>
-        </div>
+      <div class="border border-slate-700 p-5">
+        <p class="text-xs font-bold tracking-[0.2em] uppercase text-slate-500 mb-3" data-i18n="colorsHeading">Dominant colors detected</p>
+        <div id="colorSwatches" class="flex gap-2 flex-wrap"></div>
       </div>
 
-      <!-- Locked full report -->
-      <div id="lockedSection">
-        <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-500 mb-4">Full report</p>
-        <div class="relative border border-slate-700 p-8">
-          <div class="locked space-y-4">
-            <div class="h-4 bg-slate-700 rounded w-3/4"></div>
-            <div class="h-4 bg-slate-700 rounded w-1/2"></div>
-            <div class="h-4 bg-slate-700 rounded w-2/3"></div>
-            <div class="h-4 bg-slate-700 rounded w-1/3"></div>
-            <div class="h-4 bg-slate-700 rounded w-3/5"></div>
-          </div>
-          <div class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/70 px-6 text-center">
-            <i class="fas fa-lock text-gold-500 text-2xl mb-4"></i>
-            <p class="font-serif text-xl mb-2">Full CRO, SEO, GEO &amp; AEO breakdown</p>
-            <p class="text-slate-400 text-sm font-light mb-6 max-w-sm">
-              Every finding, severity-ranked, with the exact fix for each — plus whether
-              AI crawlers (ChatGPT, Perplexity, Google AI) can even read your site.
-            </p>
-            <button id="unlockBtn" class="bg-gold-500 text-slate-900 px-8 py-3.5 text-xs font-bold tracking-[0.2em] uppercase hover:bg-white transition-colors">
-              Unlock Full Report — <span id="priceLabel">₹499</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Unlocked full report (hidden until paid) -->
-      <div id="fullSection" class="hidden space-y-8"></div>
+      <div id="fullSection" class="space-y-8"></div>
 
       <div class="text-center pt-6 border-t border-slate-800">
-        <p class="text-slate-400 font-light text-sm mb-4">Want someone to actually implement these fixes?</p>
-        <a href="/#services" class="inline-block border border-gold-500 text-gold-500 px-8 py-3 text-xs font-bold tracking-[0.2em] uppercase hover:bg-gold-500 hover:text-slate-900 transition-colors">
+        <p class="text-slate-400 font-light text-sm mb-4" data-i18n="ctaText">Want someone to actually implement these fixes?</p>
+        <a href="/#services" class="inline-block border border-gold-500 text-gold-500 px-8 py-3 text-xs font-bold tracking-[0.2em] uppercase hover:bg-gold-500 hover:text-slate-900 transition-colors" data-i18n="ctaButton">
           See Retainer &amp; Fractional Options
         </a>
       </div>
@@ -118,47 +106,336 @@
 </section>
 
 <script>
-const API_BASE = ''; // same-origin — Pages Functions live at /api/*
+// =====================================================================
+// CONFIG — fill these in from your Paddle dashboard (Developer Tools →
+// Authentication for the client token; Catalog → Prices for the price
+// ID). Both are safe to be public — the client-side token can only open
+// checkouts, not move money or read account data.
+// =====================================================================
+const PADDLE_CLIENT_TOKEN = 'REPLACE_WITH_YOUR_PADDLE_CLIENT_TOKEN'; // e.g. live_xxx or test_xxx for sandbox
+const PADDLE_PRICE_ID = 'REPLACE_WITH_YOUR_PADDLE_PRICE_ID';         // e.g. pri_xxx
+const PADDLE_ENVIRONMENT = 'production'; // 'sandbox' while testing
+
+const API_BASE = ''; // same-origin — Worker routes live at /api/*
+
+// =====================================================================
+// Translations — short UI strings only. The AI-generated audit findings
+// are translated server-side per request, not from this dictionary.
+// =====================================================================
+const TRANSLATIONS = {
+  en: {
+    kicker: "Full Website Audit",
+    intro: "Drop in your URL and pay securely to get the full report: real signals pulled from your live site — colors, headings, meta tags, structured data, and whether AI answer engines can even see you — turned into a prioritized fix list.",
+    priceNote: "Price is shown automatically in your local currency at checkout.",
+    urlPlaceholder: "yourstore.com",
+    payButton: "Pay & Run Audit",
+    colorsHeading: "Dominant colors detected",
+    reportHeading: "Full report",
+    prioritiesHeading: "Top priorities",
+    botOk: "No major AI crawlers blocked in robots.txt",
+    botBlocked: "Blocking",
+    ctaText: "Want someone to actually implement these fixes?",
+    ctaButton: "See Retainer & Fractional Options",
+    errNoUrl: "Enter a website URL first.",
+    statusOpening: "Opening secure checkout…",
+    statusVerifying: "Verifying your payment…",
+    statusRunning: "Fetching your site and running the audit…",
+    errGeneric: "Something went wrong. Please try again.",
+    errCancelled: "Checkout closed before payment completed.",
+    labelCro: "CRO",
+    labelSeo: "SEO",
+    labelGeo: "GEO — AI Search Visibility",
+    labelAeo: "AEO — Answer Engines",
+    labelBranding: "Branding & Design",
+  },
+  fr: {
+    kicker: "Audit Complet du Site",
+    intro: "Indiquez votre URL et payez en toute sécurité pour obtenir le rapport complet : signaux réels extraits de votre site — couleurs, titres, balises meta, données structurées, et si les moteurs de réponse IA peuvent même vous voir — transformés en liste d'actions prioritaires.",
+    priceNote: "Le prix s'affiche automatiquement dans votre devise locale au paiement.",
+    urlPlaceholder: "votresite.com",
+    payButton: "Payer & Lancer l'Audit",
+    colorsHeading: "Couleurs dominantes détectées",
+    reportHeading: "Rapport complet",
+    prioritiesHeading: "Priorités principales",
+    botOk: "Aucun crawler IA majeur bloqué dans robots.txt",
+    botBlocked: "Bloque",
+    ctaText: "Besoin de quelqu'un pour mettre en œuvre ces corrections ?",
+    ctaButton: "Voir les offres d'accompagnement",
+    errNoUrl: "Entrez d'abord une URL de site.",
+    statusOpening: "Ouverture du paiement sécurisé…",
+    statusVerifying: "Vérification de votre paiement…",
+    statusRunning: "Analyse de votre site en cours…",
+    errGeneric: "Une erreur est survenue. Veuillez réessayer.",
+    errCancelled: "Paiement fermé avant la fin de la transaction.",
+    labelCro: "CRO",
+    labelSeo: "SEO",
+    labelGeo: "GEO — Visibilité IA",
+    labelAeo: "AEO — Moteurs de réponse",
+    labelBranding: "Identité de marque",
+  },
+  de: {
+    kicker: "Vollständiges Website-Audit",
+    intro: "Geben Sie Ihre URL ein und bezahlen Sie sicher für den vollständigen Bericht: echte Signale von Ihrer Live-Website — Farben, Überschriften, Meta-Tags, strukturierte Daten und ob KI-Antwortmaschinen Sie überhaupt sehen können — als priorisierte Maßnahmenliste.",
+    priceNote: "Der Preis wird an der Kasse automatisch in Ihrer Landeswährung angezeigt.",
+    urlPlaceholder: "ihreseite.de",
+    payButton: "Bezahlen & Audit starten",
+    colorsHeading: "Erkannte Hauptfarben",
+    reportHeading: "Vollständiger Bericht",
+    prioritiesHeading: "Wichtigste Prioritäten",
+    botOk: "Keine großen KI-Crawler in robots.txt blockiert",
+    botBlocked: "Blockiert",
+    ctaText: "Soll jemand diese Korrekturen tatsächlich umsetzen?",
+    ctaButton: "Retainer & Fractional-Optionen ansehen",
+    errNoUrl: "Geben Sie zuerst eine Website-URL ein.",
+    statusOpening: "Sicherer Checkout wird geöffnet…",
+    statusVerifying: "Zahlung wird überprüft…",
+    statusRunning: "Ihre Website wird abgerufen und analysiert…",
+    errGeneric: "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+    errCancelled: "Checkout wurde vor Zahlungsabschluss geschlossen.",
+    labelCro: "CRO",
+    labelSeo: "SEO",
+    labelGeo: "GEO — KI-Sichtbarkeit",
+    labelAeo: "AEO — Antwortmaschinen",
+    labelBranding: "Branding & Design",
+  },
+  es: {
+    kicker: "Auditoría Completa del Sitio",
+    intro: "Indica tu URL y paga de forma segura para obtener el informe completo: señales reales extraídas de tu sitio en vivo — colores, títulos, metaetiquetas, datos estructurados y si los motores de respuesta de IA pueden verte — convertidas en una lista de acciones prioritarias.",
+    priceNote: "El precio se muestra automáticamente en tu moneda local al pagar.",
+    urlPlaceholder: "tusitio.com",
+    payButton: "Pagar y Ejecutar Auditoría",
+    colorsHeading: "Colores dominantes detectados",
+    reportHeading: "Informe completo",
+    prioritiesHeading: "Prioridades principales",
+    botOk: "Ningún rastreador de IA importante bloqueado en robots.txt",
+    botBlocked: "Bloqueando",
+    ctaText: "¿Quieres que alguien implemente estas correcciones?",
+    ctaButton: "Ver opciones de acompañamiento",
+    errNoUrl: "Introduce primero una URL de sitio web.",
+    statusOpening: "Abriendo pago seguro…",
+    statusVerifying: "Verificando tu pago…",
+    statusRunning: "Analizando tu sitio…",
+    errGeneric: "Algo salió mal. Inténtalo de nuevo.",
+    errCancelled: "Pago cerrado antes de completarse.",
+    labelCro: "CRO",
+    labelSeo: "SEO",
+    labelGeo: "GEO — Visibilidad en IA",
+    labelAeo: "AEO — Motores de respuesta",
+    labelBranding: "Marca y diseño",
+  },
+  it: {
+    kicker: "Audit Completo del Sito",
+    intro: "Inserisci il tuo URL e paga in sicurezza per ottenere il report completo: segnali reali estratti dal tuo sito live — colori, titoli, meta tag, dati strutturati e se i motori di risposta IA riescono a vederti — trasformati in una lista di interventi prioritari.",
+    priceNote: "Il prezzo viene mostrato automaticamente nella tua valuta locale al pagamento.",
+    urlPlaceholder: "iltuosito.it",
+    payButton: "Paga & Avvia Audit",
+    colorsHeading: "Colori dominanti rilevati",
+    reportHeading: "Report completo",
+    prioritiesHeading: "Priorità principali",
+    botOk: "Nessun crawler IA importante bloccato nel robots.txt",
+    botBlocked: "Blocca",
+    ctaText: "Vuoi che qualcuno implementi davvero queste correzioni?",
+    ctaButton: "Vedi le opzioni di collaborazione",
+    errNoUrl: "Inserisci prima un URL del sito.",
+    statusOpening: "Apertura pagamento sicuro…",
+    statusVerifying: "Verifica del pagamento…",
+    statusRunning: "Analisi del sito in corso…",
+    errGeneric: "Qualcosa è andato storto. Riprova.",
+    errCancelled: "Pagamento chiuso prima del completamento.",
+    labelCro: "CRO",
+    labelSeo: "SEO",
+    labelGeo: "GEO — Visibilità IA",
+    labelAeo: "AEO — Motori di risposta",
+    labelBranding: "Branding e Design",
+  },
+  nl: {
+    kicker: "Volledige Website-audit",
+    intro: "Voer je URL in en betaal veilig voor het volledige rapport: echte signalen van je live site — kleuren, koppen, meta-tags, structured data en of AI-antwoordmachines je überhaupt kunnen zien — omgezet in een prioriteitenlijst.",
+    priceNote: "De prijs wordt automatisch in je lokale valuta getoond bij het afrekenen.",
+    urlPlaceholder: "jouwsite.nl",
+    payButton: "Betaal & Start Audit",
+    colorsHeading: "Gedetecteerde hoofdkleuren",
+    reportHeading: "Volledig rapport",
+    prioritiesHeading: "Belangrijkste prioriteiten",
+    botOk: "Geen grote AI-crawlers geblokkeerd in robots.txt",
+    botBlocked: "Blokkeert",
+    ctaText: "Wil je dat iemand deze fixes daadwerkelijk doorvoert?",
+    ctaButton: "Bekijk retainer- en fractional-opties",
+    errNoUrl: "Voer eerst een website-URL in.",
+    statusOpening: "Beveiligde checkout wordt geopend…",
+    statusVerifying: "Betaling wordt geverifieerd…",
+    statusRunning: "Je site wordt opgehaald en geanalyseerd…",
+    errGeneric: "Er ging iets mis. Probeer het opnieuw.",
+    errCancelled: "Checkout gesloten voordat betaling was voltooid.",
+    labelCro: "CRO",
+    labelSeo: "SEO",
+    labelGeo: "GEO — AI-zichtbaarheid",
+    labelAeo: "AEO — Antwoordmachines",
+    labelBranding: "Branding & Design",
+  },
+  pt: {
+    kicker: "Auditoria Completa do Site",
+    intro: "Insira o seu URL e pague com segurança para obter o relatório completo: sinais reais extraídos do seu site em tempo real — cores, títulos, meta tags, dados estruturados e se os motores de resposta de IA conseguem sequer ver-te — transformados numa lista de ações prioritárias.",
+    priceNote: "O preço é mostrado automaticamente na sua moeda local no checkout.",
+    urlPlaceholder: "oseusite.com",
+    payButton: "Pagar & Executar Auditoria",
+    colorsHeading: "Cores dominantes detetadas",
+    reportHeading: "Relatório completo",
+    prioritiesHeading: "Principais prioridades",
+    botOk: "Nenhum crawler de IA importante bloqueado no robots.txt",
+    botBlocked: "A bloquear",
+    ctaText: "Quer que alguém implemente estas correções?",
+    ctaButton: "Ver opções de retainer e fractional",
+    errNoUrl: "Insira primeiro um URL de site.",
+    statusOpening: "A abrir pagamento seguro…",
+    statusVerifying: "A verificar o seu pagamento…",
+    statusRunning: "A analisar o seu site…",
+    errGeneric: "Algo correu mal. Tente novamente.",
+    errCancelled: "Checkout fechado antes de concluir o pagamento.",
+    labelCro: "CRO",
+    labelSeo: "SEO",
+    labelGeo: "GEO — Visibilidade em IA",
+    labelAeo: "AEO — Motores de resposta",
+    labelBranding: "Branding e Design",
+  },
+  pl: {
+    kicker: "Pełny Audyt Strony",
+    intro: "Podaj swój URL i zapłać bezpiecznie, aby otrzymać pełny raport: prawdziwe sygnały pobrane z Twojej działającej strony — kolory, nagłówki, metatagi, dane strukturalne oraz to, czy silniki odpowiedzi AI w ogóle Cię widzą — zamienione w listę priorytetowych działań.",
+    priceNote: "Cena jest automatycznie wyświetlana w lokalnej walucie podczas płatności.",
+    urlPlaceholder: "twojastrona.pl",
+    payButton: "Zapłać i uruchom audyt",
+    colorsHeading: "Wykryte dominujące kolory",
+    reportHeading: "Pełny raport",
+    prioritiesHeading: "Najważniejsze priorytety",
+    botOk: "Żaden ważny crawler AI nie jest zablokowany w robots.txt",
+    botBlocked: "Blokuje",
+    ctaText: "Chcesz, żeby ktoś faktycznie wdrożył te poprawki?",
+    ctaButton: "Zobacz opcje retainer i fractional",
+    errNoUrl: "Najpierw podaj adres URL strony.",
+    statusOpening: "Otwieranie bezpiecznej płatności…",
+    statusVerifying: "Weryfikacja płatności…",
+    statusRunning: "Analizowanie Twojej strony…",
+    errGeneric: "Coś poszło nie tak. Spróbuj ponownie.",
+    errCancelled: "Płatność zamknięta przed zakończeniem transakcji.",
+    labelCro: "CRO",
+    labelSeo: "SEO",
+    labelGeo: "GEO — Widoczność w AI",
+    labelAeo: "AEO — Silniki odpowiedzi",
+    labelBranding: "Branding i design",
+  },
+};
+
+let currentLang = detectLang();
 let currentUrl = null;
-let currentTier = 'free';
-let unlockToken = null;
+
+function detectLang() {
+  const supported = Object.keys(TRANSLATIONS);
+  const browserLangs = navigator.languages || [navigator.language || 'en'];
+  for (const bl of browserLangs) {
+    const code = bl.slice(0, 2).toLowerCase();
+    if (supported.includes(code)) return code;
+  }
+  return 'en';
+}
+
+function t(key) {
+  return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || TRANSLATIONS.en[key] || key;
+}
+
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.setAttribute('placeholder', t(el.getAttribute('data-i18n-placeholder')));
+  });
+}
 
 const $ = (id) => document.getElementById(id);
 
-$('runBtn').addEventListener('click', runAudit);
-$('urlInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') runAudit(); });
+$('langSelect').value = currentLang;
+applyTranslations();
+$('langSelect').addEventListener('change', (e) => {
+  currentLang = e.target.value;
+  applyTranslations();
+});
 
-async function runAudit() {
-  const raw = $('urlInput').value.trim();
-  if (!raw) { setStatus('Enter a website URL first.', true); return; }
-
-  setStatus('Fetching your site and running the audit...');
-  $('runBtn').disabled = true;
-  $('results').classList.add('hidden');
-
-  try {
-    const res = await fetch(`${API_BASE}/api/audit`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: raw, token: unlockToken }),
-    });
-    const data = await res.json();
-    if (!res.ok) { setStatus(data.error || 'Something went wrong.', true); return; }
-
-    currentUrl = data.url;
-    currentTier = data.tier;
-    renderResults(data);
-    setStatus('');
-  } catch (err) {
-    setStatus('Could not reach the audit engine. Try again in a moment.', true);
-  } finally {
-    $('runBtn').disabled = false;
-  }
-}
+// --- Paddle init ---
+Paddle.Environment.set(PADDLE_ENVIRONMENT);
+Paddle.Initialize({
+  token: PADDLE_CLIENT_TOKEN,
+  eventCallback: function (event) {
+    if (event.name === 'checkout.completed') {
+      // Field path can shift between Paddle.js versions — log once so
+      // it's easy to confirm in the browser console during first test.
+      console.log('Paddle checkout.completed payload:', event);
+      const txnId = event?.data?.transaction_id || event?.data?.id;
+      if (txnId) onPaymentComplete(txnId);
+      else setStatus(t('errGeneric'), true);
+    } else if (event.name === 'checkout.closed' && !event?.data?.transaction_id) {
+      setStatus(t('errCancelled'), true);
+      resetPayBtn();
+    }
+  },
+});
 
 function setStatus(msg, isError) {
   $('statusLine').textContent = msg;
   $('statusLine').className = 'text-xs mb-10 min-h-[1rem] ' + (isError ? 'text-red-400' : 'text-slate-500');
+}
+
+function resetPayBtn() {
+  $('payBtn').disabled = false;
+  $('payBtn').innerHTML = `<span data-i18n="payButton">${t('payButton')}</span>`;
+}
+
+$('payBtn').addEventListener('click', () => {
+  const raw = $('urlInput').value.trim();
+  if (!raw) { setStatus(t('errNoUrl'), true); return; }
+
+  let normalized = raw;
+  if (!/^https?:\/\//i.test(normalized)) normalized = 'https://' + normalized;
+  try { normalized = new URL(normalized).href; } catch { setStatus(t('errNoUrl'), true); return; }
+  currentUrl = normalized;
+
+  $('payBtn').disabled = true;
+  $('payBtn').innerHTML = '<span class="spinner"></span>';
+  setStatus(t('statusOpening'));
+
+  Paddle.Checkout.open({
+    items: [{ priceId: PADDLE_PRICE_ID, quantity: 1 }],
+    customData: { audit_url: currentUrl },
+    settings: { displayMode: 'overlay', theme: 'dark', locale: currentLang },
+  });
+});
+
+async function onPaymentComplete(transactionId) {
+  setStatus(t('statusVerifying'));
+  try {
+    const verifyRes = await fetch(`${API_BASE}/api/verify-payment`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transactionId, url: currentUrl }),
+    });
+    const verifyData = await verifyRes.json();
+    if (!verifyRes.ok) { setStatus(verifyData.error || t('errGeneric'), true); resetPayBtn(); return; }
+
+    setStatus(t('statusRunning'));
+    const auditRes = await fetch(`${API_BASE}/api/audit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: currentUrl, token: verifyData.token, lang: currentLang }),
+    });
+    const auditData = await auditRes.json();
+    if (!auditRes.ok) { setStatus(auditData.error || t('errGeneric'), true); resetPayBtn(); return; }
+
+    setStatus('');
+    resetPayBtn();
+    renderResults(auditData);
+  } catch {
+    setStatus(t('errGeneric'), true);
+    resetPayBtn();
+  }
 }
 
 function severityClass(sev) {
@@ -166,10 +443,10 @@ function severityClass(sev) {
 }
 
 function renderFindingList(items) {
-  if (!items || !items.length) return '<p class="text-slate-500 text-sm font-light">Nothing flagged here.</p>';
+  if (!items || !items.length) return '<p class="text-slate-500 text-sm font-light">—</p>';
   return items.map(f => `
     <div class="border-l-2 border-slate-700 pl-4 py-1">
-      <p class="text-xs font-bold tracking-wider uppercase ${severityClass(f.severity)} mb-1">${f.severity || ''}</p>
+      <p class="text-xs font-bold tracking-wider uppercase ${severityClass(f.severity)} mb-1">${escapeHtml(f.severity || '')}</p>
       <p class="text-white font-medium mb-1">${escapeHtml(f.finding || '')}</p>
       <p class="text-slate-400 text-sm font-light">${escapeHtml(f.fix || '')}</p>
     </div>`).join('');
@@ -182,107 +459,41 @@ function escapeHtml(s) {
 function renderResults(data) {
   $('results').classList.remove('hidden');
 
-  // Free teaser findings
-  const teaser = [...(data.analysis.cro || []), ...(data.analysis.seo || [])].slice(0, 2);
-  $('freeFindings').innerHTML = renderFindingList(teaser);
-
-  // Colors
   const colors = data.signals.topColors || [];
   $('colorSwatches').innerHTML = colors.length
     ? colors.map(c => `<span class="swatch" style="background:${escapeHtml(c.color)}" title="${escapeHtml(c.color)} (${c.count}x)"></span>`).join('')
-    : '<p class="text-slate-500 text-sm font-light">No clear palette detected.</p>';
+    : '<p class="text-slate-500 text-sm font-light">—</p>';
 
-  if (data.tier === 'full') {
-    $('lockedSection').classList.add('hidden');
-    $('fullSection').classList.remove('hidden');
-    $('fullSection').innerHTML = renderFullReport(data.analysis, data.signals);
-  } else {
-    $('lockedSection').classList.remove('hidden');
-    $('fullSection').classList.add('hidden');
-  }
+  $('fullSection').innerHTML = renderFullReport(data.analysis, data.signals);
 }
 
 function renderFullReport(analysis, signals) {
   const sections = [
-    ['CRO', analysis.cro],
-    ['SEO', analysis.seo],
-    ['GEO — AI Search Visibility', analysis.geo],
-    ['AEO — Answer Engines', analysis.aeo],
-    ['Branding & Design', analysis.branding],
+    [t('labelCro'), analysis.cro],
+    [t('labelSeo'), analysis.seo],
+    [t('labelGeo'), analysis.geo],
+    [t('labelAeo'), analysis.aeo],
+    [t('labelBranding'), analysis.branding],
   ];
 
   const priorities = (analysis.topPriorities || []).map(p => `<li class="mb-2">${escapeHtml(p)}</li>`).join('');
 
   const botLine = signals.botAccess && signals.botAccess.blockedAiBots && signals.botAccess.blockedAiBots.length
-    ? `<p class="text-red-400 text-sm mt-3"><i class="fas fa-triangle-exclamation mr-2"></i>Blocking: ${signals.botAccess.blockedAiBots.join(', ')} in robots.txt</p>`
-    : `<p class="text-slate-400 text-sm mt-3"><i class="fas fa-circle-check text-gold-500 mr-2"></i>No major AI crawlers blocked in robots.txt</p>`;
+    ? `<p class="text-red-400 text-sm mt-3"><i class="fas fa-triangle-exclamation mr-2"></i>${escapeHtml(t('botBlocked'))}: ${signals.botAccess.blockedAiBots.join(', ')}</p>`
+    : `<p class="text-slate-400 text-sm mt-3"><i class="fas fa-circle-check text-gold-500 mr-2"></i>${escapeHtml(t('botOk'))}</p>`;
 
   return `
     <div class="border border-gold-500/40 p-6 mb-2">
-      <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-500 mb-3">Top priorities</p>
+      <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-500 mb-3">${escapeHtml(t('prioritiesHeading'))}</p>
       <ol class="list-decimal list-inside text-white font-light">${priorities}</ol>
       ${botLine}
     </div>
     ${sections.map(([label, items]) => `
       <div class="border border-slate-700 p-6">
-        <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-500 mb-4">${label}</p>
+        <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-500 mb-4">${escapeHtml(label)}</p>
         <div class="space-y-4">${renderFindingList(items)}</div>
       </div>`).join('')}
   `;
-}
-
-// --- Payment flow ---
-$('unlockBtn').addEventListener('click', async () => {
-  if (!currentUrl) return;
-  $('unlockBtn').disabled = true;
-  $('unlockBtn').innerHTML = '<span class="spinner"></span>';
-
-  try {
-    const orderRes = await fetch(`${API_BASE}/api/create-order`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: currentUrl }),
-    });
-    const order = await orderRes.json();
-    if (!orderRes.ok) { setStatus(order.error || 'Could not start checkout.', true); resetUnlockBtn(); return; }
-
-    const rzp = new Razorpay({
-      key: order.keyId,
-      amount: order.amount,
-      currency: order.currency,
-      order_id: order.orderId,
-      name: 'Mohit Parmar',
-      description: 'Full website audit report',
-      theme: { color: '#C5A059' },
-      handler: async function (response) {
-        const verifyRes = await fetch(`${API_BASE}/api/verify-payment`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            orderId: response.razorpay_order_id,
-            paymentId: response.razorpay_payment_id,
-            signature: response.razorpay_signature,
-            url: currentUrl,
-          }),
-        });
-        const verifyData = await verifyRes.json();
-        if (!verifyRes.ok) { setStatus(verifyData.error || 'Payment verification failed.', true); resetUnlockBtn(); return; }
-        unlockToken = verifyData.token;
-        setStatus('Payment verified — loading your full report...');
-        runAudit();
-      },
-      modal: { ondismiss: resetUnlockBtn },
-    });
-    rzp.open();
-  } catch {
-    setStatus('Could not start checkout. Try again.', true);
-    resetUnlockBtn();
-  }
-});
-
-function resetUnlockBtn() {
-  $('unlockBtn').disabled = false;
-  $('unlockBtn').innerHTML = 'Unlock Full Report — <span id="priceLabel">₹499</span>';
 }
 </script>
 </body>
