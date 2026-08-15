@@ -12,6 +12,7 @@
 //   - Optional var: GEMINI_MODEL (defaults to gemini-3.6-flash)
 
 import { corsHeaders } from "./worker.js";
+import { calculateEvidenceScores, collectCrux, collectPageSpeed } from "./pagespeed.js";
 
 // Supported report languages. Keep in sync with the frontend's
 // language list in public/audit-tool.html.
@@ -27,6 +28,9 @@ export async function handleAudit(request, env) {
 
   const targetUrl = normalizeUrl(body.url);
   if (!targetUrl) return json({ error: "Enter a valid website URL." }, 400);
+  const competitorUrls = [...new Set((Array.isArray(body.competitorUrls) ? body.competitorUrls : [])
+    .map(normalizeUrl)
+    .filter((url) => url && url !== targetUrl))].slice(0, 3);
 
   const lang = SUPPORTED_LANGS[body.lang] ? body.lang : "en";
 
@@ -40,23 +44,42 @@ export async function handleAudit(request, env) {
 
   let html;
   try {
-    const res = await fetch(targetUrl, {
-      headers: { "User-Agent": "MohitParmarAuditBot/1.0 (+https://www.mohitparmar.co.in)" },
-      cf: { cacheTtl: 0 },
-    });
-    if (!res.ok) return json({ error: `Couldn't fetch that site (status ${res.status}). Is it public?` }, 400);
-    html = await res.text();
+    html = await fetchHtml(targetUrl);
   } catch {
     return json({ error: "Couldn't reach that URL. Check it's spelled correctly and publicly accessible." }, 400);
   }
 
   const signals = extractSignals(html, targetUrl);
-  signals.botAccess = await checkBotAccess(targetUrl);
-  signals.hasLlmsTxt = await checkLlmsTxt(targetUrl);
+  const [botAccess, hasLlmsTxt, mobile, desktop, mobileCrux, desktopCrux, competitors] = await Promise.all([
+    checkBotAccess(targetUrl),
+    checkLlmsTxt(targetUrl),
+    collectPageSpeed(targetUrl, env, "mobile"),
+    collectPageSpeed(targetUrl, env, "desktop"),
+    collectCrux(targetUrl, env, "PHONE"),
+    collectCrux(targetUrl, env, "DESKTOP"),
+    Promise.all(competitorUrls.map((url) => collectCompetitor(url, env))),
+  ]);
+  signals.botAccess = botAccess;
+  signals.hasLlmsTxt = hasLlmsTxt;
 
-  const analysis = await runAiAnalysis(env, signals, lang);
+  if (mobileCrux.available) mobile.field = mobileCrux;
+  if (desktopCrux.available) desktop.field = desktopCrux;
+  const pageSpeed = { mobile, desktop, fieldData: { mobile: mobileCrux, desktop: desktopCrux } };
+  const scores = calculateEvidenceScores(signals, pageSpeed);
+  const evidence = { signals, pageSpeed, scores, competitors };
 
-  return json({ url: targetUrl, lang, signals, analysis });
+  const analysis = await runAiAnalysis(env, evidence, lang);
+
+  return json({
+    url: targetUrl,
+    lang,
+    generatedAt: new Date().toISOString(),
+    signals,
+    pageSpeed,
+    scores,
+    competitors,
+    analysis,
+  });
 }
 
 function normalizeUrl(input) {
@@ -64,9 +87,77 @@ function normalizeUrl(input) {
   let u = String(input).trim();
   if (!/^https?:\/\//i.test(u)) u = "https://" + u;
   try {
-    return new URL(u).href;
+    const parsed = new URL(u);
+    if (!/^https?:$/.test(parsed.protocol) || isPrivateHost(parsed.hostname)) return null;
+    parsed.hash = "";
+    return parsed.href;
   } catch {
     return null;
+  }
+}
+
+function isPrivateHost(hostname) {
+  const host = hostname.toLowerCase();
+  return host === "localhost" || host.endsWith(".local") || host === "0.0.0.0" || host === "127.0.0.1" ||
+    host === "::1" || /^10\./.test(host) || /^192\.168\./.test(host) || /^169\.254\./.test(host) ||
+    /^172\.(1[6-9]|2\d|3[01])\./.test(host);
+}
+
+async function fetchHtml(targetUrl) {
+  const response = await fetch(targetUrl, {
+    headers: { "User-Agent": "MohitParmarAuditBot/1.0 (+https://www.mohitparmar.co.in)" },
+    cf: { cacheTtl: 0 },
+    redirect: "follow",
+    signal: AbortSignal.timeout(20_000),
+  });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("text/html")) throw new Error("Not HTML");
+  const declaredLength = Number(response.headers.get("content-length") || 0);
+  if (declaredLength > 1_500_000) throw new Error("Page too large");
+  if (!response.body) return "";
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let bytes = 0;
+  let html = "";
+  while (bytes < 1_500_000) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    bytes += value.byteLength;
+    if (bytes > 1_500_000) {
+      await reader.cancel();
+      break;
+    }
+    html += decoder.decode(value, { stream: true });
+  }
+  return html + decoder.decode();
+}
+
+async function collectCompetitor(url, env) {
+  try {
+    const [html, pageSpeed] = await Promise.all([
+      fetchHtml(url),
+      collectPageSpeed(url, env, "mobile"),
+    ]);
+    const signals = extractSignals(html, url);
+    const [botAccess, hasLlmsTxt] = await Promise.all([checkBotAccess(url), checkLlmsTxt(url)]);
+    signals.botAccess = botAccess;
+    signals.hasLlmsTxt = hasLlmsTxt;
+    return {
+      url,
+      available: true,
+      scores: calculateEvidenceScores(signals, { mobile: pageSpeed }),
+      performance: pageSpeed,
+      summary: {
+        title: signals.title,
+        h1Count: signals.h1Count,
+        structuredData: signals.jsonLdTypes,
+        blockedAiBots: signals.botAccess?.blockedAiBots || [],
+      },
+    };
+  } catch {
+    return { url, available: false, error: "Competitor could not be measured." };
   }
 }
 
@@ -234,7 +325,7 @@ const RESPONSE_SCHEMA = {
   required: ["cro", "seo", "geo", "aeo", "branding", "topPriorities"],
 };
 
-async function runAiAnalysis(env, signals, lang) {
+async function runAiAnalysis(env, evidence, lang) {
   if (!env.GEMINI_API_KEY) {
     return { error: "Audit engine not configured yet (missing GEMINI_API_KEY)." };
   }
@@ -245,16 +336,18 @@ async function runAiAnalysis(env, signals, lang) {
   const prompt = `You audit websites for a paid CRO/SEO/branding tool. Analyze the extracted signals below and give a complete, detailed audit across all five categories with specific, actionable fixes — 2-4 findings per category.
 
 Definitions:
-- GEO (Generative Engine Optimization): getting cited by AI answer tools like ChatGPT, Perplexity, Google AI Overviews — judge on structured data, quotable/clear statements, entity clarity (org/person schema), and whether an llms.txt exists (signals.hasLlmsTxt).
-- AEO (Answer Engine Optimization): featured snippets, voice answers — judge on question-style headings, concise answer-first paragraphs, FAQ schema, and whether AI crawlers (GPTBot, ClaudeBot, PerplexityBot, Google-Extended) are blocked in robots.txt (signals.botAccess).
-- branding: colour palette consistency (signals.topColors — many near-duplicate colours is a red flag), font consistency (signals.fonts), and visual hierarchy cues available from the signals.
+- GEO (Generative Engine Optimization): getting cited by AI answer tools like ChatGPT, Perplexity, Google AI Overviews — judge on structured data, quotable statements, entity clarity, llms.txt, and crawler access.
+- AEO (Answer Engine Optimization): featured snippets and voice answers — judge on question-style headings, concise answer-first structure, FAQ schema, and AI crawler access.
+- branding: colour palette consistency, font consistency, and visual hierarchy cues available from the extracted HTML.
+- performance: use only the measured PageSpeed values supplied. Lab data and field data are different; never present lab measurements as real-user Core Web Vitals.
+- competitors: compare only submitted competitor URLs and their measured evidence. Do not infer market share, traffic, revenue, rankings, or commercial performance.
 
-Be specific and honest — if something is already done well, don't invent a problem. Base every finding strictly on the signals given; never guess at things you cannot see from them (rendered contrast, real page-speed numbers, traffic).
+Be specific and honest — if something is already done well, don't invent a problem. Base every finding strictly on the evidence given. Never invent measurements or claim traffic, rankings, revenue, or conversion impact.
 
 Write every "finding" and "fix" string in ${langName} (language code: ${lang}). Keep "severity" values as the literal English words high/medium/low regardless of language, since the frontend matches on those exact strings.
 
-Extracted signals:
-${JSON.stringify(signals, null, 2)}`;
+Measured and extracted evidence:
+${JSON.stringify(evidence, null, 2)}`;
 
   let res;
   try {

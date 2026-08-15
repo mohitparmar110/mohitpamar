@@ -31,6 +31,9 @@
   }
   .audit-input:focus { border-color: #C5A059; }
   .audit-input::placeholder { color: #64748b; }
+  .text-slate-500 { color:#94a3b8!important; }
+  .checkout-card a,#results a { text-decoration:underline; text-underline-offset:3px; }
+  a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible { outline:3px solid #C5A059; outline-offset:3px; }
   .lang-select {
     background: #1e293b; border: 1px solid #334155; color: #cbd5e1; font-size: 0.8rem;
     padding: 0.5rem 0.75rem; outline: none;
@@ -52,7 +55,31 @@
   .trust-row { display:flex; flex-wrap:wrap; gap:.65rem; }
   .trust-pill { border:1px solid #334155; padding:.45rem .7rem; color:#94a3b8; font-size:.7rem; letter-spacing:.06em; }
   .config-notice { border-left:3px solid #C5A059; background:rgba(197,160,89,.08); padding:.8rem 1rem; }
+  .score-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:.75rem; }
+  .score-card { background:#111c30; border:1px solid #334155; padding:1rem; min-height:118px; }
+  .score-number { font-family:'Playfair Display',serif; font-size:2.15rem; line-height:1; color:#C5A059; }
+  .metric-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.75rem; }
+  .metric-card { background:#0b1424; border:1px solid #27364d; padding:1rem; }
+  .metric-good { color:#4ade80; } .metric-mid { color:#fbbf24; } .metric-poor { color:#fb7185; }
+  .bar-track { height:7px; background:#263449; overflow:hidden; margin-top:.65rem; }
+  .bar-fill { height:100%; background:#C5A059; }
+  .report-panel { border:1px solid #334155; background:#0d182a; padding:1.5rem; break-inside:avoid; }
+  .comparison-table { width:100%; border-collapse:collapse; min-width:700px; }
+  .comparison-table th,.comparison-table td { padding:.85rem; border-bottom:1px solid #334155; text-align:left; }
+  .comparison-table th { color:#94a3b8; font-size:.68rem; text-transform:uppercase; letter-spacing:.12em; }
+  .pdf-button { border:1px solid #C5A059; color:#C5A059; padding:.8rem 1rem; font-size:.7rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; }
+  .pdf-button:hover { background:#C5A059; color:#0F172A; }
   @media (max-width:860px) { .audit-grid { grid-template-columns:1fr; gap:2.5rem; } .checkout-card { position:static; } }
+  @media (max-width:860px) { .score-grid{grid-template-columns:repeat(2,1fr)} .metric-grid{grid-template-columns:repeat(2,1fr)} }
+  @media (max-width:520px) { .metric-grid{grid-template-columns:1fr} }
+  @media print {
+    body { background:white!important; color:#111!important; }
+    header,.audit-grid,footer,.no-print { display:none!important; }
+    main { padding:0!important; } #results { display:block!important; margin:0!important; padding:0!important; border:0!important; }
+    .report-panel,.score-card,.metric-card { background:white!important; color:#111!important; border-color:#bbb!important; }
+    .text-white { color:#111!important; } .text-slate-400,.text-slate-500 { color:#555!important; }
+    .report-panel { page-break-inside:avoid; } @page { size:A4; margin:14mm; }
+  }
 </style>
 </head>
 <body class="bg-slate-900 text-white font-sans antialiased">
@@ -90,6 +117,15 @@
         <p class="text-slate-400 text-sm font-light mb-6">One-time payment: <strong class="text-white">₹499</strong>. Taxes may apply.</p>
         <label for="urlInput" class="block text-xs font-bold tracking-[0.14em] uppercase text-slate-300 mb-2">Website URL</label>
         <input id="urlInput" class="audit-input mb-3" type="url" inputmode="url" data-i18n-placeholder="urlPlaceholder" placeholder="yourstore.com" autocomplete="url" required>
+        <details class="mb-3 border border-slate-700 p-3">
+          <summary class="cursor-pointer text-xs font-bold tracking-[0.12em] uppercase text-slate-300">Add competitor URLs (optional)</summary>
+          <p class="text-[11px] text-slate-500 mt-2 mb-3">Compare measured public signals for up to three competitors.</p>
+          <div class="space-y-2">
+            <input id="competitor1" name="competitor1" aria-label="Competitor website 1" class="audit-input competitor-input" type="url" inputmode="url" placeholder="competitor-one.com">
+            <input id="competitor2" name="competitor2" aria-label="Competitor website 2" class="audit-input competitor-input" type="url" inputmode="url" placeholder="competitor-two.com">
+            <input id="competitor3" name="competitor3" aria-label="Competitor website 3" class="audit-input competitor-input" type="url" inputmode="url" placeholder="competitor-three.com">
+          </div>
+        </details>
         <button id="payBtn" class="w-full min-h-14 bg-gold-500 text-slate-900 px-8 py-4 text-xs font-bold tracking-[0.2em] uppercase hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
           <span data-i18n="payButton">Pay &amp; Run Audit</span>
         </button>
@@ -101,12 +137,14 @@
 
     <!-- Results -->
     <div id="results" class="hidden space-y-8 mt-16 pt-12 border-t border-slate-800">
-
-      <div class="border border-slate-700 p-5">
-        <p class="text-xs font-bold tracking-[0.2em] uppercase text-slate-500 mb-3" data-i18n="colorsHeading">Dominant colors detected</p>
-        <div id="colorSwatches" class="flex gap-2 flex-wrap"></div>
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 report-panel">
+        <div><p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-500 mb-2">Paid evidence-based audit</p><h2 id="reportTitle" class="font-serif text-3xl md:text-5xl mb-2"></h2><p id="reportMeta" class="text-slate-400 text-sm"></p></div>
+        <button class="pdf-button no-print" type="button" onclick="window.print()"><i class="fas fa-file-pdf mr-2"></i>Download PDF</button>
       </div>
-
+      <div id="scoreGrid" class="score-grid"></div>
+      <div id="performanceSection" class="report-panel"></div>
+      <div id="competitorSection" class="report-panel hidden"></div>
+      <div class="report-panel"><p class="text-xs font-bold tracking-[0.2em] uppercase text-slate-500 mb-3" data-i18n="colorsHeading">Dominant colors detected</p><div id="colorSwatches" class="flex gap-2 flex-wrap"></div></div>
       <div id="fullSection" class="space-y-8"></div>
 
       <div class="text-center pt-6 border-t border-slate-800">
@@ -335,6 +373,7 @@ const TRANSLATIONS = {
 
 let currentLang = detectLang();
 let currentUrl = null;
+let currentCompetitors = [];
 
 function detectLang() {
   const supported = Object.keys(TRANSLATIONS);
@@ -386,6 +425,8 @@ $('payBtn').addEventListener('click', async () => {
   if (!/^https?:\/\//i.test(normalized)) normalized = 'https://' + normalized;
   try { normalized = new URL(normalized).href; } catch { setStatus(t('errNoUrl'), true); return; }
   currentUrl = normalized;
+  currentCompetitors = [...document.querySelectorAll('.competitor-input')]
+    .map(input => input.value.trim()).filter(Boolean).slice(0, 3);
 
   $('payBtn').disabled = true;
   $('payBtn').innerHTML = '<span class="spinner"></span>';
@@ -472,7 +513,7 @@ async function onPaymentComplete(payment, expectedOrderId) {
     const auditRes = await fetch(`${API_BASE}/api/audit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: currentUrl, token: verifyData.token, lang: currentLang }),
+      body: JSON.stringify({ url: currentUrl, token: verifyData.token, lang: currentLang, competitorUrls: currentCompetitors }),
     });
     const auditData = await auditRes.json();
     if (!auditRes.ok) { setStatus(auditData.error || t('errGeneric'), true); resetPayBtn(); return; }
@@ -506,6 +547,20 @@ function escapeHtml(s) {
 
 function renderResults(data) {
   $('results').classList.remove('hidden');
+  $('reportTitle').textContent = `Audit report for ${new URL(data.url).hostname}`;
+  $('reportMeta').textContent = `Generated ${new Date(data.generatedAt).toLocaleString()} · Measured lab data and extracted public website signals`;
+
+  const scoreLabels = { performance:'Performance', seo:'SEO', geo:'GEO', aeo:'AEO', cro:'CRO', branding:'Brand' };
+  $('scoreGrid').innerHTML = Object.entries(scoreLabels).map(([key,label]) => {
+    const value = data.scores?.[key];
+    return `<article class="score-card"><p class="text-[10px] font-bold tracking-[.16em] uppercase text-slate-400">${label}</p><p class="score-number mt-3">${value == null ? 'N/A' : value}</p>${value == null ? '' : `<div class="bar-track"><div class="bar-fill" style="width:${Math.max(0,Math.min(100,value))}%"></div></div>`}<p class="text-[11px] text-slate-500 mt-2">${scoreRating(value)}</p></article>`;
+  }).join('');
+
+  $('performanceSection').innerHTML = renderPerformance(data.pageSpeed);
+  if (data.competitors?.length) {
+    $('competitorSection').classList.remove('hidden');
+    $('competitorSection').innerHTML = renderCompetitors(data);
+  }
 
   const colors = data.signals.topColors || [];
   $('colorSwatches').innerHTML = colors.length
@@ -513,9 +568,51 @@ function renderResults(data) {
     : '<p class="text-slate-500 text-sm font-light">—</p>';
 
   $('fullSection').innerHTML = renderFullReport(data.analysis, data.signals);
+  $('results').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function scoreRating(value) {
+  if (value == null) return 'Measurement unavailable';
+  if (value >= 90) return 'Excellent';
+  if (value >= 75) return 'Good';
+  if (value >= 50) return 'Needs improvement';
+  return 'Priority issue';
+}
+
+function metricRating(value, good, poor) {
+  if (value == null) return ['Unavailable','text-slate-500'];
+  if (value <= good) return ['Good','metric-good'];
+  if (value > poor) return ['Poor','metric-poor'];
+  return ['Needs improvement','metric-mid'];
+}
+
+function metricCard(label, value, unit, good, poor, note='Lab') {
+  const [rating, cls] = metricRating(value, good, poor);
+  const shown = value == null ? 'N/A' : `${unit === 's' ? (value/1000).toFixed(2) : value}${unit === 's' ? 's' : unit}`;
+  return `<article class="metric-card"><div class="flex justify-between gap-2"><p class="text-xs font-bold text-slate-300">${label}</p><span class="text-[10px] text-slate-500 uppercase">${note}</span></div><p class="font-serif text-3xl mt-3">${shown}</p><p class="text-xs mt-2 ${cls}">${rating}</p></article>`;
+}
+
+function renderPerformance(pageSpeed) {
+  const mobile = pageSpeed?.mobile;
+  const desktop = pageSpeed?.desktop;
+  if (!mobile?.available && !desktop?.available) return `<h2 class="font-serif text-3xl mb-3">Performance & Core Web Vitals</h2><p class="text-slate-400">PageSpeed measurements were unavailable for this run. Other audit evidence remains valid.</p>`;
+  const m = mobile?.lab || {};
+  const field = mobile?.field || {};
+  const hasField = field.lcpMs != null || field.inpMs != null || field.cls != null;
+  const opportunities = (mobile?.opportunities || []).map(item => `<li class="flex justify-between gap-4 border-b border-slate-700 py-2"><span>${escapeHtml(item.title)}</span><strong class="text-gold-500 whitespace-nowrap">Save ~${item.savingsMs} ms</strong></li>`).join('');
+  return `<div class="flex flex-col md:flex-row justify-between gap-3 mb-5"><div><p class="text-xs font-bold tracking-[.2em] uppercase text-gold-500 mb-2">Measured performance</p><h2 class="font-serif text-3xl">Core Web Vitals & speed</h2></div><p class="text-xs text-slate-500 max-w-md">${hasField ? 'Field values use available real-user data; lab values use an emulated PageSpeed run.' : 'No sufficient real-user field data was available; values below are lab measurements and are labelled accordingly.'}</p></div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5"><div class="metric-card"><p class="text-xs text-slate-400">Mobile performance</p><p class="score-number mt-2">${mobile?.scores?.performance ?? 'N/A'}</p></div><div class="metric-card"><p class="text-xs text-slate-400">Desktop performance</p><p class="score-number mt-2">${desktop?.scores?.performance ?? 'N/A'}</p></div><div class="metric-card"><p class="text-xs text-slate-400">Accessibility</p><p class="score-number mt-2">${mobile?.scores?.accessibility ?? 'N/A'}</p></div><div class="metric-card"><p class="text-xs text-slate-400">Best practices</p><p class="score-number mt-2">${mobile?.scores?.bestPractices ?? 'N/A'}</p></div></div>
+    <div class="metric-grid">${metricCard('LCP',field.lcpMs ?? m.lcpMs,'s',2500,4000,field.lcpMs!=null?'Field':'Lab')}${metricCard('INP / TBT proxy',field.inpMs ?? m.tbtMs,'ms',field.inpMs!=null?200:200,field.inpMs!=null?500:600,field.inpMs!=null?'Field INP':'Lab TBT')}${metricCard('CLS',field.cls ?? m.cls,'',.1,.25,field.cls!=null?'Field':'Lab')}${metricCard('FCP',field.fcpMs ?? m.fcpMs,'s',1800,3000,field.fcpMs!=null?'Field':'Lab')}${metricCard('Speed Index',m.speedIndexMs,'s',3400,5800)}${metricCard('TTFB',field.ttfbMs ?? m.ttfbMs,'ms',800,1800,field.ttfbMs!=null?'Field':'Lab')}</div>
+    ${opportunities ? `<div class="mt-6"><h3 class="text-sm font-bold uppercase tracking-[.14em] text-slate-300 mb-2">Largest measured opportunities</h3><ul class="text-sm text-slate-400">${opportunities}</ul></div>` : ''}`;
+}
+
+function renderCompetitors(data) {
+  const rows = [{url:data.url,available:true,scores:data.scores},...(data.competitors||[])];
+  return `<p class="text-xs font-bold tracking-[.2em] uppercase text-gold-500 mb-2">Submitted competitor benchmark</p><h2 class="font-serif text-3xl mb-4">Evidence comparison</h2><p class="text-xs text-slate-500 mb-4">Scores compare only measurable public-page signals. They do not represent traffic, market share, revenue or rankings.</p><div class="overflow-x-auto"><table class="comparison-table"><thead><tr><th>Website</th><th>Performance</th><th>SEO</th><th>GEO</th><th>AEO</th><th>CRO</th><th>Brand</th></tr></thead><tbody>${rows.map(row=>`<tr><td class="text-white font-medium">${escapeHtml(new URL(row.url).hostname)}${row.url===data.url?' <span class="text-gold-500 text-xs">Your site</span>':''}</td>${['performance','seo','geo','aeo','cro','branding'].map(key=>`<td>${row.available ? (row.scores?.[key] ?? 'N/A') : 'Unavailable'}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 }
 
 function renderFullReport(analysis, signals) {
+  analysis = analysis && !analysis.error ? analysis : { cro:[], seo:[], geo:[], aeo:[], branding:[], topPriorities:[] };
   const sections = [
     [t('labelCro'), analysis.cro],
     [t('labelSeo'), analysis.seo],
