@@ -1,7 +1,18 @@
 {
+  "$schema": "node_modules/wrangler/config-schema.json",
   "name": "static-html-site",
   "compatibility_date": "2026-02-01",
+  "main": "src/worker.js",
   "assets": {
-    "directory": "."
-  }
+    // Was "." — moved to ./public so config/source files at repo root
+    // (this file, src/) are never served as public assets.
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "AUDIT_KV",
+      "id": "ead86eef8bfb48fdb34d5cb9708e4265"
+    }
+  ]
 }
