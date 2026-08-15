@@ -1,13 +1,21 @@
 // src/audit.js
-// Fetches the target site server-side, extracts signals, runs Claude
-// analysis, returns a tiered report. Called from src/worker.js for
+// Fetches the target site server-side, extracts signals, runs the AI
+// analysis, returns the report. Called from src/worker.js for
 // POST /api/audit.
+//
+// Paid only — every request must carry a valid unlock token issued by
+// /api/verify-payment. There is no free tier.
 //
 // Required bindings (wrangler.jsonc / dashboard):
 //   - KV namespace: AUDIT_KV
-//   - Secret: ANTHROPIC_API_KEY
+//   - Secret: GEMINI_API_KEY   (from https://aistudio.google.com/apikey)
+//   - Optional var: GEMINI_MODEL (defaults to gemini-3.6-flash)
 
 import { corsHeaders } from "./worker.js";
+
+// Supported report languages. Keep in sync with the frontend's
+// language list in public/audit-tool.html.
+const SUPPORTED_LANGS = { en: "English", fr: "French", de: "German", es: "Spanish", it: "Italian", nl: "Dutch", pt: "Portuguese", pl: "Polish" };
 
 export async function handleAudit(request, env) {
   let body;
@@ -20,20 +28,14 @@ export async function handleAudit(request, env) {
   const targetUrl = normalizeUrl(body.url);
   if (!targetUrl) return json({ error: "Enter a valid website URL." }, 400);
 
-  let tier = "free";
-  if (body.token && env.AUDIT_KV) {
-    const unlockedUrl = await env.AUDIT_KV.get(`unlock:${body.token}`);
-    if (unlockedUrl === targetUrl) tier = "full";
-  }
+  const lang = SUPPORTED_LANGS[body.lang] ? body.lang : "en";
 
-  if (tier === "free" && env.AUDIT_KV) {
-    const ip = request.headers.get("CF-Connecting-IP") || "unknown";
-    const rlKey = `rl:${ip}:${new Date().toISOString().slice(0, 10)}`;
-    const count = parseInt((await env.AUDIT_KV.get(rlKey)) || "0", 10);
-    if (count >= 5) {
-      return json({ error: "Daily free-audit limit reached — try again tomorrow, or unlock the full report." }, 429);
-    }
-    await env.AUDIT_KV.put(rlKey, String(count + 1), { expirationTtl: 60 * 60 * 24 });
+  if (!body.token || !env.AUDIT_KV) {
+    return json({ error: "Payment required. Unlock a report for this URL first." }, 402);
+  }
+  const unlockedUrl = await env.AUDIT_KV.get(`unlock:${body.token}`);
+  if (unlockedUrl !== targetUrl) {
+    return json({ error: "This unlock token is invalid, expired, or doesn't match this URL." }, 402);
   }
 
   let html;
@@ -52,14 +54,9 @@ export async function handleAudit(request, env) {
   signals.botAccess = await checkBotAccess(targetUrl);
   signals.hasLlmsTxt = await checkLlmsTxt(targetUrl);
 
-  const analysis = await runAiAnalysis(env, signals, tier);
+  const analysis = await runAiAnalysis(env, signals, lang);
 
-  return json({
-    url: targetUrl,
-    tier,
-    signals: tier === "full" ? signals : trimSignalsForFree(signals),
-    analysis,
-  });
+  return json({ url: targetUrl, lang, signals, analysis });
 }
 
 function normalizeUrl(input) {
@@ -209,73 +206,108 @@ async function checkLlmsTxt(targetUrl) {
   }
 }
 
-function trimSignalsForFree(signals) {
-  return {
-    title: signals.title,
-    hasViewportMeta: signals.hasViewportMeta,
-    h1Count: signals.h1Count,
-    topColors: signals.topColors.slice(0, 3),
-    imgAltCoverage: signals.imgCount ? Math.round((signals.imgWithAlt / signals.imgCount) * 100) : null,
-  };
-}
+// --- Gemini ----------------------------------------------------------
 
-async function runAiAnalysis(env, signals, tier) {
-  if (!env.ANTHROPIC_API_KEY) {
-    return { error: "Audit engine not configured yet (missing ANTHROPIC_API_KEY)." };
+const FINDING_ARRAY = {
+  type: "array",
+  items: {
+    type: "object",
+    properties: {
+      finding: { type: "string" },
+      severity: { type: "string", enum: ["high", "medium", "low"] },
+      fix: { type: "string" },
+    },
+    required: ["finding", "severity", "fix"],
+  },
+};
+
+const RESPONSE_SCHEMA = {
+  type: "object",
+  properties: {
+    cro: FINDING_ARRAY,
+    seo: FINDING_ARRAY,
+    geo: FINDING_ARRAY,
+    aeo: FINDING_ARRAY,
+    branding: FINDING_ARRAY,
+    topPriorities: { type: "array", items: { type: "string" } },
+  },
+  required: ["cro", "seo", "geo", "aeo", "branding", "topPriorities"],
+};
+
+async function runAiAnalysis(env, signals, lang) {
+  if (!env.GEMINI_API_KEY) {
+    return { error: "Audit engine not configured yet (missing GEMINI_API_KEY)." };
   }
 
-  const instructions =
-    tier === "full"
-      ? "Give a complete, detailed audit across all five categories with specific, actionable fixes. 2-4 findings per category."
-      : "Give ONLY a short teaser: exactly 2 findings total (your pick of the most impactful), each 1-2 sentences, drawn from CRO and SEO only. Do NOT mention GEO, AEO, or branding in the free tier. Leave those arrays empty. End topPriorities with one line noting the full report covers CRO, SEO, GEO, AEO, and branding in depth.";
+  const model = env.GEMINI_MODEL || "gemini-3.6-flash";
+  const langName = SUPPORTED_LANGS[lang] || "English";
 
-  const prompt = `You audit websites for a paid CRO/SEO/branding tool. Analyze the extracted signals below and return ONLY valid JSON (no markdown fences, no preamble) in exactly this shape:
-{
-  "cro": [{"finding": "", "severity": "high|medium|low", "fix": ""}],
-  "seo": [{"finding": "", "severity": "high|medium|low", "fix": ""}],
-  "geo": [{"finding": "", "severity": "high|medium|low", "fix": ""}],
-  "aeo": [{"finding": "", "severity": "high|medium|low", "fix": ""}],
-  "branding": [{"finding": "", "severity": "high|medium|low", "fix": ""}],
-  "topPriorities": ["", "", ""]
-}
+  const prompt = `You audit websites for a paid CRO/SEO/branding tool. Analyze the extracted signals below and give a complete, detailed audit across all five categories with specific, actionable fixes — 2-4 findings per category.
 
 Definitions:
-- GEO (Generative Engine Optimization): getting cited by AI answer tools like ChatGPT, Perplexity, Google AI Overviews — judge on structured data, quotable/clear statements, entity clarity (org/person schema), content freshness signals.
+- GEO (Generative Engine Optimization): getting cited by AI answer tools like ChatGPT, Perplexity, Google AI Overviews — judge on structured data, quotable/clear statements, entity clarity (org/person schema), and whether an llms.txt exists (signals.hasLlmsTxt).
 - AEO (Answer Engine Optimization): featured snippets, voice answers — judge on question-style headings, concise answer-first paragraphs, FAQ schema, and whether AI crawlers (GPTBot, ClaudeBot, PerplexityBot, Google-Extended) are blocked in robots.txt (signals.botAccess).
-- branding: color palette consistency (signals.topColors — too many near-duplicate colors is a red flag), font consistency (signals.fonts), visual hierarchy cues available from the signals.
+- branding: colour palette consistency (signals.topColors — many near-duplicate colours is a red flag), font consistency (signals.fonts), and visual hierarchy cues available from the signals.
 
-Be specific and honest — if something is already done well, don't invent a problem. Base every finding strictly on the signals given; don't guess at things you can't see (e.g. actual rendered contrast, real page-speed numbers).
+Be specific and honest — if something is already done well, don't invent a problem. Base every finding strictly on the signals given; never guess at things you cannot see from them (rendered contrast, real page-speed numbers, traffic).
 
-${instructions}
+Write every "finding" and "fix" string in ${langName} (language code: ${lang}). Keep "severity" values as the literal English words high/medium/low regardless of language, since the frontend matches on those exact strings.
 
 Extracted signals:
 ${JSON.stringify(signals, null, 2)}`;
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": env.ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-6",
-      max_tokens: tier === "full" ? 2200 : 400,
-      messages: [{ role: "user", content: prompt }],
-    }),
-  });
+  let res;
+  try {
+    res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": env.GEMINI_API_KEY,
+        },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          generationConfig: {
+            responseMimeType: "application/json",
+            responseSchema: RESPONSE_SCHEMA,
+            maxOutputTokens: 2400,
+            temperature: 0.4,
+          },
+        }),
+      }
+    );
+  } catch {
+    return { error: "Couldn't reach the AI service. The raw signals above are still accurate." };
+  }
 
   if (!res.ok) {
-    return { error: "AI analysis failed, but the raw signals above are still accurate." };
+    let detail = "";
+    try {
+      const errBody = await res.json();
+      detail = errBody?.error?.message || "";
+    } catch {
+      /* non-JSON error body */
+    }
+    return {
+      error: `AI analysis failed (status ${res.status}). The raw signals above are still accurate.`,
+      detail: detail.slice(0, 200),
+    };
   }
 
   const data = await res.json();
-  const textBlock = (data.content || []).find((b) => b.type === "text");
-  const raw = textBlock ? textBlock.text : "{}";
-  const clean = raw.replace(/```json|```/g, "").trim();
+  const candidate = data?.candidates?.[0];
+  if (!candidate) {
+    return { error: "AI returned no analysis. The raw signals above are still accurate." };
+  }
+  if (candidate.finishReason && candidate.finishReason !== "STOP") {
+    return { error: `AI stopped early (${candidate.finishReason}). Please try again.` };
+  }
+
+  const text = (candidate.content?.parts || []).map((p) => p.text || "").join("");
   try {
-    return JSON.parse(clean);
+    return JSON.parse(text);
   } catch {
-    return { error: "Couldn't parse the AI response.", raw: clean };
+    return { error: "Couldn't parse the AI response.", raw: text.slice(0, 500) };
   }
 }
