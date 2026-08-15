@@ -433,27 +433,42 @@ $('payBtn').addEventListener('click', async () => {
 });
 
 async function onPaymentComplete(payment, expectedOrderId) {
-  setStatus(t('statusVerifying'));
+  setStatus('Payment received. Confirming securely…');
   try {
     if (payment.razorpay_order_id !== expectedOrderId) {
       setStatus('Payment order did not match. Please contact support.', true);
       resetPayBtn();
       return;
     }
-    const verifyRes = await fetch(`${API_BASE}/api/verify-razorpay`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        razorpayPaymentId: payment.razorpay_payment_id,
-        razorpayOrderId: payment.razorpay_order_id,
-        razorpaySignature: payment.razorpay_signature,
-      }),
-    });
-    const verifyData = await verifyRes.json();
-    if (!verifyRes.ok) { setStatus(verifyData.error || t('errGeneric'), true); resetPayBtn(); return; }
+    let verifyData;
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      const verifyRes = await fetch(`${API_BASE}/api/verify-razorpay`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          razorpayPaymentId: payment.razorpay_payment_id,
+          razorpayOrderId: payment.razorpay_order_id,
+          razorpaySignature: payment.razorpay_signature,
+        }),
+      });
+      verifyData = await verifyRes.json();
+      if (verifyRes.ok && verifyRes.status !== 202) break;
+      if (!verifyData.retryable) {
+        setStatus(verifyData.error || t('errGeneric'), true);
+        resetPayBtn();
+        return;
+      }
+      setStatus(`Payment received. Waiting for confirmation… (${attempt + 1}/10)`);
+      await new Promise(resolve => setTimeout(resolve, 2500));
+    }
+    if (!verifyData?.token) {
+      setStatus('Your payment was received but confirmation is taking longer than expected. Please contact support with your Razorpay payment ID.', true);
+      resetPayBtn();
+      return;
+    }
 
     currentUrl = verifyData.url;
-    setStatus(t('statusRunning'));
+    setStatus('Payment confirmed. Running your audit now…');
     const auditRes = await fetch(`${API_BASE}/api/audit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

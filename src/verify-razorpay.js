@@ -56,7 +56,33 @@ export async function handleVerifyRazorpay(request, env) {
     return json({ error: "Could not confirm this payment." }, 400);
   }
 
-  const payment = await paymentResponse.json();
+  let payment = await paymentResponse.json();
+  if (
+    payment.status === "authorized" &&
+    payment.captured !== true &&
+    payment.order_id === orderId &&
+    payment.amount === storedOrder.amount &&
+    payment.currency === storedOrder.currency
+  ) {
+    let captureResponse;
+    try {
+      captureResponse = await fetch(
+        `https://api.razorpay.com/v1/payments/${encodeURIComponent(paymentId)}/capture`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Basic ${auth}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ amount: storedOrder.amount, currency: storedOrder.currency }),
+        }
+      );
+    } catch {
+      return json({ error: "Payment received. Confirmation is still pending.", retryable: true }, 202);
+    }
+    if (captureResponse.ok) payment = await captureResponse.json();
+    else return json({ error: "Payment received. Confirmation is still pending.", retryable: true }, 202);
+  }
   if (
     payment.status !== "captured" ||
     payment.captured !== true ||
@@ -64,7 +90,7 @@ export async function handleVerifyRazorpay(request, env) {
     payment.amount !== storedOrder.amount ||
     payment.currency !== storedOrder.currency
   ) {
-    return json({ error: "Payment has not been captured yet. Please try again shortly." }, 402);
+    return json({ error: "Payment received. Confirmation is still pending.", retryable: true }, 202);
   }
 
   const token = crypto.randomUUID();
