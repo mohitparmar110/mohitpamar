@@ -8,8 +8,8 @@
 <link rel="canonical" href="https://www.mohitparmar.co.in/audit-tool">
 <meta name="robots" content="index, follow">
 <script src="https://cdn.tailwindcss.com"></script>
-<!-- Paddle Billing overlay checkout -->
-<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+<!-- Razorpay Standard Checkout -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
@@ -44,51 +44,63 @@
     border-radius: 50%; animation: spin 0.8s linear infinite; display:inline-block;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+  .audit-grid { display:grid; grid-template-columns:minmax(0,1.08fr) minmax(340px,.92fr); gap:4rem; align-items:start; }
+  .feature { display:flex; gap:.9rem; padding:1rem 0; border-bottom:1px solid #1e293b; }
+  .feature:last-child { border-bottom:0; }
+  .feature-icon { width:2.25rem; height:2.25rem; flex:0 0 auto; display:grid; place-items:center; border:1px solid rgba(197,160,89,.45); color:#C5A059; }
+  .checkout-card { position:sticky; top:2rem; background:#111c30; border:1px solid #334155; padding:2rem; box-shadow:0 24px 80px rgba(0,0,0,.28); }
+  .trust-row { display:flex; flex-wrap:wrap; gap:.65rem; }
+  .trust-pill { border:1px solid #334155; padding:.45rem .7rem; color:#94a3b8; font-size:.7rem; letter-spacing:.06em; }
+  .config-notice { border-left:3px solid #C5A059; background:rgba(197,160,89,.08); padding:.8rem 1rem; }
+  @media (max-width:860px) { .audit-grid { grid-template-columns:1fr; gap:2.5rem; } .checkout-card { position:static; } }
 </style>
 </head>
 <body class="bg-slate-900 text-white font-sans antialiased">
 
-<section class="min-h-screen py-20 px-5">
-  <div class="max-w-3xl mx-auto">
-
-    <div class="flex justify-end mb-6">
+<header class="border-b border-slate-800">
+  <nav class="max-w-6xl mx-auto px-5 h-20 flex items-center justify-between" aria-label="Primary">
+    <a href="/" class="font-serif font-bold tracking-[0.2em] text-white">MOHIT PARMAR</a>
+    <div class="flex items-center gap-4">
       <select id="langSelect" class="lang-select" aria-label="Language">
-        <option value="en">English</option>
-        <option value="fr">Français</option>
-        <option value="de">Deutsch</option>
-        <option value="es">Español</option>
-        <option value="it">Italiano</option>
-        <option value="nl">Nederlands</option>
-        <option value="pt">Português</option>
-        <option value="pl">Polski</option>
+        <option value="en">English</option><option value="fr">Français</option><option value="de">Deutsch</option><option value="es">Español</option><option value="it">Italiano</option><option value="nl">Nederlands</option><option value="pt">Português</option><option value="pl">Polski</option>
       </select>
+      <a href="/" class="text-xs font-bold tracking-[0.14em] uppercase text-slate-400 hover:text-gold-500">Home</a>
     </div>
+  </nav>
+</header>
 
-    <div class="text-center mb-12">
-      <p class="text-xs font-bold tracking-[0.3em] uppercase text-gold-500 mb-4" data-i18n="kicker">Full Website Audit</p>
-      <h1 class="text-4xl md:text-5xl font-serif mb-5 leading-tight">CRO · SEO · GEO · AEO · Branding</h1>
-      <p class="text-slate-400 font-light max-w-xl mx-auto leading-relaxed" data-i18n="intro">
-        Drop in your URL and pay securely to get the full report: real signals pulled from
-        your live site — colors, headings, meta tags, structured data, and whether AI
-        answer engines can even see you — turned into a prioritized fix list.
-      </p>
-      <p class="text-slate-500 text-xs font-light mt-3" data-i18n="priceNote">
-        Price is shown automatically in your local currency at checkout.
-      </p>
-    </div>
+<main class="min-h-screen py-14 md:py-20 px-5">
+  <div class="max-w-6xl mx-auto">
+    <div class="audit-grid">
+      <section>
+        <p class="text-xs font-bold tracking-[0.3em] uppercase text-gold-500 mb-5">Paid instant website audit</p>
+        <h1 class="text-5xl md:text-7xl font-serif mb-7 leading-[1.05]">See what your website is <span class="italic text-slate-500">missing.</span></h1>
+        <p class="text-slate-300 text-lg font-light leading-relaxed max-w-2xl mb-9" data-i18n="intro">Drop in your URL and pay securely to get the full report: real signals pulled from your live site — colors, headings, meta tags, structured data, and whether AI answer engines can even see you — turned into a prioritized fix list.</p>
+        <div class="max-w-xl">
+          <div class="feature"><span class="feature-icon"><i class="fas fa-arrow-trend-up"></i></span><div><h2 class="font-semibold">Conversion clarity</h2><p class="text-sm text-slate-400 font-light">Hierarchy, calls to action, trust signals, and friction.</p></div></div>
+          <div class="feature"><span class="feature-icon"><i class="fas fa-magnifying-glass"></i></span><div><h2 class="font-semibold">Search visibility</h2><p class="text-sm text-slate-400 font-light">SEO, structured data, answer engines, and AI crawler access.</p></div></div>
+          <div class="feature"><span class="feature-icon"><i class="fas fa-palette"></i></span><div><h2 class="font-semibold">Brand consistency</h2><p class="text-sm text-slate-400 font-light">Detected colours, typography, and visual-system signals.</p></div></div>
+        </div>
+        <p class="text-xs text-slate-500 mt-8 leading-relaxed">Automated diagnostic report. Recommendations do not guarantee rankings, traffic, revenue, or conversion results.</p>
+      </section>
 
-    <!-- Input + pay -->
-    <div class="flex flex-col sm:flex-row gap-3 mb-3">
-      <input id="urlInput" class="audit-input" type="text" data-i18n-placeholder="urlPlaceholder" placeholder="yourstore.com" autocomplete="off">
-      <button id="payBtn" class="bg-gold-500 text-slate-900 px-8 py-4 text-xs font-bold tracking-[0.2em] uppercase hover:bg-white transition-colors whitespace-nowrap">
-        <span data-i18n="payButton">Pay &amp; Run Audit</span>
-      </button>
+      <section class="checkout-card" aria-labelledby="checkoutHeading">
+        <p class="text-[11px] font-bold tracking-[0.22em] uppercase text-gold-500 mb-3">One website · One report</p>
+        <h2 id="checkoutHeading" class="text-3xl font-serif mb-3">Run your paid audit</h2>
+        <p class="text-slate-400 text-sm font-light mb-6">One-time payment: <strong class="text-white">₹499</strong>. Taxes may apply.</p>
+        <label for="urlInput" class="block text-xs font-bold tracking-[0.14em] uppercase text-slate-300 mb-2">Website URL</label>
+        <input id="urlInput" class="audit-input mb-3" type="url" inputmode="url" data-i18n-placeholder="urlPlaceholder" placeholder="yourstore.com" autocomplete="url" required>
+        <button id="payBtn" class="w-full min-h-14 bg-gold-500 text-slate-900 px-8 py-4 text-xs font-bold tracking-[0.2em] uppercase hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          <span data-i18n="payButton">Pay &amp; Run Audit</span>
+        </button>
+        <p id="statusLine" class="text-xs text-slate-500 mt-4 min-h-[1rem]" role="status" aria-live="polite"></p>
+        <div class="trust-row mt-5"><span class="trust-pill"><i class="fas fa-lock mr-1 text-gold-500"></i> Secure Razorpay checkout</span><span class="trust-pill">No subscription</span><span class="trust-pill">24-hour report access</span></div>
+        <p class="text-[11px] text-slate-500 mt-5 leading-relaxed">By continuing, you agree to the <a class="text-gold-500 hover:text-white" href="/terms-of-service">Terms</a> and acknowledge the <a class="text-gold-500 hover:text-white" href="/privacy-policy">Privacy</a> and <a class="text-gold-500 hover:text-white" href="/refund-policy">Refund</a> policies.</p>
+      </section>
     </div>
-    <p class="text-xs text-slate-500 mt-3 leading-relaxed">By continuing, you agree to the <a class="text-gold-500 hover:text-white" href="/terms-of-service">Terms</a> and acknowledge the <a class="text-gold-500 hover:text-white" href="/privacy-policy">Privacy</a> and <a class="text-gold-500 hover:text-white" href="/refund-policy">Refund</a> policies.</p>
-    <p id="statusLine" class="text-xs text-slate-500 mb-10 mt-3 min-h-[1rem]"></p>
 
     <!-- Results -->
-    <div id="results" class="hidden space-y-8">
+    <div id="results" class="hidden space-y-8 mt-16 pt-12 border-t border-slate-800">
 
       <div class="border border-slate-700 p-5">
         <p class="text-xs font-bold tracking-[0.2em] uppercase text-slate-500 mb-3" data-i18n="colorsHeading">Dominant colors detected</p>
@@ -109,19 +121,9 @@
       <a href="/" class="hover:text-gold-500">Home</a><span class="mx-3">·</span><a href="/terms-of-service" class="hover:text-gold-500">Terms</a><span class="mx-3">·</span><a href="/privacy-policy" class="hover:text-gold-500">Privacy</a><span class="mx-3">·</span><a href="/refund-policy" class="hover:text-gold-500">Refunds</a>
     </footer>
   </div>
-</section>
+</main>
 
 <script>
-// =====================================================================
-// CONFIG — fill these in from your Paddle dashboard (Developer Tools →
-// Authentication for the client token; Catalog → Prices for the price
-// ID). Both are safe to be public — the client-side token can only open
-// checkouts, not move money or read account data.
-// =====================================================================
-const PADDLE_CLIENT_TOKEN = 'REPLACE_WITH_YOUR_PADDLE_CLIENT_TOKEN'; // e.g. live_xxx or test_xxx for sandbox
-const PADDLE_PRICE_ID = 'REPLACE_WITH_YOUR_PADDLE_PRICE_ID';         // e.g. pri_xxx
-const PADDLE_ENVIRONMENT = 'production'; // 'sandbox' while testing
-
 const API_BASE = ''; // same-origin — Worker routes live at /api/*
 
 // =====================================================================
@@ -366,28 +368,9 @@ $('langSelect').addEventListener('change', (e) => {
   applyTranslations();
 });
 
-// --- Paddle init ---
-Paddle.Environment.set(PADDLE_ENVIRONMENT);
-Paddle.Initialize({
-  token: PADDLE_CLIENT_TOKEN,
-  eventCallback: function (event) {
-    if (event.name === 'checkout.completed') {
-      // Field path can shift between Paddle.js versions — log once so
-      // it's easy to confirm in the browser console during first test.
-      console.log('Paddle checkout.completed payload:', event);
-      const txnId = event?.data?.transaction_id || event?.data?.id;
-      if (txnId) onPaymentComplete(txnId);
-      else setStatus(t('errGeneric'), true);
-    } else if (event.name === 'checkout.closed' && !event?.data?.transaction_id) {
-      setStatus(t('errCancelled'), true);
-      resetPayBtn();
-    }
-  },
-});
-
 function setStatus(msg, isError) {
   $('statusLine').textContent = msg;
-  $('statusLine').className = 'text-xs mb-10 min-h-[1rem] ' + (isError ? 'text-red-400' : 'text-slate-500');
+  $('statusLine').className = 'text-xs mt-4 min-h-[1rem] ' + (isError ? 'text-red-400' : 'text-slate-500');
 }
 
 function resetPayBtn() {
@@ -395,7 +378,7 @@ function resetPayBtn() {
   $('payBtn').innerHTML = `<span data-i18n="payButton">${t('payButton')}</span>`;
 }
 
-$('payBtn').addEventListener('click', () => {
+$('payBtn').addEventListener('click', async () => {
   const raw = $('urlInput').value.trim();
   if (!raw) { setStatus(t('errNoUrl'), true); return; }
 
@@ -408,24 +391,68 @@ $('payBtn').addEventListener('click', () => {
   $('payBtn').innerHTML = '<span class="spinner"></span>';
   setStatus(t('statusOpening'));
 
-  Paddle.Checkout.open({
-    items: [{ priceId: PADDLE_PRICE_ID, quantity: 1 }],
-    customData: { audit_url: currentUrl },
-    settings: { displayMode: 'overlay', theme: 'dark', locale: currentLang },
-  });
-});
-
-async function onPaymentComplete(transactionId) {
-  setStatus(t('statusVerifying'));
   try {
-    const verifyRes = await fetch(`${API_BASE}/api/verify-payment`, {
+    const orderRes = await fetch(`${API_BASE}/api/create-order`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ transactionId, url: currentUrl }),
+      body: JSON.stringify({ url: currentUrl }),
+    });
+    const order = await orderRes.json();
+    if (!orderRes.ok) {
+      setStatus(order.error || t('errGeneric'), true);
+      resetPayBtn();
+      return;
+    }
+
+    const checkout = new Razorpay({
+      key: order.keyId,
+      amount: order.amount,
+      currency: order.currency,
+      order_id: order.orderId,
+      name: 'Mohit Parmar',
+      description: 'Instant Website Audit — One Report',
+      theme: { color: '#C5A059' },
+      retry: { enabled: true },
+      handler: (payment) => onPaymentComplete(payment, order.orderId),
+      modal: {
+        ondismiss: () => {
+          setStatus(t('errCancelled'), true);
+          resetPayBtn();
+        },
+      },
+    });
+    checkout.on('payment.failed', () => {
+      setStatus('Payment was not completed. No report has been unlocked.', true);
+      resetPayBtn();
+    });
+    checkout.open();
+  } catch {
+    setStatus('Secure checkout could not be opened. Please try again shortly.', true);
+    resetPayBtn();
+  }
+});
+
+async function onPaymentComplete(payment, expectedOrderId) {
+  setStatus(t('statusVerifying'));
+  try {
+    if (payment.razorpay_order_id !== expectedOrderId) {
+      setStatus('Payment order did not match. Please contact support.', true);
+      resetPayBtn();
+      return;
+    }
+    const verifyRes = await fetch(`${API_BASE}/api/verify-razorpay`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        razorpayPaymentId: payment.razorpay_payment_id,
+        razorpayOrderId: payment.razorpay_order_id,
+        razorpaySignature: payment.razorpay_signature,
+      }),
     });
     const verifyData = await verifyRes.json();
     if (!verifyRes.ok) { setStatus(verifyData.error || t('errGeneric'), true); resetPayBtn(); return; }
 
+    currentUrl = verifyData.url;
     setStatus(t('statusRunning'));
     const auditRes = await fetch(`${API_BASE}/api/audit`, {
       method: 'POST',
