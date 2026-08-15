@@ -17,8 +17,15 @@ export async function handleCreateOrder(request, env) {
   const url = normalizeUrl(body.url);
   if (!url) return json({ error: "Enter a valid website URL." }, 400);
 
-  if (!env.RAZORPAY_KEY_ID || !env.RAZORPAY_KEY_SECRET || !env.AUDIT_KV) {
-    return json({ error: "Payments not configured yet." }, 500);
+  const missingBindings = [];
+  if (!env.RAZORPAY_KEY_ID) missingBindings.push("RAZORPAY_KEY_ID");
+  if (!env.RAZORPAY_KEY_SECRET) missingBindings.push("RAZORPAY_KEY_SECRET");
+  if (!env.AUDIT_KV) missingBindings.push("AUDIT_KV");
+  if (missingBindings.length) {
+    return json(
+      { error: `Payments not configured: ${missingBindings.join(", ")}.` },
+      500
+    );
   }
 
   const amountPaise = parseInt(env.AUDIT_PRICE_PAISE || "49900", 10);
