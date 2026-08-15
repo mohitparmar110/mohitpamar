@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Website Audit — CRO, SEO, GEO & AEO | Mohit Parmar</title>
+<meta name="description" content="Run a free instant audit of your website's conversion, SEO, AI-search visibility (GEO/AEO), and branding — then unlock the full prioritized fix list.">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: { gold: { 500: '#C5A059', 600: '#A3803B' }, slate: { 900: '#0F172A' } },
+        fontFamily: { sans: ['Manrope', 'sans-serif'], serif: ['Playfair Display', 'serif'] },
+      }
+    }
+  }
+</script>
+<style>
+  .audit-input {
+    width: 100%; padding: 1rem 1.25rem; background: #1e293b; border: 1px solid #334155;
+    color: white; font-size: 0.95rem; outline: none; transition: border-color .3s ease;
+  }
+  .audit-input:focus { border-color: #C5A059; }
+  .audit-input::placeholder { color: #64748b; }
+  .sev-high { color: #f87171; }
+  .sev-medium { color: #C5A059; }
+  .sev-low { color: #94a3b8; }
+  .swatch { width: 28px; height: 28px; border-radius: 4px; border: 1px solid rgba(255,255,255,.15); display:inline-block; }
+  .locked { filter: blur(5px); user-select: none; pointer-events: none; }
+  .spinner {
+    width: 22px; height: 22px; border: 3px solid #334155; border-top-color: #C5A059;
+    border-radius: 50%; animation: spin 0.8s linear infinite; display:inline-block;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body class="bg-slate-900 text-white font-sans antialiased">
+
+<section class="min-h-screen py-20 px-5">
+  <div class="max-w-3xl mx-auto">
+
+    <div class="text-center mb-12">
+      <p class="text-xs font-bold tracking-[0.3em] uppercase text-gold-500 mb-4">Instant Website Audit</p>
+      <h1 class="text-4xl md:text-5xl font-serif mb-5 leading-tight">CRO · SEO · GEO · AEO · Branding</h1>
+      <p class="text-slate-400 font-light max-w-xl mx-auto leading-relaxed">
+        Drop in your URL. I'll pull real signals from your live site — colors, headings, meta
+        tags, structured data, and whether AI answer engines can even see you — and turn them
+        into a prioritized fix list.
+      </p>
+    </div>
+
+    <!-- Input -->
+    <div class="flex flex-col sm:flex-row gap-3 mb-3">
+      <input id="urlInput" class="audit-input" type="text" placeholder="yourstore.com" autocomplete="off">
+      <button id="runBtn" class="bg-gold-500 text-slate-900 px-8 py-4 text-xs font-bold tracking-[0.2em] uppercase hover:bg-white transition-colors whitespace-nowrap">
+        Run Free Audit
+      </button>
+    </div>
+    <p id="statusLine" class="text-xs text-slate-500 mb-10 min-h-[1rem]"></p>
+
+    <!-- Results -->
+    <div id="results" class="hidden space-y-10">
+
+      <!-- Free teaser -->
+      <div id="freeSection">
+        <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-500 mb-4">What I found — free preview</p>
+        <div id="freeFindings" class="space-y-4"></div>
+
+        <div class="mt-6 border border-slate-700 p-5">
+          <p class="text-xs font-bold tracking-[0.2em] uppercase text-slate-500 mb-3">Dominant colors detected</p>
+          <div id="colorSwatches" class="flex gap-2 flex-wrap"></div>
+        </div>
+      </div>
+
+      <!-- Locked full report -->
+      <div id="lockedSection">
+        <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-500 mb-4">Full report</p>
+        <div class="relative border border-slate-700 p-8">
+          <div class="locked space-y-4">
+            <div class="h-4 bg-slate-700 rounded w-3/4"></div>
+            <div class="h-4 bg-slate-700 rounded w-1/2"></div>
+            <div class="h-4 bg-slate-700 rounded w-2/3"></div>
+            <div class="h-4 bg-slate-700 rounded w-1/3"></div>
+            <div class="h-4 bg-slate-700 rounded w-3/5"></div>
+          </div>
+          <div class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/70 px-6 text-center">
+            <i class="fas fa-lock text-gold-500 text-2xl mb-4"></i>
+            <p class="font-serif text-xl mb-2">Full CRO, SEO, GEO &amp; AEO breakdown</p>
+            <p class="text-slate-400 text-sm font-light mb-6 max-w-sm">
+              Every finding, severity-ranked, with the exact fix for each — plus whether
+              AI crawlers (ChatGPT, Perplexity, Google AI) can even read your site.
+            </p>
+            <button id="unlockBtn" class="bg-gold-500 text-slate-900 px-8 py-3.5 text-xs font-bold tracking-[0.2em] uppercase hover:bg-white transition-colors">
+              Unlock Full Report — <span id="priceLabel">₹499</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Unlocked full report (hidden until paid) -->
+      <div id="fullSection" class="hidden space-y-8"></div>
+
+      <div class="text-center pt-6 border-t border-slate-800">
+        <p class="text-slate-400 font-light text-sm mb-4">Want someone to actually implement these fixes?</p>
+        <a href="/#services" class="inline-block border border-gold-500 text-gold-500 px-8 py-3 text-xs font-bold tracking-[0.2em] uppercase hover:bg-gold-500 hover:text-slate-900 transition-colors">
+          See Retainer &amp; Fractional Options
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+const API_BASE = ''; // same-origin — Pages Functions live at /api/*
+let currentUrl = null;
+let currentTier = 'free';
+let unlockToken = null;
+
+const $ = (id) => document.getElementById(id);
+
+$('runBtn').addEventListener('click', runAudit);
+$('urlInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') runAudit(); });
+
+async function runAudit() {
+  const raw = $('urlInput').value.trim();
+  if (!raw) { setStatus('Enter a website URL first.', true); return; }
+
+  setStatus('Fetching your site and running the audit...');
+  $('runBtn').disabled = true;
+  $('results').classList.add('hidden');
+
+  try {
+    const res = await fetch(`${API_BASE}/api/audit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: raw, token: unlockToken }),
+    });
+    const data = await res.json();
+    if (!res.ok) { setStatus(data.error || 'Something went wrong.', true); return; }
+
+    currentUrl = data.url;
+    currentTier = data.tier;
+    renderResults(data);
+    setStatus('');
+  } catch (err) {
+    setStatus('Could not reach the audit engine. Try again in a moment.', true);
+  } finally {
+    $('runBtn').disabled = false;
+  }
+}
+
+function setStatus(msg, isError) {
+  $('statusLine').textContent = msg;
+  $('statusLine').className = 'text-xs mb-10 min-h-[1rem] ' + (isError ? 'text-red-400' : 'text-slate-500');
+}
+
+function severityClass(sev) {
+  return sev === 'high' ? 'sev-high' : sev === 'medium' ? 'sev-medium' : 'sev-low';
+}
+
+function renderFindingList(items) {
+  if (!items || !items.length) return '<p class="text-slate-500 text-sm font-light">Nothing flagged here.</p>';
+  return items.map(f => `
+    <div class="border-l-2 border-slate-700 pl-4 py-1">
+      <p class="text-xs font-bold tracking-wider uppercase ${severityClass(f.severity)} mb-1">${f.severity || ''}</p>
+      <p class="text-white font-medium mb-1">${escapeHtml(f.finding || '')}</p>
+      <p class="text-slate-400 text-sm font-light">${escapeHtml(f.fix || '')}</p>
+    </div>`).join('');
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function renderResults(data) {
+  $('results').classList.remove('hidden');
+
+  // Free teaser findings
+  const teaser = [...(data.analysis.cro || []), ...(data.analysis.seo || [])].slice(0, 2);
+  $('freeFindings').innerHTML = renderFindingList(teaser);
+
+  // Colors
+  const colors = data.signals.topColors || [];
+  $('colorSwatches').innerHTML = colors.length
+    ? colors.map(c => `<span class="swatch" style="background:${escapeHtml(c.color)}" title="${escapeHtml(c.color)} (${c.count}x)"></span>`).join('')
+    : '<p class="text-slate-500 text-sm font-light">No clear palette detected.</p>';
+
+  if (data.tier === 'full') {
+    $('lockedSection').classList.add('hidden');
+    $('fullSection').classList.remove('hidden');
+    $('fullSection').innerHTML = renderFullReport(data.analysis, data.signals);
+  } else {
+    $('lockedSection').classList.remove('hidden');
+    $('fullSection').classList.add('hidden');
+  }
+}
+
+function renderFullReport(analysis, signals) {
+  const sections = [
+    ['CRO', analysis.cro],
+    ['SEO', analysis.seo],
+    ['GEO — AI Search Visibility', analysis.geo],
+    ['AEO — Answer Engines', analysis.aeo],
+    ['Branding & Design', analysis.branding],
+  ];
+
+  const priorities = (analysis.topPriorities || []).map(p => `<li class="mb-2">${escapeHtml(p)}</li>`).join('');
+
+  const botLine = signals.botAccess && signals.botAccess.blockedAiBots && signals.botAccess.blockedAiBots.length
+    ? `<p class="text-red-400 text-sm mt-3"><i class="fas fa-triangle-exclamation mr-2"></i>Blocking: ${signals.botAccess.blockedAiBots.join(', ')} in robots.txt</p>`
+    : `<p class="text-slate-400 text-sm mt-3"><i class="fas fa-circle-check text-gold-500 mr-2"></i>No major AI crawlers blocked in robots.txt</p>`;
+
+  return `
+    <div class="border border-gold-500/40 p-6 mb-2">
+      <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-500 mb-3">Top priorities</p>
+      <ol class="list-decimal list-inside text-white font-light">${priorities}</ol>
+      ${botLine}
+    </div>
+    ${sections.map(([label, items]) => `
+      <div class="border border-slate-700 p-6">
+        <p class="text-xs font-bold tracking-[0.2em] uppercase text-gold-500 mb-4">${label}</p>
+        <div class="space-y-4">${renderFindingList(items)}</div>
+      </div>`).join('')}
+  `;
+}
+
+// --- Payment flow ---
+$('unlockBtn').addEventListener('click', async () => {
+  if (!currentUrl) return;
+  $('unlockBtn').disabled = true;
+  $('unlockBtn').innerHTML = '<span class="spinner"></span>';
+
+  try {
+    const orderRes = await fetch(`${API_BASE}/api/create-order`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: currentUrl }),
+    });
+    const order = await orderRes.json();
+    if (!orderRes.ok) { setStatus(order.error || 'Could not start checkout.', true); resetUnlockBtn(); return; }
+
+    const rzp = new Razorpay({
+      key: order.keyId,
+      amount: order.amount,
+      currency: order.currency,
+      order_id: order.orderId,
+      name: 'Mohit Parmar',
+      description: 'Full website audit report',
+      theme: { color: '#C5A059' },
+      handler: async function (response) {
+        const verifyRes = await fetch(`${API_BASE}/api/verify-payment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId: response.razorpay_order_id,
+            paymentId: response.razorpay_payment_id,
+            signature: response.razorpay_signature,
+            url: currentUrl,
+          }),
+        });
+        const verifyData = await verifyRes.json();
+        if (!verifyRes.ok) { setStatus(verifyData.error || 'Payment verification failed.', true); resetUnlockBtn(); return; }
+        unlockToken = verifyData.token;
+        setStatus('Payment verified — loading your full report...');
+        runAudit();
+      },
+      modal: { ondismiss: resetUnlockBtn },
+    });
+    rzp.open();
+  } catch {
+    setStatus('Could not start checkout. Try again.', true);
+    resetUnlockBtn();
+  }
+});
+
+function resetUnlockBtn() {
+  $('unlockBtn').disabled = false;
+  $('unlockBtn').innerHTML = 'Unlock Full Report — <span id="priceLabel">₹499</span>';
+}
+</script>
+</body>
+</html>
