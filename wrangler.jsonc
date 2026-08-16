@@ -10,8 +10,7 @@
     "binding": "ASSETS"
   },
   "vars": {
-    "RAZORPAY_KEY_ID": "rzp_live_TQCyJWTCHOy8MO",
-    "AUDIT_PRICE_PAISE": "49900"
+    "RAZORPAY_KEY_ID": "rzp_live_TQCyJWTCHOy8MO"
   },
   "kv_namespaces": [
     {

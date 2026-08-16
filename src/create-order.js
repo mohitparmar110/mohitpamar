@@ -1,10 +1,11 @@
 // src/create-order.js
-// POST /api/create-order — Body: { url: string }
+// POST /api/create-order — Body: { url: string, currency?: "GBP" | "EUR" }
 // Creates a Razorpay order for unlocking the full audit report.
 // Required secrets: RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET
-// Optional var: AUDIT_PRICE_PAISE (default 49900 = ₹499)
 
 import { corsHeaders } from "./worker.js";
+
+const PRICE_OPTIONS = Object.freeze({ GBP: 2000, EUR: 1000 });
 
 export async function handleCreateOrder(request, env) {
   let body;
@@ -16,6 +17,9 @@ export async function handleCreateOrder(request, env) {
 
   const url = normalizeUrl(body.url);
   if (!url) return json({ error: "Enter a valid website URL." }, 400);
+  const currency = String(body.currency || "GBP").toUpperCase();
+  const amount = PRICE_OPTIONS[currency];
+  if (!amount) return json({ error: "Choose GBP or EUR for this audit." }, 400);
 
   const missingBindings = [];
   if (!env.RAZORPAY_KEY_ID) missingBindings.push("RAZORPAY_KEY_ID");
@@ -28,10 +32,6 @@ export async function handleCreateOrder(request, env) {
     );
   }
 
-  const amountPaise = parseInt(env.AUDIT_PRICE_PAISE || "49900", 10);
-  if (!Number.isInteger(amountPaise) || amountPaise < 100) {
-    return json({ error: "Payment amount is not configured correctly." }, 500);
-  }
   const auth = btoa(`${env.RAZORPAY_KEY_ID}:${env.RAZORPAY_KEY_SECRET}`);
 
   let res;
@@ -43,8 +43,8 @@ export async function handleCreateOrder(request, env) {
         Authorization: `Basic ${auth}`,
       },
       body: JSON.stringify({
-        amount: amountPaise,
-        currency: "INR",
+        amount,
+        currency,
         receipt: `audit_${crypto.randomUUID().replaceAll("-", "").slice(0, 24)}`,
         notes: { audit_url: url },
       }),
@@ -58,13 +58,13 @@ export async function handleCreateOrder(request, env) {
   }
 
   const order = await res.json();
-  if (!order?.id || order.amount !== amountPaise || order.currency !== "INR") {
+  if (!order?.id || order.amount !== amount || order.currency !== currency) {
     return json({ error: "Payment service returned an invalid order." }, 502);
   }
 
   await env.AUDIT_KV.put(
     `razorpay-order:${order.id}`,
-    JSON.stringify({ url, amount: amountPaise, currency: "INR" }),
+    JSON.stringify({ url, amount, currency }),
     { expirationTtl: 60 * 60 }
   );
 
