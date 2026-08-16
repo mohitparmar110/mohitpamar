@@ -4,6 +4,8 @@
 
 import { corsHeaders } from "./worker.js";
 
+const AUDIT_PRICES = Object.freeze({ GBP: 2000, EUR: 1000 });
+
 export async function handleVerifyRazorpay(request, env) {
   let body;
   try {
@@ -24,7 +26,11 @@ export async function handleVerifyRazorpay(request, env) {
   }
 
   const storedOrder = await env.AUDIT_KV.get(`razorpay-order:${orderId}`, "json");
-  if (!storedOrder?.url || !storedOrder?.amount || storedOrder.currency !== "INR") {
+  if (
+    !storedOrder?.url ||
+    !AUDIT_PRICES[storedOrder.currency] ||
+    storedOrder.amount !== AUDIT_PRICES[storedOrder.currency]
+  ) {
     return json({ error: "This payment order is invalid or expired." }, 400);
   }
 

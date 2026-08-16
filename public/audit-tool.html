@@ -114,7 +114,10 @@
       <section class="checkout-card" aria-labelledby="checkoutHeading">
         <p class="text-[11px] font-bold tracking-[0.22em] uppercase text-gold-500 mb-3">One website · One report</p>
         <h2 id="checkoutHeading" class="text-3xl font-serif mb-3">Run your paid audit</h2>
-        <p class="text-slate-400 text-sm font-light mb-6">One-time payment: <strong class="text-white">₹499</strong>. Taxes may apply.</p>
+        <div class="flex items-end justify-between gap-4 mb-6">
+          <div><p class="text-[10px] font-bold tracking-[.16em] uppercase text-slate-500 mb-1">One-time payment</p><strong id="displayPrice" class="text-white text-2xl font-serif">£20</strong></div>
+          <div><label for="currencySelect" class="block text-[10px] font-bold tracking-[.14em] uppercase text-slate-500 mb-1">Currency</label><select id="currencySelect" class="audit-input audit-select !py-2 !px-3" aria-label="Payment currency"><option value="GBP">GBP · £20</option><option value="EUR">EUR · €10</option></select></div>
+        </div>
         <label for="urlInput" class="block text-xs font-bold tracking-[0.14em] uppercase text-slate-300 mb-2">Website URL</label>
         <input id="urlInput" class="audit-input mb-3" type="url" inputmode="url" data-i18n-placeholder="urlPlaceholder" placeholder="yourstore.com" autocomplete="url" required>
         <details class="mb-3 border border-slate-700 p-3">
@@ -176,7 +179,7 @@ const TRANSLATIONS = {
   en: {
     kicker: "Full Website Audit",
     intro: "Drop in your URL and pay securely to get the full report: real signals pulled from your live site — colors, headings, meta tags, structured data, and whether AI answer engines can even see you — turned into a prioritized fix list.",
-    priceNote: "Price is shown automatically in your local currency at checkout.",
+    priceNote: "Choose GBP or EUR before checkout.",
     urlPlaceholder: "yourstore.com",
     payButton: "Pay & Run Audit",
     colorsHeading: "Dominant colors detected",
@@ -378,6 +381,7 @@ const TRANSLATIONS = {
 let currentLang = detectLang();
 let currentUrl = null;
 let currentCompetitors = [];
+let currentCurrency = 'GBP';
 
 function detectLang() {
   const supported = Object.keys(TRANSLATIONS);
@@ -474,6 +478,11 @@ $('demoBtn').addEventListener('click', () => {
   renderResults(SAMPLE_REPORT);
 });
 
+$('currencySelect').addEventListener('change', (event) => {
+  currentCurrency = event.target.value === 'EUR' ? 'EUR' : 'GBP';
+  $('displayPrice').textContent = currentCurrency === 'EUR' ? '€10' : '£20';
+});
+
 $('payBtn').addEventListener('click', async () => {
   const raw = $('urlInput').value.trim();
   if (!raw) { setStatus(t('errNoUrl'), true); return; }
@@ -493,7 +502,7 @@ $('payBtn').addEventListener('click', async () => {
     const orderRes = await fetch(`${API_BASE}/api/create-order`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: currentUrl }),
+      body: JSON.stringify({ url: currentUrl, currency: currentCurrency }),
     });
     const order = await orderRes.json();
     if (!orderRes.ok) {
