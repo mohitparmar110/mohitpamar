@@ -7,6 +7,10 @@
 ## Website audit tool
 - [Website Audit Tool](https://www.mohitparmar.co.in/audit-tool): Paid automated audit covering CRO, SEO, GEO (AI-search visibility), AEO (answer engines), and branding consistency.
 
+## Insights
+- [Growth, CRO & Creative Guides](https://www.mohitparmar.co.in/blog/): Practical articles on conversion rate optimisation, creative systems, landing pages, ecommerce growth and AI workflows.
+- [CRO Before More Ad Spend](https://www.mohitparmar.co.in/blog/cro-before-more-ad-spend.html): A practical framework for auditing measurement, intent, proof, friction, mobile experience and performance before scaling paid traffic.
+
 ## Legal
 - [Terms of Service](https://www.mohitparmar.co.in/terms-of-service)
 - [Privacy Policy](https://www.mohitparmar.co.in/privacy-policy)
