@@ -9,6 +9,7 @@
 
 ## Insights
 - [Growth, CRO & Creative Guides](https://www.mohitparmar.co.in/blog/): Practical articles on conversion rate optimisation, creative systems, landing pages, ecommerce growth and AI workflows.
+- [Ad-to-Landing-Page Message Match](https://www.mohitparmar.co.in/blog/ad-to-landing-page-message-match.html): A practical checklist for checking whether an ad and its landing page align on promise, product, offer, audience, proof and CTA.
 - [CRO Before More Ad Spend](https://www.mohitparmar.co.in/blog/cro-before-more-ad-spend.html): A practical framework for auditing measurement, intent, proof, friction, mobile experience and performance before scaling paid traffic.
 
 ## Legal
