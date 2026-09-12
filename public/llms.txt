@@ -9,6 +9,7 @@
 
 ## Insights
 - [Growth, CRO & Creative Guides](https://www.mohitparmar.co.in/blog/): Practical articles on conversion rate optimisation, creative systems, landing pages, ecommerce growth and AI workflows.
+- [Landing Page CRO Audit Checklist](https://www.mohitparmar.co.in/blog/landing-page-cro-audit-checklist.html): A practical audit order for landing-page intent, first-screen clarity, offer, proof, CTA friction, mobile UX and measurement before redesigning.
 - [Ecommerce Conversion Funnel Analysis](https://www.mohitparmar.co.in/blog/ecommerce-conversion-funnel-analysis.html): A practical framework for finding where qualified shoppers stop progressing across landing, product, cart, checkout and purchase stages before deciding what to change.
 - [Shopify Product Page CRO Checklist](https://www.mohitparmar.co.in/blog/shopify-product-page-cro-checklist.html): A practical review order for Shopify PDP clarity, media, price, variants, delivery, proof, mobile UX, add-to-cart usability and measurement.
 - [Ad-to-Landing-Page Message Match](https://www.mohitparmar.co.in/blog/ad-to-landing-page-message-match.html): A practical checklist for checking whether an ad and its landing page align on promise, product, offer, audience, proof and CTA.
