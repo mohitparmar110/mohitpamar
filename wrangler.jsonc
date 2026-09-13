@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "static-html-site",
+  "name": "mohitpamar",
   "compatibility_date": "2026-02-01",
   "main": "src/worker.js",
   "assets": {
@@ -19,3 +19,4 @@
     }
   ]
 }
+
