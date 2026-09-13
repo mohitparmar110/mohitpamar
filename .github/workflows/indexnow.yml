@@ -1,0 +1,59 @@
+name: Submit sitemap URLs to IndexNow
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - public/sitemap.xml
+      - public/5d9a3e1c7b4f8260a94d1e6f3c8b2a71.txt
+      - .github/workflows/indexnow.yml
+
+permissions:
+  contents: read
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Submit sitemap URLs to IndexNow
+        env:
+          INDEXNOW_KEY: 5d9a3e1c7b4f8260a94d1e6f3c8b2a71
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import urllib.request
+          import xml.etree.ElementTree as ET
+
+          key = os.environ['INDEXNOW_KEY']
+          root = ET.parse('public/sitemap.xml').getroot()
+          ns = {'s': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          urls = [node.text.strip() for node in root.findall('s:url/s:loc', ns) if node.text]
+
+          payload = json.dumps({
+              'host': 'www.mohitparmar.co.in',
+              'key': key,
+              'keyLocation': f'https://www.mohitparmar.co.in/{key}.txt',
+              'urlList': urls,
+          }).encode('utf-8')
+
+          req = urllib.request.Request(
+              'https://api.indexnow.org/indexnow',
+              data=payload,
+              headers={'Content-Type': 'application/json; charset=utf-8'},
+              method='POST',
+          )
+
+          try:
+              with urllib.request.urlopen(req, timeout=30) as response:
+                  print('IndexNow status:', response.status)
+                  print('Submitted URLs:', len(urls))
+          except urllib.error.HTTPError as exc:
+              print('IndexNow HTTP error:', exc.code)
+              print(exc.read().decode('utf-8', errors='replace'))
+              raise
+          PY
