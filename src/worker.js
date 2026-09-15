@@ -52,7 +52,7 @@ function cleanTitle(value) {
 
 function titleFor(object) {
   const meta = object.customMetadata || {};
-  return cleanTitle(meta.title || meta.name || meta.nameTag || meta.label || basenameOf(object.key));
+  return cleanTitle(meta.title || meta.name || meta.nameTag || meta.name_tag || meta["name-tag"] || meta.label || basenameOf(object.key));
 }
 
 function mediaUrl(key) {
@@ -115,7 +115,14 @@ async function handleWorks(request, env) {
   }
 
   const objects = await listPortfolioObjects(env.PORTFOLIO_BUCKET);
+  objects.sort((a, b) => {
+    const aTime = a.uploaded ? new Date(a.uploaded).getTime() : 0;
+    const bTime = b.uploaded ? new Date(b.uploaded).getTime() : 0;
+    return bTime - aTime;
+  });
+
   const grouped = new Map();
+  const seenContent = new Set();
 
   for (const object of objects) {
     if (!object?.key || object.key.startsWith(".")) continue;
@@ -124,6 +131,10 @@ async function handleWorks(request, env) {
     const isVideo = VIDEO_EXTENSIONS.has(ext);
     if (!isImage && !isVideo) continue;
 
+    const contentSignature = object.etag ? `${isVideo ? "video" : "image"}:${object.etag}` : null;
+    if (contentSignature && seenContent.has(contentSignature)) continue;
+    if (contentSignature) seenContent.add(contentSignature);
+
     const stem = stemOf(object.key).toLowerCase();
     const item = {
       key: object.key,
@@ -131,13 +142,14 @@ async function handleWorks(request, env) {
       url: mediaUrl(object.key),
       uploaded: uploadedIso(object),
       size: object.size || 0,
+      etag: object.etag || null,
       type: isVideo ? "video" : "image",
       customMetadata: object.customMetadata || {},
     };
 
     const current = grouped.get(stem) || { image: null, video: null };
-    if (isVideo) current.video = item;
-    if (isImage) current.image = item;
+    if (isVideo && !current.video) current.video = item;
+    if (isImage && !current.image) current.image = item;
     grouped.set(stem, current);
   }
 
