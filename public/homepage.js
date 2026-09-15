@@ -18,6 +18,10 @@ video.addEventListener('error',()=>{error.hidden=false});document.querySelector(
 
 const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const normalize=value=>String(value||'').toLowerCase().replace(/\.[^.]+$/,'').replace(/[^a-z0-9]+/g,' ').trim();
+const filmStopWords=new Set(['the','and','for','with','from','into','film','video','motion','commercial','campaign','stories','story','edit','creative','direction','advertising','portfolio','latest','product','cfs','choice','furniture','superstore']);
+const filmTokens=value=>normalize(value).split(' ').filter(token=>token.length>=3&&!filmStopWords.has(token));
+const sameFilm=(a,b)=>{const left=filmTokens(a),right=new Set(filmTokens(b));return left.some(token=>right.has(token))};
+const blankPoster='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"/%3E';
 
 const filmRail=document.querySelector('#filmRail');
 const legacyFilms=[...filmRail.querySelectorAll('.film-card')].map(card=>{const a=card.querySelector('[data-film]'),img=a?.querySelector('img');return{title:a?.dataset.title||card.querySelector('h3')?.textContent||'Film',href:a?.href||'',poster:img?.getAttribute('src')||'',caption:card.querySelector('.film-caption p')?.textContent||'MOTION / PORTFOLIO'}});
@@ -65,17 +69,15 @@ function mergeGallery(){
 }
 
 function filmCard(work,index){
- const title=escapeHtml(work.title||work.filename||'Portfolio film'),href=escapeHtml(work.src),poster=work.poster?escapeHtml(work.poster):'',caption=escapeHtml(work.discipline||work.client||'MOTION / PORTFOLIO');
- const visual=poster?`<img src="${poster}" alt="${title} film still" loading="lazy" width="1280" height="720">`:`<video muted loop playsinline preload="none" aria-hidden="true"></video>`;
- return`<article class="film-card"><a href="${href}" data-film="dynamic-${escapeHtml(work.id||index)}" data-title="${title}" aria-label="Play ${title}">${visual}<span class="film-number">${String(index+1).padStart(2,'0')}</span><span class="play">▶</span><span class="watch">Watch film ↗</span></a><div class="film-caption"><h3>${title}</h3><p>${caption}</p></div></article>`;
+ const title=escapeHtml(work.title||work.filename||'Portfolio film'),href=escapeHtml(work.src),poster=work.poster?escapeHtml(work.poster):blankPoster,caption=escapeHtml(work.discipline||work.client||'MOTION / PORTFOLIO');
+ return`<article class="film-card"><a href="${href}" data-film="dynamic-${escapeHtml(work.id||index)}" data-title="${title}" aria-label="Play ${title}"><img src="${poster}" alt="${title} film still" loading="lazy" width="1280" height="720"><span class="film-number">${String(index+1).padStart(2,'0')}</span><span class="play">▶</span><span class="watch">Watch film ↗</span></a><div class="film-caption"><h3>${title}</h3><p>${caption}</p></div></article>`;
 }
 
 function renderDynamicFilms(){
  const dynamic=bucketWorks.filter(work=>work.type==='video');
  if(!dynamic.length)return;
  filmRail.querySelectorAll('[data-film]').forEach(a=>previewObserver.unobserve(a));
- const seen=new Set(dynamic.map(work=>normalize(work.title)));
- const legacy=legacyFilms.filter(item=>!seen.has(normalize(item.title))).map((item,i)=>`<article class="film-card"><a href="${escapeHtml(item.href)}" data-film="legacy-${i}" data-title="${escapeHtml(item.title)}" aria-label="Play ${escapeHtml(item.title)}"><img src="${escapeHtml(item.poster)}" alt="${escapeHtml(item.title)} film still" loading="lazy" width="1280" height="720"><span class="film-number">${String(dynamic.length+i+1).padStart(2,'0')}</span><span class="play">▶</span><span class="watch">Watch film ↗</span></a><div class="film-caption"><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.caption)}</p></div></article>`);
+ const legacy=legacyFilms.filter(item=>!dynamic.some(work=>sameFilm(item.title,work.title)||sameFilm(item.href.split('/').pop(),work.filename||work.title))).map((item,i)=>`<article class="film-card"><a href="${escapeHtml(item.href)}" data-film="legacy-${i}" data-title="${escapeHtml(item.title)}" aria-label="Play ${escapeHtml(item.title)}"><img src="${escapeHtml(item.poster)}" alt="${escapeHtml(item.title)} film still" loading="lazy" width="1280" height="720"><span class="film-number">${String(dynamic.length+i+1).padStart(2,'0')}</span><span class="play">▶</span><span class="watch">Watch film ↗</span></a><div class="film-caption"><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.caption)}</p></div></article>`);
  filmRail.innerHTML=[...dynamic.map(filmCard),...legacy].join('');
  autoplayPreviews(filmRail);filmRail.dispatchEvent(new Event('scroll'));
 }
