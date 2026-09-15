@@ -9,6 +9,12 @@
     "directory": "./public",
     "binding": "ASSETS"
   },
+  "r2_buckets": [
+    {
+      "binding": "PORTFOLIO_BUCKET",
+      "bucket_name": "portfolio-bucket"
+    }
+  ],
   "vars": {
     "RAZORPAY_KEY_ID": "rzp_live_TQCyJWTCHOy8MO"
   },
@@ -19,4 +25,3 @@
     }
   ]
 }
-
