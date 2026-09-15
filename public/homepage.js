@@ -16,7 +16,7 @@ video.addEventListener('error',()=>{error.hidden=false});document.querySelector(
 
 let collection='banners',format='all',mediaType='all',galleryAssets=[];
 const gallery=document.querySelector('#creativeGallery');
-function renderGallery(){const selected=galleryAssets.filter(a=>a.group===collection&&(format==='all'||a.format===format)&&(mediaType==='all'||(mediaType==='video'?!!a.video:!a.video)));document.querySelector('#galleryCount').textContent=`${selected.length} creative assets`;gallery.innerHTML=selected.map(a=>`<figure class="creative-item"><a href="${a.video||a.src}" ${a.video?`data-film="gallery" data-title="${a.title}"`:'target="_blank" rel="noopener"'} aria-label="${a.video?'Play':'View'} ${a.title}"><img src="${a.src}" width="${a.width}" height="${a.height}" alt="${a.title} ${a.format} creative" loading="lazy">${a.video?'<span class="play">&#9654;</span>':''}</a><figcaption><h3>${a.title}</h3><span>${a.video?'Play video':'View artwork'} &nearr;</span></figcaption></figure>`).join('')||'<p>No matching creative. Try All creative or All sizes.</p>'}
+function renderGallery(){gallery.querySelectorAll('[data-film]').forEach(a=>previewObserver.unobserve(a));const selected=galleryAssets.filter(a=>a.group===collection&&(format==='all'||a.format===format)&&(mediaType==='all'||(mediaType==='video'?!!a.video:!a.video)));document.querySelector('#galleryCount').textContent=`${selected.length} creative assets`;gallery.innerHTML=selected.map(a=>`<figure class="creative-item"><a href="${a.video||a.src}" ${a.video?`data-film="gallery" data-title="${a.title}"`:'target="_blank" rel="noopener"'} aria-label="${a.video?'Play':'View'} ${a.title}"><img src="${a.src}" width="${a.width}" height="${a.height}" alt="${a.title} ${a.format} creative" loading="lazy">${a.video?'<span class="play">&#9654;</span>':''}</a><figcaption><h3>${a.title}</h3><span>${a.video?'Play video':'View artwork'} &nearr;</span></figcaption></figure>`).join('')||'<p>No matching creative. Try All creative or All sizes.</p>';autoplayPreviews(gallery)}
 document.querySelectorAll('[data-collection]').forEach(b=>b.addEventListener('click',()=>{collection=b.dataset.collection;format='all';mediaType='all';document.querySelectorAll('[data-media]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.media==='all')));document.querySelectorAll('[data-collection]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));document.querySelectorAll('[data-format]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.format==='all')));renderGallery()}));
 document.querySelectorAll('[data-format]').forEach(b=>b.addEventListener('click',()=>{format=b.dataset.format;document.querySelectorAll('[data-format]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));renderGallery()}));
 fetch('/gallery.json').then(r=>{if(!r.ok)throw Error('Gallery unavailable');return r.json()}).then(data=>{galleryAssets=data;renderGallery()}).catch(()=>{document.querySelector('#galleryCount').textContent='The gallery could not load. Please refresh the page.'});
@@ -30,3 +30,20 @@ pauseLogos.addEventListener('click',()=>{logosPaused=!logosPaused;pauseLogos.set
 logoRow.addEventListener('pointerenter',()=>logosHover=true);logoRow.addEventListener('pointerleave',()=>logosHover=false);
 new IntersectionObserver(entries=>{logosVisible=entries[0].isIntersecting}).observe(logoRow);
 function moveLogos(time){const elapsed=Math.min(time-logoTime,50);logoTime=time;const focused=logoRow.contains(document.activeElement);if(logosVisible&&!logosPaused&&!logosHover&&!focused&&!reduce.matches&&!document.hidden){const gap=parseFloat(getComputedStyle(logoRow).gap);const distance=(logoRow.scrollWidth+gap)/2;logoPosition+=elapsed*.018;if(logoPosition>=distance)logoPosition-=distance;logoRow.scrollLeft=logoPosition}else logoPosition=logoRow.scrollLeft;requestAnimationFrame(moveLogos)}requestAnimationFrame(moveLogos);
+
+// Autoplay existing film previews when visible, retaining their posters and player links.
+const previewObserver=new IntersectionObserver(entries=>entries.forEach(({target,isIntersecting})=>{
+ const preview=target.querySelector('video');
+ if(isIntersecting){if(!preview.src)preview.src=target.href;preview.play().catch(()=>{})}else preview.pause();
+}),{threshold:.1});
+function autoplayPreviews(root=document){
+ root.querySelectorAll('[data-film]').forEach(a=>{
+  if(a.querySelector('video'))return;
+  const img=a.querySelector('img'),preview=document.createElement('video');
+  preview.autoplay=true;preview.muted=true;preview.defaultMuted=true;preview.loop=true;preview.playsInline=true;preview.preload='none';preview.poster=img.src;
+  preview.setAttribute('aria-hidden','true');preview.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none';
+  preview.style.objectPosition=getComputedStyle(img).objectPosition;
+  img.after(preview);previewObserver.observe(a);
+ });
+}
+autoplayPreviews();
