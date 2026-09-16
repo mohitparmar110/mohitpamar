@@ -47,8 +47,13 @@ function isProfileCandidate(work){
   if(work?.type!=='image')return false;
   const raw=rawText(work);
   const text=clean(raw);
-  if(/instagram|insta\b|social[ -]?media|profile|feed|grid|account management/i.test(raw))return true;
-  if(/urbandeco\.ae\d*/i.test(raw)||/urban deco ae\d*/.test(text))return true;
+  const explicitProfile=/instagram|insta\b|social[ -]?media|profile|feed|grid|account management/i.test(raw);
+  const obviousCreative=/banner|sale|campaign|pmax|creative asset|ad creative|product page|pdp|homepage|website|collection page/i.test(raw);
+  if(explicitProfile)return true;
+  if(obviousCreative)return false;
+  const title=String(work?.title||'').trim();
+  if(/^urbandeco\.ae\d*$/i.test(title)||/^urban deco ae\d*$/i.test(title))return true;
+  if(/urbandeco\.ae\d*/i.test(raw)||/urban deco ae\d*/.test(text))return work?.format==='portrait'||Number(work?.height)>Number(work?.width);
   if(/urbandeco\.co\.uk/i.test(raw)&&/social|instagram|feed|profile/i.test(raw))return true;
   return false;
 }
@@ -56,12 +61,12 @@ function profileScore(work){
   const raw=rawText(work);
   const text=clean(raw);
   let score=0;
-  if(/instagram|insta\b/i.test(raw))score+=15;
-  if(/profile|feed|grid|social[ -]?media/i.test(raw))score+=10;
-  if(/urbandeco\.ae\d*/i.test(raw)||/urban deco ae\d*/.test(text))score+=9;
-  if(work?.format==='portrait')score+=5;
-  if(Number(work?.height)>Number(work?.width)&&Number(work?.width)>0)score+=4;
-  if(/banner|sale|campaign|pmax|creative asset|product page|pdp|homepage/i.test(raw))score-=12;
+  if(/instagram|insta\b/i.test(raw))score+=20;
+  if(/profile|feed|grid|social[ -]?media/i.test(raw))score+=14;
+  if(/urbandeco\.ae\d*/i.test(raw)||/urban deco ae\d*/.test(text))score+=10;
+  if(work?.format==='portrait')score+=6;
+  if(Number(work?.height)>Number(work?.width)&&Number(work?.width)>0)score+=5;
+  if(/banner|sale|campaign|pmax|creative asset|product page|pdp|homepage|website/i.test(raw))score-=30;
   return score;
 }
 function socialTitle(work,index){
