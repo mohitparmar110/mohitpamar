@@ -5,12 +5,52 @@ nav.addEventListener('click',e=>{if(e.target.closest('a'))closeMenu()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&nav.classList.contains('open')){closeMenu();menu.focus()}});
 
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+
 document.querySelectorAll('.film-rail').forEach(rail=>{
  const arrows=[...document.querySelectorAll(`[data-direction][aria-controls="${rail.id}"]`)];
  function updateRail(){if(!arrows.length)return;arrows[0].disabled=rail.scrollLeft<2;arrows[1].disabled=rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-2}
  function step(direction){const card=rail.querySelector('.film-card');if(!card)return;rail.scrollBy({left:direction*(card.getBoundingClientRect().width+parseFloat(getComputedStyle(rail).gap)),behavior:reduce.matches?'instant':'smooth'})}
- arrows.forEach(b=>b.addEventListener('click',()=>step(Number(b.dataset.direction))));rail.addEventListener('scroll',updateRail,{passive:true});window.addEventListener('resize',updateRail);rail.addEventListener('keydown',e=>{if(e.target===rail&&['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();step(e.key==='ArrowRight'?1:-1)}});updateRail();
+ arrows.forEach(b=>b.addEventListener('click',()=>step(Number(b.dataset.direction))));
+ rail.addEventListener('scroll',updateRail,{passive:true});
+ window.addEventListener('resize',updateRail);
+ rail.addEventListener('keydown',e=>{if(e.target===rail&&['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();step(e.key==='ArrowRight'?1:-1)}});
+ rail.addEventListener('wheel',e=>{
+  if(rail.scrollWidth<=rail.clientWidth||Math.abs(e.deltaX)>=Math.abs(e.deltaY))return;
+  const atStart=rail.scrollLeft<=1,atEnd=rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-1;
+  if((e.deltaY<0&&atStart)||(e.deltaY>0&&atEnd))return;
+  e.preventDefault();rail.scrollLeft+=e.deltaY;
+ },{passive:false});
+ updateRail();
 });
+
+const mobilePolish=document.createElement('style');
+mobilePolish.textContent=`
+@media(max-width:600px){
+ .film-rail{margin-inline:calc(var(--pad)*-1);padding:5px var(--pad) 18px;scroll-padding-inline:var(--pad);scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+ .film-rail::-webkit-scrollbar{display:none}
+ .film-card{flex:0 0 min(84vw,360px);scroll-snap-stop:always}
+ .reel-card{flex:0 0 min(68vw,290px)}
+ .films .section-head,.reels .section-head{align-items:flex-start;margin-bottom:22px}
+ .films .rail-tools,.reels .rail-tools{display:none}
+ .rail-hint{font-size:9px;margin-top:8px}
+ .website-preview,.website-project:first-child .website-preview{height:300px}
+ .website-info{padding-top:14px;gap:12px}
+ .website-info h3{font-size:21px}
+ .creative-item figcaption{align-items:flex-start}
+}
+`;
+document.head.append(mobilePolish);
+
+function orderReelsNewestFirst(){
+ const rail=document.querySelector('#reelRail');if(!rail)return;
+ const cards=[...rail.querySelectorAll('.reel-card')];
+ const reelNumber=card=>Number((card.querySelector('[data-film]')?.dataset.film||'').match(/(\d+)$/)?.[1]||0);
+ cards.sort((a,b)=>reelNumber(b)-reelNumber(a)).forEach((card,index)=>{
+  const number=card.querySelector('.film-number');if(number)number.textContent=String(index+1).padStart(2,'0');
+  rail.append(card);
+ });
+}
+orderReelsNewestFirst();
 
 const dialog=document.querySelector('#player'),video=dialog.querySelector('video'),error=document.querySelector('#videoError');let opener;
 document.addEventListener('click',e=>{const a=e.target.closest('[data-film]');if(!a)return;e.preventDefault();opener=a;document.querySelector('#playerTitle').textContent=a.dataset.title||'Film';error.hidden=true;error.querySelector('a').href=a.href;video.src=a.href;const image=a.querySelector('img'),preview=a.querySelector('video');video.poster=image?.currentSrc||image?.src||preview?.poster||'';dialog.showModal();video.play().catch(()=>{});});
@@ -22,6 +62,19 @@ const filmStopWords=new Set(['the','and','for','with','from','into','film','vide
 const filmTokens=value=>normalize(value).split(' ').filter(token=>token.length>=3&&!filmStopWords.has(token));
 const sameFilm=(a,b)=>{const left=filmTokens(a),right=new Set(filmTokens(b));return left.some(token=>right.has(token))};
 const blankPoster='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"/%3E';
+const workText=work=>normalize(`${work?.title||''} ${work?.filename||''} ${work?.key||''} ${work?.client||''}`);
+const isSofaWork=work=>/\bsofa\b|\bsettee\b/.test(workText(work));
+const isBedWork=work=>/\bbed\b|\bbedroom\b|\bmattress\b/.test(workText(work));
+const isSpaWork=work=>/\bspa\b|\bhammam\b|\bayu\b|\britual/.test(workText(work));
+function displayTitle(work,fallback='Selected work'){
+ if(isSofaWork(work))return 'Sofa Commercial';
+ if(isBedWork(work))return 'The Bed Edit';
+ if(isSpaWork(work))return 'Spa Reel';
+ const title=String(work?.title||'').trim(),filename=String(work?.filename||work?.key||'').trim();
+ if(!title)return fallback;
+ if(filename&&normalize(title)===normalize(filename))return fallback;
+ return title;
+}
 
 const filmRail=document.querySelector('#filmRail');
 const legacyFilms=[...filmRail.querySelectorAll('.film-card')].map(card=>{const a=card.querySelector('[data-film]'),img=a?.querySelector('img');return{title:a?.dataset.title||card.querySelector('h3')?.textContent||'Film',href:a?.href||'',poster:img?.getAttribute('src')||'',caption:card.querySelector('.film-caption p')?.textContent||'MOTION / PORTFOLIO'}});
@@ -50,7 +103,7 @@ function galleryFromBucket(){
   group:['banners','pmax','meta'].includes(work.group)?work.group:'banners',
   src:work.src,
   video:null,
-  title:work.title||work.filename||'Portfolio work',
+  title:displayTitle(work,'Selected Visual'),
   format:['wide','square','portrait'].includes(work.format)?work.format:'wide',
   width:work.width||1600,
   height:work.height||900,
@@ -69,29 +122,43 @@ function mergeGallery(){
 }
 
 function filmCard(work,index){
- const title=escapeHtml(work.title||work.filename||'Portfolio film'),href=escapeHtml(work.src),poster=work.poster?escapeHtml(work.poster):blankPoster,caption=escapeHtml(work.discipline||work.client||'MOTION / PORTFOLIO');
+ const title=escapeHtml(displayTitle(work,'Selected Motion')),href=escapeHtml(work.src),poster=work.poster?escapeHtml(work.poster):blankPoster,caption=escapeHtml(work.discipline||work.client||'MOTION / PORTFOLIO');
  return`<article class="film-card"><a href="${href}" data-film="dynamic-${escapeHtml(work.id||index)}" data-title="${title}" aria-label="Play ${title}"><img src="${poster}" alt="${title} film still" loading="lazy" width="1280" height="720"><span class="film-number">${String(index+1).padStart(2,'0')}</span><span class="play">▶</span><span class="watch">Watch film ↗</span></a><div class="film-caption"><h3>${title}</h3><p>${caption}</p></div></article>`;
+}
+
+function legacyCard(item,index){
+ return`<article class="film-card"><a href="${escapeHtml(item.href)}" data-film="legacy-${index}" data-title="${escapeHtml(item.title)}" aria-label="Play ${escapeHtml(item.title)}"><img src="${escapeHtml(item.poster)}" alt="${escapeHtml(item.title)} film still" loading="lazy" width="1280" height="720"><span class="film-number">${String(index+1).padStart(2,'0')}</span><span class="play">▶</span><span class="watch">Watch film ↗</span></a><div class="film-caption"><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.caption)}</p></div></article>`;
 }
 
 function renderDynamicFilms(){
  const dynamic=bucketWorks.filter(work=>work.type==='video');
  if(!dynamic.length)return;
  filmRail.querySelectorAll('[data-film]').forEach(a=>previewObserver.unobserve(a));
- const legacy=legacyFilms.filter(item=>!dynamic.some(work=>sameFilm(item.title,work.title)||sameFilm(item.href.split('/').pop(),work.filename||work.title))).map((item,i)=>`<article class="film-card"><a href="${escapeHtml(item.href)}" data-film="legacy-${i}" data-title="${escapeHtml(item.title)}" aria-label="Play ${escapeHtml(item.title)}"><img src="${escapeHtml(item.poster)}" alt="${escapeHtml(item.title)} film still" loading="lazy" width="1280" height="720"><span class="film-number">${String(dynamic.length+i+1).padStart(2,'0')}</span><span class="play">▶</span><span class="watch">Watch film ↗</span></a><div class="film-caption"><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.caption)}</p></div></article>`);
- filmRail.innerHTML=[...dynamic.map(filmCard),...legacy].join('');
+ const remainingLegacy=legacyFilms.filter(item=>!dynamic.some(work=>sameFilm(item.title,work.title)||sameFilm(item.href.split('/').pop(),work.filename||work.title)));
+ const dynamicSofa=dynamic.filter(isSofaWork),dynamicRest=dynamic.filter(work=>!isSofaWork(work));
+ const legacySofa=dynamicSofa.length?[]:remainingLegacy.filter(item=>/sofa/i.test(`${item.title} ${item.href}`));
+ const legacyRest=remainingLegacy.filter(item=>!legacySofa.includes(item));
+ const blocks=[];
+ dynamicSofa.forEach(work=>blocks.push({kind:'dynamic',work}));
+ legacySofa.forEach(item=>blocks.push({kind:'legacy',item}));
+ dynamicRest.forEach(work=>blocks.push({kind:'dynamic',work}));
+ legacyRest.forEach(item=>blocks.push({kind:'legacy',item}));
+ filmRail.innerHTML=blocks.map((entry,index)=>entry.kind==='dynamic'?filmCard(entry.work,index):legacyCard(entry.item,index)).join('');
  autoplayPreviews(filmRail);filmRail.dispatchEvent(new Event('scroll'));
 }
 
 function updateHero(){
- const latest=bucketWorks.find(work=>work.type==='video'),hero=document.querySelector('.hero-visual');
- if(!latest||!hero)return;
- hero.href=latest.src;hero.dataset.title=latest.title||latest.filename||'Featured film';
+ const hero=document.querySelector('.hero-visual');if(!hero)return;
+ const sofa=bucketWorks.find(work=>work.type==='video'&&isSofaWork(work));
+ if(!sofa)return;
+ const titleText=displayTitle(sofa,'Sofa Commercial');
+ hero.href=sofa.src;hero.dataset.title=titleText;
  const title=hero.querySelector('.visual-bottom h2'),client=hero.querySelector('.visual-bottom>span'),discipline=hero.querySelector('.visual-bottom p'),img=hero.querySelector('img'),preview=hero.querySelector('video');
- if(title)title.textContent=latest.title||latest.filename||'Featured film';
- if(client)client.textContent=(latest.client||'LATEST MOTION WORK').toUpperCase();
- if(discipline)discipline.textContent=latest.discipline||'Motion · Portfolio';
- if(img){if(latest.poster)img.src=latest.poster;img.alt=`${latest.title||'Featured film'} preview`}
- if(preview){preview.pause();preview.removeAttribute('src');preview.poster=latest.poster||img?.src||'';preview.src=latest.src;preview.load();if(!reduce.matches)preview.play().catch(()=>{})}
+ if(title)title.textContent=titleText;
+ if(client)client.textContent=(sofa.client||'FEATURED COMMERCIAL').toUpperCase();
+ if(discipline)discipline.textContent=sofa.discipline||'Creative direction · Motion · Commerce';
+ if(img){if(sofa.poster)img.src=sofa.poster;img.alt=`${titleText} preview`}
+ if(preview){preview.pause();preview.removeAttribute('src');preview.poster=sofa.poster||img?.src||'';preview.src=sofa.src;preview.load();if(!reduce.matches)preview.play().catch(()=>{})}
 }
 
 Promise.allSettled([
