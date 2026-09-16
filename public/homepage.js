@@ -1,239 +1,241 @@
 const menu=document.querySelector('#menu'),nav=document.querySelector('#nav');
 function closeMenu(){nav.classList.remove('open');menu.setAttribute('aria-expanded','false');menu.textContent='Menu'}
-menu.addEventListener('click',()=>{const open=nav.classList.toggle('open');menu.setAttribute('aria-expanded',String(open));menu.textContent=open?'Close':'Menu'});
-nav.addEventListener('click',e=>{if(e.target.closest('a'))closeMenu()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&nav.classList.contains('open')){closeMenu();menu.focus()}});
+menu?.addEventListener('click',()=>{const open=nav.classList.toggle('open');menu.setAttribute('aria-expanded',String(open));menu.textContent=open?'Close':'Menu'});
+nav?.addEventListener('click',e=>{if(e.target.closest('a'))closeMenu()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&nav?.classList.contains('open')){closeMenu();menu.focus()}});
 
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+const mobile=matchMedia('(max-width: 600px)');
+const saveData=!!navigator.connection?.saveData;
+const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+const normalize=value=>String(value||'').toLowerCase().replace(/\.[^.]+$/,'').replace(/[^a-z0-9]+/g,' ').trim();
 
-document.querySelectorAll('.film-rail').forEach(rail=>{
- const arrows=[...document.querySelectorAll(`[data-direction][aria-controls="${rail.id}"]`)];
- function updateRail(){if(!arrows.length)return;arrows[0].disabled=rail.scrollLeft<2;arrows[1].disabled=rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-2}
- function step(direction){const card=rail.querySelector('.film-card');if(!card)return;rail.scrollBy({left:direction*(card.getBoundingClientRect().width+parseFloat(getComputedStyle(rail).gap)),behavior:reduce.matches?'instant':'smooth'})}
- arrows.forEach(b=>b.addEventListener('click',()=>step(Number(b.dataset.direction))));
- rail.addEventListener('scroll',updateRail,{passive:true});
- window.addEventListener('resize',updateRail);
- rail.addEventListener('keydown',e=>{if(e.target===rail&&['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();step(e.key==='ArrowRight'?1:-1)}});
- rail.addEventListener('wheel',e=>{
-  if(rail.scrollWidth<=rail.clientWidth||Math.abs(e.deltaX)>=Math.abs(e.deltaY))return;
-  const atStart=rail.scrollLeft<=1,atEnd=rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-1;
-  if((e.deltaY<0&&atStart)||(e.deltaY>0&&atEnd))return;
-  e.preventDefault();rail.scrollLeft+=e.deltaY;
- },{passive:false});
- updateRail();
-});
-
-const portfolioPolish=document.createElement('style');
-portfolioPolish.textContent=`
-.creative-item .creative-media{display:block;position:relative;overflow:hidden;background:#e7e9e1}
-.creative-item.is-long .creative-media{aspect-ratio:4/3}
-.creative-item.is-long .creative-media img{width:100%;height:100%;object-fit:cover;object-position:top}
-.creative-item .creative-kind{margin-top:5px;font-size:9px;line-height:1.35;letter-spacing:.08em;text-transform:uppercase;color:#7a8073}
-#galleryMore{display:block;margin:12px auto 0;border:1px solid #aeb4a6;background:transparent;color:#283021;padding:11px 18px;border-radius:999px;font:inherit;font-size:11px;cursor:pointer}
-#galleryMore[hidden]{display:none}
+const redesign=document.createElement('style');
+redesign.textContent=`
+/* 2026 portfolio presentation — curated, mobile-first */
+.collection-tabs,.media-tabs,.format-tabs,#galleryCount,#creativeGallery,#galleryMore{display:none!important}
+.section{content-visibility:auto;contain-intrinsic-size:800px}
+.hero{content-visibility:visible}
+.images{background:#f4f4ef!important;color:#171b16;padding-top:72px!important;padding-bottom:72px!important}
+.images .section-head{justify-content:flex-start!important;text-align:left!important;max-width:920px;margin:0 0 42px!important}
+.images .section-head h2{font-size:clamp(38px,5vw,72px)!important;max-width:760px}
+.images .section-head .eyebrow{color:#697064!important}
+.portfolio-groups{display:grid;gap:78px}
+.portfolio-block{border-top:1px solid #cfd3c8;padding-top:28px}
+.portfolio-block-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,.7fr);gap:32px;align-items:end;margin-bottom:28px}
+.portfolio-block-head h3{font-size:clamp(28px,3vw,44px);letter-spacing:-.045em;color:#171b16}
+.portfolio-block-head p{font-size:13px;line-height:1.65;color:#697064;max-width:520px;justify-self:end}
+.portfolio-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px 20px}
+.portfolio-card{min-width:0}
+.portfolio-card-media{display:block;position:relative;aspect-ratio:4/3;overflow:hidden;background:#e1e3dc;border-radius:8px}
+.portfolio-card-media img{width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .28s ease}
+.portfolio-card.is-profile .portfolio-card-media{aspect-ratio:4/5}
+.portfolio-card.is-profile .portfolio-card-media img,.portfolio-card.is-long .portfolio-card-media img{object-position:top}
+.portfolio-card:hover .portfolio-card-media img{transform:scale(1.02)}
+.portfolio-card-meta{display:flex;justify-content:space-between;gap:18px;padding-top:14px;align-items:flex-start}
+.portfolio-card-meta h4{font-size:16px;line-height:1.3;letter-spacing:-.025em;color:#171b16;margin:0}
+.portfolio-card-meta p{margin:6px 0 0;font-size:9px;line-height:1.45;letter-spacing:.09em;text-transform:uppercase;color:#777d72}
+.portfolio-card-meta>a,.portfolio-card-meta>span{flex:0 0 auto;font-size:10px;color:#737a6f;padding-top:2px}
+.portfolio-card .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#111b}
+.portfolio-note{margin-top:18px;font-size:11px;color:#747b70}
+/* Websites become previews, not full-page dumps */
+.work{padding-top:72px!important;padding-bottom:72px!important}
+.work .section-head{align-items:end}
+.website-showcase{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:34px 22px!important}
+.website-project:first-child{grid-column:auto!important}
+.website-preview,.website-project:first-child .website-preview{height:auto!important;aspect-ratio:16/10;overflow:hidden!important;border-radius:8px!important;scrollbar-width:none!important}
+.website-preview img,.website-project:first-child .website-preview img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:top!important}
+.website-info{padding-top:14px!important;display:block!important}
+.website-info h3{font-size:20px!important}
+.website-info p{font-size:11px!important}
+.page-links{margin-top:12px;max-width:none!important}
+/* Keep films intentional */
+.film-card .film-caption h3{overflow-wrap:anywhere}
+.film-card[data-hidden-film='true']{display:none}
+@media(max-width:900px){
+ .portfolio-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .website-showcase{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
 @media(max-width:600px){
- .film-rail{direction:ltr;margin-inline:calc(var(--pad)*-1);padding:5px var(--pad) 18px;scroll-padding-inline:var(--pad);scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+ header{position:sticky!important;top:0;z-index:40;background:#101110eF;backdrop-filter:blur(14px);margin:0!important;padding:0 20px!important}
+ .hero{padding-top:30px!important}
+ .hero-text{text-align:left!important;margin:0!important}
+ .hero .actions{justify-content:flex-start!important}
+ .hero-visual{height:300px!important;border-radius:8px!important}
+ .hero-index{gap:16px}
+ .section{padding-left:20px!important;padding-right:20px!important}
+ .film-rail{direction:ltr;margin-inline:-20px!important;padding:5px 20px 18px!important;scroll-padding-inline:20px;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
  .film-rail::-webkit-scrollbar{display:none}
- .film-card{flex:0 0 min(84vw,360px);scroll-snap-stop:always}
- .reel-card{flex:0 0 min(68vw,290px)}
- .films .section-head,.reels .section-head{align-items:flex-start;margin-bottom:22px}
- .films .rail-tools,.reels .rail-tools{display:none}
- .rail-hint{font-size:9px;margin-top:8px}
- .website-preview,.website-project:first-child .website-preview{height:285px}
- .website-info{padding-top:14px;gap:12px}
- .website-info h3{font-size:21px}
- .creative-gallery{display:flex!important;columns:auto!important;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:var(--pad);margin-inline:calc(var(--pad)*-1);padding:0 var(--pad) 14px;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
- .creative-gallery::-webkit-scrollbar{display:none}
- .creative-item{flex:0 0 min(82vw,330px);margin:0!important;scroll-snap-align:start;scroll-snap-stop:always}
- .creative-item .creative-media{aspect-ratio:4/3}
- .creative-item:not(.is-long) .creative-media img{width:100%;height:100%;object-fit:contain}
- .creative-item figcaption{align-items:flex-start;gap:10px}
- #galleryMore{margin-top:16px}
+ .film-card{flex:0 0 84vw!important;scroll-snap-stop:always}
+ .reel-card{flex:0 0 68vw!important}
+ .films .rail-tools,.reels .rail-tools{display:none!important}
+ .films .section-head,.reels .section-head{margin-bottom:22px!important}
+ .images{padding-top:58px!important;padding-bottom:58px!important}
+ .images .section-head{margin-bottom:32px!important}
+ .images .section-head h2{font-size:42px!important;line-height:1.02}
+ .portfolio-groups{gap:58px}
+ .portfolio-block{padding-top:22px}
+ .portfolio-block-head{grid-template-columns:1fr;gap:10px;margin-bottom:20px}
+ .portfolio-block-head h3{font-size:30px}
+ .portfolio-block-head p{justify-self:start;font-size:12px;max-width:330px}
+ .portfolio-grid{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:20px;margin-inline:-20px;padding:0 20px 12px;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+ .portfolio-grid::-webkit-scrollbar{display:none}
+ .portfolio-card{flex:0 0 82vw;scroll-snap-align:start;scroll-snap-stop:always}
+ .portfolio-card.is-profile{flex-basis:72vw}
+ .portfolio-card-meta h4{font-size:17px}
+ .work{padding-top:58px!important;padding-bottom:58px!important}
+ .work .section-head h2{font-size:40px!important;line-height:1.05}
+ .website-showcase{display:flex!important;gap:14px!important;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:20px;margin-inline:-20px;padding:0 20px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+ .website-showcase::-webkit-scrollbar{display:none}
+ .website-project{flex:0 0 84vw;scroll-snap-align:start;scroll-snap-stop:always}
+ .website-preview,.website-project:first-child .website-preview{aspect-ratio:16/10!important}
+ .website-info h3{font-size:20px!important}
+ .page-links{display:none!important}
+ .clients,.about,.services,.credentials,.contact{content-visibility:auto;contain-intrinsic-size:600px}
 }
 `;
-document.head.append(portfolioPolish);
+document.head.append(redesign);
 
-function resetRail(rail){
+function resetRail(rail){if(!rail)return;rail.setAttribute('dir','ltr');rail.scrollLeft=0;requestAnimationFrame(()=>rail.scrollLeft=0)}
+function setupRail(rail){
  if(!rail)return;
- rail.setAttribute('dir','ltr');
- rail.scrollLeft=0;
- requestAnimationFrame(()=>{rail.scrollLeft=0});
- setTimeout(()=>{rail.scrollLeft=0},80);
+ const arrows=[...document.querySelectorAll(`[data-direction][aria-controls="${rail.id}"]`)];
+ const update=()=>{if(!arrows.length)return;arrows[0].disabled=rail.scrollLeft<2;arrows[1].disabled=rail.scrollLeft+rail.clientWidth>=rail.scrollWidth-2};
+ const step=direction=>{const card=rail.querySelector('.film-card');if(!card)return;const gap=parseFloat(getComputedStyle(rail).gap)||0;rail.scrollBy({left:direction*(card.getBoundingClientRect().width+gap),behavior:reduce.matches?'auto':'smooth'})};
+ arrows.forEach(b=>b.addEventListener('click',()=>step(Number(b.dataset.direction))));
+ rail.addEventListener('scroll',update,{passive:true});window.addEventListener('resize',update);update();resetRail(rail);
 }
-function orderReelsNewestFirst(){
+document.querySelectorAll('.film-rail').forEach(setupRail);
+
+function orderReels(){
  const rail=document.querySelector('#reelRail');if(!rail)return;
  const cards=[...rail.querySelectorAll('.reel-card')];
- const reelNumber=card=>Number((card.querySelector('[data-film]')?.dataset.film||'').match(/(\d+)$/)?.[1]||0);
- cards.sort((a,b)=>reelNumber(b)-reelNumber(a)).forEach((card,index)=>{
-  const number=card.querySelector('.film-number');if(number)number.textContent=String(index+1).padStart(2,'0');
-  rail.append(card);
- });
+ const n=card=>Number((card.querySelector('[data-film]')?.dataset.film||'').match(/(\d+)$/)?.[1]||0);
+ cards.sort((a,b)=>n(b)-n(a)).forEach((card,index)=>{const badge=card.querySelector('.film-number');if(badge)badge.textContent=String(index+1).padStart(2,'0');rail.append(card)});
  resetRail(rail);
 }
-orderReelsNewestFirst();
+orderReels();
 window.addEventListener('pageshow',()=>document.querySelectorAll('.film-rail').forEach(resetRail));
 
-const dialog=document.querySelector('#player'),video=dialog.querySelector('video'),error=document.querySelector('#videoError');let opener;
-document.addEventListener('click',e=>{const a=e.target.closest('[data-film]');if(!a)return;e.preventDefault();opener=a;document.querySelector('#playerTitle').textContent=a.dataset.title||'Film';error.hidden=true;error.querySelector('a').href=a.href;video.src=a.href;const image=a.querySelector('img'),preview=a.querySelector('video');video.poster=image?.currentSrc||image?.src||preview?.poster||'';dialog.showModal();video.play().catch(()=>{});});
-video.addEventListener('error',()=>{error.hidden=false});document.querySelector('#closePlayer').addEventListener('click',()=>dialog.close());dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close()}});dialog.addEventListener('close',()=>{video.pause();video.removeAttribute('src');video.load();opener?.focus()});
-
-const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[char]));
-const normalize=value=>String(value||'').toLowerCase().replace(/\.[^.]+$/,'').replace(/[^a-z0-9]+/g,' ').trim();
-const filmStopWords=new Set(['the','and','for','with','from','into','film','video','motion','commercial','campaign','stories','story','edit','creative','direction','advertising','portfolio','latest','product','cfs','choice','furniture','superstore']);
-const filmTokens=value=>normalize(value).split(' ').filter(token=>token.length>=3&&!filmStopWords.has(token));
-const sameFilm=(a,b)=>{const left=filmTokens(a),right=new Set(filmTokens(b));return left.some(token=>right.has(token))};
-const blankPoster='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"/%3E';
-const workText=work=>normalize(`${work?.title||''} ${work?.filename||''} ${work?.key||''} ${work?.client||''} ${work?.discipline||''}`);
-const isSofaWork=work=>/\bsofa\b|\bsettee\b/.test(workText(work));
-const isBedWork=work=>/\bbed\b|\bbedroom\b|\bmattress\b/.test(workText(work));
-const isSpaWork=work=>/\bspa\b|\bhammam\b|\bayu\b|\britual/.test(workText(work));
-const rawTitleLooksBad=value=>/\b(page|image|img|screenshot|screen shot)\s*0*\d+\b|www\.|\.(com|co|in|ae|uk)\b|\(\d+\)|[_-]{2,}/i.test(String(value||''));
-function displayTitle(work,fallback='Selected Motion'){
- if(isSofaWork(work))return 'Sofa Commercial';
- if(isBedWork(work))return 'The Bed Edit';
- if(isSpaWork(work))return 'Spa Reel';
- const title=String(work?.title||'').trim(),filename=String(work?.filename||work?.key||'').trim();
- if(!title||rawTitleLooksBad(title))return fallback;
- if(filename&&normalize(title)===normalize(filename))return fallback;
- return title;
-}
-function imageTitle(work){
- const text=workText(work),title=String(work?.title||'').trim(),filename=String(work?.filename||work?.key||'').trim();
- if(/prime trust|jp north|real estate|property/.test(text))return 'Prime Trust — Real Estate Website';
- if(/auraz/.test(text))return 'AuraZ — Brand & Campaign Creative';
- if(/urbandeco.*ae|urban deco.*ae/.test(text)){
-  if(/instagram|social|feed|grid/.test(text))return 'Urban Deco UAE — Social Media Management';
-  if(/pdp|product page|collection|homepage|website|web page/.test(text))return 'Urban Deco UAE — Ecommerce UX';
-  return 'Urban Deco UAE — Campaign Creative';
- }
- if(/urbandeco.*uk|urban deco.*uk/.test(text)){
-  if(/pdp|product page|collection|homepage|website|web page/.test(text))return 'Urban Deco UK — Ecommerce UX';
-  return 'Urban Deco UK — Campaign Creative';
- }
- if(/choice|cfs|furniture superstore/.test(text)){
-  if(/pdp|product page|collection|homepage|website|web page|living room/.test(text))return 'Choice Furniture — Ecommerce UX';
-  return 'Choice Furniture — Campaign Creative';
- }
- if(/mohitparmarofficial|google ads|analytics|impressions|cpm|conversion|performance|max|pmax/.test(text))return 'Performance Marketing — Campaign Analytics';
- if(/instagram|social media|social|feed|grid/.test(text))return 'Social Media Management';
- if(/pdp|product page|collection page|homepage|website|web design/.test(text))return 'Ecommerce Website & PDP Design';
- if(/campaign|banner|sale|creative/.test(text))return 'Campaign Creative';
- if(title&&!rawTitleLooksBad(title)&&(!filename||normalize(title)!==normalize(filename)))return title;
- return 'Portfolio Creative';
-}
-function imageRole(work){
- const text=workText(work);
- if(/analytics|impressions|cpm|conversion|performance|max|pmax|google ads/.test(text))return 'PERFORMANCE MARKETING';
- if(/instagram|social|feed|grid/.test(text))return 'SOCIAL MEDIA MANAGEMENT';
- if(/pdp|product page|collection|homepage|website|web page|real estate/.test(text))return 'ECOMMERCE / WEB DESIGN';
- if(/auraz|campaign|banner|sale|creative/.test(text))return 'BRAND / CAMPAIGN';
- return 'CREATIVE DIRECTION';
-}
-function isLongPortfolioAsset(work){
- const width=Number(work?.width||0),height=Number(work?.height||0),text=workText(work);
- return (width&&height&&height/width>1.55)||/pdp|product page|collection|homepage|website|web page|instagram|social|feed|grid|analytics|page \d+|urbandeco|choice|cfs|prime trust|mohitparmarofficial/.test(text);
-}
-
-document.querySelectorAll('[data-collection]').forEach(button=>{
- if(button.dataset.collection==='banners')button.textContent='Campaign & Ecommerce';
- if(button.dataset.collection==='pmax')button.textContent='Performance Marketing';
- if(button.dataset.collection==='meta')button.textContent='Social Media & Brand';
-});
-
+// Clean the intentionally curated Films section. R2 uploads never dump into this rail.
 const filmRail=document.querySelector('#filmRail');
-const legacyFilms=[...filmRail.querySelectorAll('.film-card')].map(card=>{const a=card.querySelector('[data-film]'),img=a?.querySelector('img');return{title:a?.dataset.title||card.querySelector('h3')?.textContent||'Film',href:a?.href||'',poster:img?.getAttribute('src')||'',caption:card.querySelector('.film-caption p')?.textContent||'MOTION / PORTFOLIO'}});
+if(filmRail){
+ const sofa=filmRail.querySelector('[data-film="sofa"]');
+ if(sofa){sofa.dataset.title='Sofa Commercial';sofa.setAttribute('aria-label','Play Sofa Commercial');sofa.closest('.film-card')?.querySelector('h3')?.replaceChildren('Sofa Commercial')}
+ [...filmRail.querySelectorAll('.film-number')].forEach((el,i)=>el.textContent=String(i+1).padStart(2,'0'));
+ resetRail(filmRail);
+}
+const hero=document.querySelector('.hero-visual');
+if(hero){hero.dataset.title='Sofa Commercial';hero.querySelector('.visual-bottom h2')?.replaceChildren('Sofa Commercial')}
+const workHeading=document.querySelector('#work h2');if(workHeading)workHeading.textContent='Ecommerce & web.';
+const imageHeading=document.querySelector('#images h2');if(imageHeading)imageHeading.textContent='Selected creative work.';
+const imageEyebrow=document.querySelector('#images .eyebrow');if(imageEyebrow)imageEyebrow.textContent='CAMPAIGNS · PERFORMANCE · SOCIAL';
+const imageNav=[...document.querySelectorAll('#nav a')].find(a=>a.getAttribute('href')==='#images');if(imageNav)imageNav.textContent='Creative work';
 
-let collection='banners',format='all',mediaType='all',galleryAssets=[],staticGalleryAssets=[],bucketWorks=[],galleryExpanded=false;
-const gallery=document.querySelector('#creativeGallery');
-const GALLERY_LIMIT=12;
-let galleryMore=document.querySelector('#galleryMore');
-if(!galleryMore){galleryMore=document.createElement('button');galleryMore.id='galleryMore';galleryMore.type='button';galleryMore.hidden=true;gallery.after(galleryMore)}
-galleryMore.addEventListener('click',()=>{galleryExpanded=!galleryExpanded;renderGallery();gallery.scrollLeft=0});
-
-function staticRole(item){if(item.group==='pmax')return 'PERFORMANCE CREATIVE';if(item.group==='meta')return 'PAID SOCIAL / BRAND';return 'CAMPAIGN DESIGN'}
-function staticTitle(item){
- const title=String(item.title||'').trim();
- if(/choice furniture/i.test(title))return 'Choice Furniture — Campaign Creative';
- if(/urbandeco uk/i.test(title))return 'Urban Deco UK — Campaign Creative';
- if(/urbandeco\.?ae/i.test(title))return 'Urban Deco UAE — Campaign Creative';
- if(/auraz/i.test(title))return 'AuraZ — Brand Campaign';
- if(/apka jyotish/i.test(title))return 'Apka Jyotish — Digital Campaign';
- if(/performance campaign/i.test(title))return 'Performance Marketing Creative';
- if(/paid social creative/i.test(title))return 'Paid Social Creative';
- return title||'Campaign Creative';
-}
-
-function renderGallery(){
- gallery.querySelectorAll('[data-film]').forEach(a=>previewObserver.unobserve(a));
- const allSelected=galleryAssets.filter(a=>a.group===collection&&(format==='all'||a.format===format)&&(mediaType==='all'||(mediaType==='video'?!!a.video:!a.video)));
- const selected=galleryExpanded?allSelected:allSelected.slice(0,GALLERY_LIMIT);
- document.querySelector('#galleryCount').textContent=allSelected.length>selected.length?`${selected.length} curated previews of ${allSelected.length} · open any card for the full work`:`${allSelected.length} curated creative ${allSelected.length===1?'preview':'previews'}`;
- gallery.innerHTML=selected.map(a=>{
-  const title=escapeHtml(a.title),link=escapeHtml(a.video||a.src),width=Number(a.width)||1600,height=Number(a.height)||900,role=escapeHtml(a.role||staticRole(a));
-  const longClass=a.longForm||height/width>1.55?' is-long':'';
-  const visual=a.src?`<img src="${escapeHtml(a.src)}" width="${width}" height="${height}" alt="${title} ${escapeHtml(a.format)} creative" loading="lazy">`:`<video muted loop playsinline preload="none" aria-hidden="true"></video>`;
-  return`<figure class="creative-item${longClass}"><a class="creative-media" href="${link}" ${a.video?`data-film="gallery" data-title="${title}"`:'target="_blank" rel="noopener"'} aria-label="${a.video?'Play':'View'} ${title}">${visual}${a.video?'<span class="play">&#9654;</span>':''}</a><figcaption><div><h3>${title}</h3><p class="creative-kind">${role}</p></div><span>${a.video?'Play video':'View project'} &nearr;</span></figcaption></figure>`;
- }).join('')||'<p>No matching creative. Try All creative or All sizes.</p>';
- galleryMore.hidden=allSelected.length<=GALLERY_LIMIT;
- if(!galleryMore.hidden)galleryMore.textContent=galleryExpanded?'Show fewer':`Show ${allSelected.length-GALLERY_LIMIT} more`;
- autoplayPreviews(gallery);resetRail(gallery);
-}
-function resetGalleryFilters(){galleryExpanded=false}
-document.querySelectorAll('[data-collection]').forEach(b=>b.addEventListener('click',()=>{collection=b.dataset.collection;format='all';mediaType='all';resetGalleryFilters();document.querySelectorAll('[data-media]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.media==='all')));document.querySelectorAll('[data-collection]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));document.querySelectorAll('[data-format]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.format==='all')));renderGallery()}));
-document.querySelectorAll('[data-format]').forEach(b=>b.addEventListener('click',()=>{format=b.dataset.format;resetGalleryFilters();document.querySelectorAll('[data-format]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));renderGallery()}));
-document.querySelectorAll('[data-media]').forEach(b=>b.addEventListener('click',()=>{mediaType=b.dataset.media;resetGalleryFilters();document.querySelectorAll('[data-media]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));renderGallery()}));
-
-function galleryFromBucket(){
- return bucketWorks.filter(work=>work.type==='image').map(work=>({group:['banners','pmax','meta'].includes(work.group)?work.group:'banners',src:work.src,video:null,title:imageTitle(work),role:imageRole(work),longForm:isLongPortfolioAsset(work),format:['wide','square','portrait'].includes(work.format)?work.format:'wide',width:work.width||1600,height:work.height||900,uploaded:work.uploaded||''}));
-}
-function mergeGallery(){
- const seen=new Set(),merged=[];
- for(const source of [...galleryFromBucket(),...staticGalleryAssets]){
-  const item={...source,title:source.role?source.title:staticTitle(source),role:source.role||staticRole(source)};
-  const identity=normalize(item.video||item.src||`${item.title}-${item.format}`);
-  if(!identity||seen.has(identity))continue;
-  seen.add(identity);merged.push(item);
- }
- galleryAssets=merged;
-}
-
-function filmCard(work,index){
- const title=escapeHtml(displayTitle(work,'Selected Motion')),href=escapeHtml(work.src),poster=work.poster?escapeHtml(work.poster):blankPoster,caption=escapeHtml(work.discipline||work.client||'MOTION / PORTFOLIO');
- return`<article class="film-card"><a href="${href}" data-film="dynamic-${escapeHtml(work.id||index)}" data-title="${title}" aria-label="Play ${title}"><img src="${poster}" alt="${title} film still" loading="lazy" width="1280" height="720"><span class="film-number">${String(index+1).padStart(2,'0')}</span><span class="play">▶</span><span class="watch">Watch film ↗</span></a><div class="film-caption"><h3>${title}</h3><p>${caption}</p></div></article>`;
-}
-function legacyCard(item,index){
- return`<article class="film-card"><a href="${escapeHtml(item.href)}" data-film="legacy-${index}" data-title="${escapeHtml(item.title)}" aria-label="Play ${escapeHtml(item.title)}"><img src="${escapeHtml(item.poster)}" alt="${escapeHtml(item.title)} film still" loading="lazy" width="1280" height="720"><span class="film-number">${String(index+1).padStart(2,'0')}</span><span class="play">▶</span><span class="watch">Watch film ↗</span></a><div class="film-caption"><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.caption)}</p></div></article>`;
-}
-function renderDynamicFilms(){
- const dynamic=bucketWorks.filter(work=>work.type==='video');
- if(!dynamic.length)return;
- filmRail.querySelectorAll('[data-film]').forEach(a=>previewObserver.unobserve(a));
- const remainingLegacy=legacyFilms.filter(item=>!dynamic.some(work=>sameFilm(item.title,work.title)||sameFilm(item.href.split('/').pop(),work.filename||work.title)));
- const dynamicSofa=dynamic.filter(isSofaWork),dynamicRest=dynamic.filter(work=>!isSofaWork(work));
- const legacySofa=dynamicSofa.length?[]:remainingLegacy.filter(item=>/sofa/i.test(`${item.title} ${item.href}`));
- const legacyRest=remainingLegacy.filter(item=>!legacySofa.includes(item));
- const blocks=[];dynamicSofa.forEach(work=>blocks.push({kind:'dynamic',work}));legacySofa.forEach(item=>blocks.push({kind:'legacy',item}));dynamicRest.forEach(work=>blocks.push({kind:'dynamic',work}));legacyRest.forEach(item=>blocks.push({kind:'legacy',item}));
- filmRail.innerHTML=blocks.map((entry,index)=>entry.kind==='dynamic'?filmCard(entry.work,index):legacyCard(entry.item,index)).join('');
- autoplayPreviews(filmRail);filmRail.dispatchEvent(new Event('scroll'));resetRail(filmRail);
-}
-function updateHero(){
- const hero=document.querySelector('.hero-visual');if(!hero)return;
- const sofa=bucketWorks.find(work=>work.type==='video'&&isSofaWork(work));if(!sofa)return;
- const titleText=displayTitle(sofa,'Sofa Commercial');hero.href=sofa.src;hero.dataset.title=titleText;
- const title=hero.querySelector('.visual-bottom h2'),client=hero.querySelector('.visual-bottom>span'),discipline=hero.querySelector('.visual-bottom p'),img=hero.querySelector('img'),preview=hero.querySelector('video');
- if(title)title.textContent=titleText;if(client)client.textContent=(sofa.client||'FEATURED COMMERCIAL').toUpperCase();if(discipline)discipline.textContent=sofa.discipline||'Creative direction · Motion · Commerce';if(img){if(sofa.poster)img.src=sofa.poster;img.alt=`${titleText} preview`}if(preview){preview.pause();preview.removeAttribute('src');preview.poster=sofa.poster||img?.src||'';preview.src=sofa.src;preview.load();if(!reduce.matches)preview.play().catch(()=>{})}
-}
-
-Promise.allSettled([fetch('/gallery.json').then(r=>{if(!r.ok)throw Error('Gallery unavailable');return r.json()}),fetch('/api/works',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Works unavailable');return r.json()})]).then(([galleryResult,worksResult])=>{
- staticGalleryAssets=galleryResult.status==='fulfilled'?galleryResult.value:[];bucketWorks=worksResult.status==='fulfilled'&&Array.isArray(worksResult.value?.works)?worksResult.value.works:[];mergeGallery();renderGallery();if(bucketWorks.length){renderDynamicFilms();updateHero()}if(galleryResult.status==='rejected'&&!bucketWorks.length)document.querySelector('#galleryCount').textContent='The gallery could not load. Please refresh the page.';
+// Player — videos only load when requested on mobile.
+const dialog=document.querySelector('#player'),player=dialog?.querySelector('video'),error=document.querySelector('#videoError');let opener;
+document.addEventListener('click',e=>{
+ const a=e.target.closest('[data-film]');if(!a||!dialog||!player)return;e.preventDefault();opener=a;
+ document.querySelector('#playerTitle').textContent=a.dataset.title||'Film';error.hidden=true;error.querySelector('a').href=a.href;
+ player.src=a.href;const image=a.querySelector('img'),preview=a.querySelector('video');player.poster=image?.currentSrc||image?.src||preview?.poster||'';dialog.showModal();player.play().catch(()=>{});
 });
+player?.addEventListener('error',()=>{error.hidden=false});
+document.querySelector('#closePlayer')?.addEventListener('click',()=>dialog.close());
+dialog?.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
+dialog?.addEventListener('close',()=>{player.pause();player.removeAttribute('src');player.load();opener?.focus()});
 
+let staticGallery=[],bucketWorks=[];
+const preferredCampaign=['/assets/gallery-banners-3.webp','/assets/gallery-banners-18.webp','/assets/gallery-banners-27.webp','/assets/gallery-banners-7.webp','/assets/gallery-banners-1.webp','/assets/gallery-banners-16.webp'];
+
+const rawWorkText=work=>`${work?.title||''} ${work?.filename||''} ${work?.key||''} ${work?.client||''} ${work?.discipline||''}`;
+const workText=work=>normalize(rawWorkText(work));
+const isImage=work=>work?.type==='image';
+const isAuraZ=work=>/\bauraz\b/.test(workText(work));
+const isPerformance=work=>/mohitparmarofficial|google ads|analytics|impressions|cpm|conversion|performance|max|pmax|campaign dashboard|ads manager/.test(workText(work));
+function isSocialProfile(work){
+ const raw=rawWorkText(work).trim();const text=workText(work);const title=String(work?.title||'').trim();
+ if(/instagram|profile|feed|social media|grid|social management/i.test(raw))return true;
+ if(/^urbandeco\.ae\d*$/i.test(title)||/^urbandeco ae\d*$/.test(normalize(title)))return true;
+ return /urban deco ae\d*$/.test(text)&&!/banner|sale|campaign|pdp|homepage|website|product page/.test(text);
+}
+const uniqueBySrc=items=>{const seen=new Set();return items.filter(item=>{const key=item.src||item.video||item.url;if(!key||seen.has(key))return false;seen.add(key);return true})};
+
+function staticAsset(item,title,role){return{src:item.src,video:item.video||null,title,role,format:item.format||'wide',profile:false,long:false}}
+function campaignStatic(){
+ const bySrc=new Map(staticGallery.map(x=>[x.src,x]));
+ const titles={
+  '/assets/gallery-banners-3.webp':'AuraZ — Festive Campaign',
+  '/assets/gallery-banners-18.webp':'Urban Deco UK — Campaign System',
+  '/assets/gallery-banners-27.webp':'Urban Deco UAE — Ecommerce Campaign',
+  '/assets/gallery-banners-7.webp':'Choice Furniture — Motion Banner',
+  '/assets/gallery-banners-1.webp':'Apka Jyotish — Digital Campaign',
+  '/assets/gallery-banners-16.webp':'Felonic — Brand Creative'
+ };
+ return preferredCampaign.map(src=>bySrc.get(src)).filter(Boolean).map(item=>staticAsset(item,titles[item.src]||'Campaign Creative','CAMPAIGN / ECOMMERCE'));
+}
+function performanceStatic(){
+ const items=staticGallery.filter(x=>x.group==='pmax').slice(0,3);
+ const names=['Performance Max — Creative System','Paid Media — Asset Testing','Performance Campaign — Creative Variants'];
+ return items.map((item,i)=>staticAsset(item,names[i]||'Performance Marketing','PERFORMANCE MARKETING'));
+}
+function auraDynamic(){
+ return bucketWorks.filter(w=>isImage(w)&&isAuraZ(w)&&!isSocialProfile(w)).slice(0,2).map((w,i)=>({src:w.src,title:i===0?'AuraZ — Current Brand Campaign':'AuraZ — Ecommerce Creative',role:'BRAND / ECOMMERCE',format:w.format||'wide',long:false}));
+}
+function performanceDynamic(){
+ const names=['Google Ads — Campaign Performance','Performance Marketing — Reporting & Optimisation','Paid Media — Campaign Analysis'];
+ return bucketWorks.filter(w=>isImage(w)&&isPerformance(w)).slice(0,3).map((w,i)=>({src:w.src,title:names[i]||'Performance Marketing',role:'ADS / ANALYTICS',format:w.format||'wide',long:true}));
+}
+function socialProfiles(){
+ const names=['Urban Deco UAE — Instagram Profile','Urban Deco UAE — Feed Direction','Urban Deco UAE — Social Content System','Urban Deco UAE — Reels & Grid'];
+ return bucketWorks.filter(w=>isImage(w)&&isSocialProfile(w)&&!isPerformance(w)).slice(0,4).map((w,i)=>({src:w.src,title:names[i]||'Social Media Management',role:'SOCIAL MEDIA MANAGEMENT',format:w.format||'portrait',profile:true,long:true}));
+}
+function cardMarkup(item){
+ const title=escapeHtml(item.title),role=escapeHtml(item.role||'CREATIVE DIRECTION'),src=escapeHtml(item.src),video=item.video?escapeHtml(item.video):null;
+ const cls=`portfolio-card${item.profile?' is-profile':''}${item.long?' is-long':''}`;
+ const link=video||src;
+ return`<article class="${cls}"><a class="portfolio-card-media" href="${link}" ${video?`data-film="portfolio" data-title="${title}"`:'target="_blank" rel="noopener"'} aria-label="${video?'Play':'View'} ${title}"><img src="${src}" alt="${title}" loading="lazy" decoding="async">${video?'<span class="play">▶</span>':''}</a><div class="portfolio-card-meta"><div><h4>${title}</h4><p>${role}</p></div><span>${video?'Play':'View'} ↗</span></div></article>`;
+}
+function blockMarkup(id,eyebrow,title,copy,items){
+ if(!items.length)return'';
+ return`<section class="portfolio-block" id="${id}"><div class="portfolio-block-head"><div><p class="eyebrow">${escapeHtml(eyebrow)}</p><h3>${escapeHtml(title)}</h3></div><p>${escapeHtml(copy)}</p></div><div class="portfolio-grid">${items.map(cardMarkup).join('')}</div></section>`;
+}
+function renderPortfolio(){
+ const host=document.querySelector('#images');if(!host)return;
+ let groups=host.querySelector('.portfolio-groups');if(!groups){groups=document.createElement('div');groups.className='portfolio-groups';host.querySelector('.section-head')?.after(groups)}
+ const campaign=uniqueBySrc([...auraDynamic(),...campaignStatic()]).slice(0,6);
+ const performance=uniqueBySrc([...performanceDynamic(),...performanceStatic()]).slice(0,5);
+ const social=uniqueBySrc(socialProfiles()).slice(0,4);
+ groups.innerHTML=
+  blockMarkup('campaign-work','CAMPAIGN CREATIVE','Campaign & ecommerce','Selected launch creative, ecommerce campaigns and motion assets — only the work worth stopping for.',campaign)+
+  blockMarkup('performance-work','PERFORMANCE MARKETING','Paid media & performance','Campaign reporting, ad systems and performance creative showing the commercial side of the work.',performance)+
+  blockMarkup('social-management','SOCIAL MEDIA MANAGEMENT','Profiles, feeds & content systems','Instagram profile direction, feed management and social content systems. This section is management work — not a dump of ad creatives.',social);
+ groups.querySelectorAll('.portfolio-grid').forEach(resetRail);
+}
+
+// Static campaign work paints first; R2 enriches only the small curated sections afterwards.
+fetch('/gallery.json').then(r=>r.ok?r.json():[]).then(data=>{staticGallery=Array.isArray(data)?data:[];renderPortfolio()}).catch(()=>renderPortfolio());
+fetch('/api/works').then(r=>r.ok?r.json():{works:[]}).then(data=>{bucketWorks=Array.isArray(data?.works)?data.works:[];renderPortfolio()}).catch(()=>{});
+
+// Mobile stays poster-first. Desktop can autoplay only visible portfolio videos.
+const previewObserver=new IntersectionObserver(entries=>entries.forEach(({target,isIntersecting})=>{const preview=target.querySelector('video');if(!preview)return;if(isIntersecting){if(!preview.src)preview.src=target.href;preview.play().catch(()=>{})}else preview.pause()}),{threshold:.2});
+function autoplayPreviews(root=document){
+ if(mobile.matches||saveData||reduce.matches)return;
+ root.querySelectorAll('[data-film]').forEach(a=>{
+  if(a.closest('.reel-rail'))return;
+  const img=a.querySelector('img');if(!img||a.querySelector('video'))return;
+  const preview=document.createElement('video');preview.autoplay=true;preview.muted=true;preview.defaultMuted=true;preview.loop=true;preview.playsInline=true;preview.preload='none';preview.poster=img.src;preview.setAttribute('aria-hidden','true');preview.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none';img.after(preview);previewObserver.observe(a);
+ });
+}
+autoplayPreviews(document.querySelector('.hero')||document);
+autoplayPreviews(filmRail||document);
+
+// Clients move only on larger screens; on mobile they remain swipeable and still.
 const logoRow=document.querySelector('.logo-row'),pauseLogos=document.querySelector('.logo-pause');
 let logosPaused=false,logosHover=false,logosVisible=false,logoTime=0,logoPosition=0;
-const originals=[...logoRow.children];originals.forEach(img=>{const copy=img.cloneNode(true);copy.setAttribute('aria-hidden','true');copy.alt='';copy.removeAttribute('title');logoRow.append(copy)});
-pauseLogos.addEventListener('click',()=>{logosPaused=!logosPaused;pauseLogos.setAttribute('aria-pressed',String(logosPaused));pauseLogos.textContent=logosPaused?'Resume logos':'Pause logos'});logoRow.addEventListener('pointerenter',()=>logosHover=true);logoRow.addEventListener('pointerleave',()=>logosHover=false);new IntersectionObserver(entries=>{logosVisible=entries[0].isIntersecting}).observe(logoRow);
-function moveLogos(time){const elapsed=Math.min(time-logoTime,50);logoTime=time;const focused=logoRow.contains(document.activeElement);if(logosVisible&&!logosPaused&&!logosHover&&!focused&&!reduce.matches&&!document.hidden){const gap=parseFloat(getComputedStyle(logoRow).gap);const distance=(logoRow.scrollWidth+gap)/2;logoPosition+=elapsed*.018;if(logoPosition>=distance)logoPosition-=distance;logoRow.scrollLeft=logoPosition}else logoPosition=logoRow.scrollLeft;requestAnimationFrame(moveLogos)}requestAnimationFrame(moveLogos);
-
-const previewObserver=new IntersectionObserver(entries=>entries.forEach(({target,isIntersecting})=>{const preview=target.querySelector('video');if(!preview)return;if(isIntersecting){if(!preview.src)preview.src=target.href;if(!reduce.matches)preview.play().catch(()=>{})}else preview.pause()}),{threshold:.1});
-function autoplayPreviews(root=document){root.querySelectorAll('[data-film]').forEach(a=>{const existing=a.querySelector('video');if(existing){previewObserver.observe(a);return}const img=a.querySelector('img');if(!img)return;const preview=document.createElement('video');preview.autoplay=true;preview.muted=true;preview.defaultMuted=true;preview.loop=true;preview.playsInline=true;preview.preload='none';preview.poster=img.src;preview.setAttribute('aria-hidden','true');preview.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none';preview.style.objectPosition=getComputedStyle(img).objectPosition;img.after(preview);previewObserver.observe(a)})}
-autoplayPreviews();
+if(logoRow&&pauseLogos){
+ const originals=[...logoRow.children];originals.forEach(img=>{const copy=img.cloneNode(true);copy.setAttribute('aria-hidden','true');copy.alt='';copy.removeAttribute('title');logoRow.append(copy)});
+ pauseLogos.addEventListener('click',()=>{logosPaused=!logosPaused;pauseLogos.setAttribute('aria-pressed',String(logosPaused));pauseLogos.textContent=logosPaused?'Resume logos':'Pause logos'});
+ logoRow.addEventListener('pointerenter',()=>logosHover=true);logoRow.addEventListener('pointerleave',()=>logosHover=false);
+ new IntersectionObserver(entries=>{logosVisible=entries[0].isIntersecting}).observe(logoRow);
+ function moveLogos(time){const elapsed=Math.min(time-logoTime,50);logoTime=time;const focused=logoRow.contains(document.activeElement);if(!mobile.matches&&logosVisible&&!logosPaused&&!logosHover&&!focused&&!reduce.matches&&!document.hidden){const gap=parseFloat(getComputedStyle(logoRow).gap)||0;const distance=(logoRow.scrollWidth+gap)/2;logoPosition+=elapsed*.018;if(logoPosition>=distance)logoPosition-=distance;logoRow.scrollLeft=logoPosition}else logoPosition=logoRow.scrollLeft;requestAnimationFrame(moveLogos)}requestAnimationFrame(moveLogos);
+}
