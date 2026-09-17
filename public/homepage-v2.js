@@ -111,3 +111,28 @@ if(socialGrid){
 function resetRails(){document.querySelectorAll('.reel-rail,.mobile-rail').forEach(rail=>{rail.scrollLeft=0})}
 window.addEventListener('pageshow',()=>requestAnimationFrame(resetRails));
 resetRails();
+
+// R2 scrolling banner: portfolio-bucket object `website background.jpg`.
+(function injectWebsiteBackgroundMarquee(){
+  const anchor=document.querySelector('.hero-strip');
+  if(!anchor||document.querySelector('.website-bg-marquee'))return;
+  const imageUrl='https://media.mohitparmar.co.in/website%20background.jpg';
+  const style=document.createElement('style');
+  style.textContent=`
+    .website-bg-marquee{position:relative;width:100%;overflow:hidden;background:#1f1e1b;border-bottom:1px solid rgba(255,255,255,.12);isolation:isolate}
+    .website-bg-marquee::before,.website-bg-marquee::after{content:"";position:absolute;inset:0 auto 0 0;width:8vw;z-index:2;pointer-events:none;background:linear-gradient(90deg,#272622 0%,rgba(39,38,34,0) 100%)}
+    .website-bg-marquee::after{left:auto;right:0;transform:scaleX(-1)}
+    .website-bg-track{display:flex;width:max-content;will-change:transform;animation:websiteBgScroll 30s linear infinite}
+    .website-bg-panel{flex:0 0 100vw;width:100vw;height:clamp(120px,14vw,220px);background-image:url("${imageUrl}");background-repeat:no-repeat;background-position:center;background-size:cover}
+    .website-bg-marquee:hover .website-bg-track{animation-play-state:paused}
+    @keyframes websiteBgScroll{from{transform:translate3d(0,0,0)}to{transform:translate3d(-100vw,0,0)}}
+    @media(max-width:760px){.website-bg-panel{height:clamp(92px,27vw,150px)}.website-bg-track{animation-duration:22s}.website-bg-marquee::before,.website-bg-marquee::after{width:12vw}}
+    @media(prefers-reduced-motion:reduce){.website-bg-track{animation:none}.website-bg-panel:nth-child(2){display:none}}
+  `;
+  document.head.appendChild(style);
+  const banner=document.createElement('div');
+  banner.className='website-bg-marquee';
+  banner.setAttribute('aria-label','Scrolling portfolio banner');
+  banner.innerHTML='<div class="website-bg-track" aria-hidden="true"><div class="website-bg-panel"></div><div class="website-bg-panel"></div></div>';
+  anchor.insertAdjacentElement('afterend',banner);
+})();
