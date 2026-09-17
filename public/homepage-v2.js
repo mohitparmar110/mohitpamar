@@ -75,7 +75,7 @@ function socialTitle(work,index){
   if(/urbandeco\.co\.uk|urban deco uk/i.test(raw))return 'Urban Deco UK — Social Media';
   return index===0?'Instagram — Account Direction':index===1?'Social Feed — Content System':'Social Media — Channel Management';
 }
-function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]))}
+function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[char]))}
 
 async function loadSocialManagement(){
   if(socialLoaded||!socialGrid)return;
@@ -112,27 +112,28 @@ function resetRails(){document.querySelectorAll('.reel-rail,.mobile-rail').forEa
 window.addEventListener('pageshow',()=>requestAnimationFrame(resetRails));
 resetRails();
 
-// R2 scrolling banner: portfolio-bucket object `website background.jpg`.
-(function injectWebsiteBackgroundMarquee(){
-  const anchor=document.querySelector('.hero-strip');
-  if(!anchor||document.querySelector('.website-bg-marquee'))return;
+// R2 full-site background theme: portfolio-bucket object `website background.jpg`.
+(function applyWebsiteBackgroundTheme(){
+  document.querySelector('.website-bg-marquee')?.remove();
   const imageUrl='https://media.mohitparmar.co.in/website%20background.jpg';
   const style=document.createElement('style');
+  style.id='website-background-theme';
   style.textContent=`
-    .website-bg-marquee{position:relative;width:100%;overflow:hidden;background:#1f1e1b;border-bottom:1px solid rgba(255,255,255,.12);isolation:isolate}
-    .website-bg-marquee::before,.website-bg-marquee::after{content:"";position:absolute;inset:0 auto 0 0;width:8vw;z-index:2;pointer-events:none;background:linear-gradient(90deg,#272622 0%,rgba(39,38,34,0) 100%)}
-    .website-bg-marquee::after{left:auto;right:0;transform:scaleX(-1)}
-    .website-bg-track{display:flex;width:max-content;will-change:transform;animation:websiteBgScroll 30s linear infinite}
-    .website-bg-panel{flex:0 0 100vw;width:100vw;height:clamp(120px,14vw,220px);background-image:url("${imageUrl}");background-repeat:no-repeat;background-position:center;background-size:cover}
-    .website-bg-marquee:hover .website-bg-track{animation-play-state:paused}
-    @keyframes websiteBgScroll{from{transform:translate3d(0,0,0)}to{transform:translate3d(-100vw,0,0)}}
-    @media(max-width:760px){.website-bg-panel{height:clamp(92px,27vw,150px)}.website-bg-track{animation-duration:22s}.website-bg-marquee::before,.website-bg-marquee::after{width:12vw}}
-    @media(prefers-reduced-motion:reduce){.website-bg-track{animation:none}.website-bg-panel:nth-child(2){display:none}}
+    html{background:#171411!important}
+    body{position:relative;background:#171411!important;isolation:isolate}
+    body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background-image:url("${imageUrl}");background-position:center top;background-size:cover;background-repeat:no-repeat;transform:translateZ(0)}
+    body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(18,15,12,.58) 0%,rgba(21,18,15,.70) 48%,rgba(16,14,12,.76) 100%)}
+    .site-shell{background:transparent!important;box-shadow:0 0 80px rgba(0,0,0,.18)}
+    .site-header{background:rgba(27,24,20,.88)!important;border-bottom-color:rgba(255,255,255,.12)!important}
+    .hero{background:linear-gradient(135deg,rgba(39,34,28,.58),rgba(25,22,19,.42))!important}
+    .hero-strip{background:rgba(28,25,21,.50);margin:0!important;padding-left:var(--pad)!important;padding-right:var(--pad)!important;border-color:rgba(255,255,255,.12)!important}
+    .section.dark{background:rgba(39,38,34,.76)!important;backdrop-filter:blur(3px)}
+    #films,#web{background:rgba(48,47,41,.78)!important}
+    .section.paper{background:rgba(240,237,229,.91)!important;backdrop-filter:blur(4px)}
+    .section.orange{background:rgba(255,90,42,.93)!important}
+    .footer{background:rgba(26,23,20,.72);backdrop-filter:blur(3px)}
+    @media(max-width:760px){body::before{background-position:center top}.section.dark,#films,#web{background:rgba(39,38,34,.82)!important}.section.paper{background:rgba(240,237,229,.94)!important}}
   `;
+  document.getElementById('website-background-theme')?.remove();
   document.head.appendChild(style);
-  const banner=document.createElement('div');
-  banner.className='website-bg-marquee';
-  banner.setAttribute('aria-label','Scrolling portfolio banner');
-  banner.innerHTML='<div class="website-bg-track" aria-hidden="true"><div class="website-bg-panel"></div><div class="website-bg-panel"></div></div>';
-  anchor.insertAdjacentElement('afterend',banner);
 })();
