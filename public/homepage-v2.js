@@ -17,7 +17,8 @@ document.addEventListener('click',e=>{
   e.preventDefault();
   opener=trigger;
   const src=trigger.getAttribute('href')||trigger.dataset.video;
-  const poster=trigger.dataset.poster||trigger.querySelector('img')?.currentSrc||trigger.querySelector('img')?.src||'';
+  const preview=trigger.querySelector('video');
+  const poster=trigger.dataset.poster||preview?.poster||trigger.querySelector('img')?.currentSrc||trigger.querySelector('img')?.src||'';
   const title=trigger.dataset.title||'Film';
   if(playerTitle)playerTitle.textContent=title;
   if(playerError)playerError.hidden=true;
@@ -106,6 +107,51 @@ if(socialGrid){
   },{rootMargin:'350px 0px'});
   observer.observe(socialGrid);
 }
+
+// Turn every video-linked portfolio preview into a muted looping autoplay video.
+(function enableAutoplayPreviews(){
+  const style=document.createElement('style');
+  style.id='autoplay-video-previews';
+  style.textContent=`
+    [data-video]>.autoplay-preview{width:100%;height:100%;display:block;object-fit:cover;pointer-events:none;background:#000}
+    #creative [data-video]>.autoplay-preview{object-fit:contain}
+    .hero-feature>.autoplay-preview{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  `;
+  document.getElementById('autoplay-video-previews')?.remove();
+  document.head.appendChild(style);
+
+  document.querySelectorAll('a[data-video]').forEach(trigger=>{
+    const src=trigger.getAttribute('href')||trigger.dataset.video;
+    if(!src||!(/\.(mp4|webm|mov|m4v)(?:[?#].*)?$/i.test(src)))return;
+    if(trigger.querySelector('video.autoplay-preview'))return;
+    const image=trigger.querySelector('img');
+    const video=document.createElement('video');
+    video.className='autoplay-preview';
+    video.muted=true;
+    video.defaultMuted=true;
+    video.autoplay=true;
+    video.loop=true;
+    video.playsInline=true;
+    video.setAttribute('muted','');
+    video.setAttribute('autoplay','');
+    video.setAttribute('loop','');
+    video.setAttribute('playsinline','');
+    video.setAttribute('aria-hidden','true');
+    video.preload='metadata';
+    video.poster=trigger.dataset.poster||image?.currentSrc||image?.src||'';
+    video.src=src;
+    if(image)image.replaceWith(video);else trigger.prepend(video);
+    const tryPlay=()=>video.play().catch(()=>{});
+    video.addEventListener('loadedmetadata',tryPlay,{once:true});
+    video.addEventListener('canplay',tryPlay,{once:true});
+    tryPlay();
+  });
+
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden)return;
+    document.querySelectorAll('video.autoplay-preview').forEach(video=>video.play().catch(()=>{}));
+  });
+})();
 
 // Always begin horizontal work rails from the visual left edge, including BFCache restores.
 function resetRails(){document.querySelectorAll('.reel-rail,.mobile-rail').forEach(rail=>{rail.scrollLeft=0})}
