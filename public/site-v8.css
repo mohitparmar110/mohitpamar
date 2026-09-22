@@ -198,3 +198,34 @@ body{overflow-x:clip}
   .project-tags{gap:10px}
   .project-tags span:not(:last-child)::after{padding-left:10px}
 }
+
+
+/* full-media-display-2026-09-22 */
+/* Keep portfolio and case-study artwork fully visible instead of cropping it. */
+.project-media img,
+.project-media video,
+.hero-media img,
+.case-hero-media img{
+  object-fit:contain!important;
+  object-position:center!important;
+}
+
+.media-pair{
+  align-items:start;
+}
+
+.media-pair img,
+.media-pair video{
+  width:100%!important;
+  height:auto!important;
+  max-height:none!important;
+  aspect-ratio:auto!important;
+  object-fit:contain!important;
+  object-position:center!important;
+}
+
+.hero-media,
+.project-media,
+.case-hero-media{
+  background:#ddd8d0;
+}
