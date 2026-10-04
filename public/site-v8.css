@@ -237,3 +237,7 @@ body{overflow-x:clip}
 @media(max-width:999px){.header-inner{width:calc(100% - 36px);min-height:76px;gap:16px}.brand{gap:10px}.brand-copy small{display:none}.menu{display:block;min-height:44px;padding:10px 16px;color:#29262c}.nav{display:none;position:absolute;top:76px;left:0;right:0;background:#eee9e1;padding:20px;flex-direction:column;align-items:stretch;gap:0;border-bottom:1px solid #ccc3cf;max-height:calc(100dvh - 76px);overflow:auto}.nav.open{display:flex}.nav a{padding:14px 0}.nav .nav-cta{margin-top:10px;text-align:center}.footer-inner{width:calc(100% - 36px)}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal{opacity:1!important;transform:none!important}}
 @media(min-width:1000px){.header-inner{width:calc(100% - 72px);grid-template-columns:1fr auto}.nav{position:static;flex-direction:row;align-items:center;gap:24px;background:transparent;border:0;box-shadow:none;padding:0}.nav a{padding:24px 0;border-bottom:2px solid transparent}.nav .nav-cta{padding:12px 17px}.menu{display:none}}
+
+/* Video frames follow the clip, rather than a fixed landscape box. */
+.project-media.video-frame{aspect-ratio:auto;background:transparent;justify-self:center;width:min(100%,calc(560px * var(--video-ratio,1)));padding:0}
+.project-media.video-frame video{display:block;width:100%;height:auto;aspect-ratio:auto;max-height:none;object-fit:contain;transform:none}

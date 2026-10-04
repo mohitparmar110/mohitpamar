@@ -9,3 +9,27 @@ const clientLogos=["logo-urban-deco.webp","logo-auraz.webp","logo-apka-jyotish.w
 document.querySelectorAll("[data-client-logos]").forEach(t=>{t.innerHTML=clientLogos.map((f,i)=>`<div class="logo-item"><img src="/assets/${f}" alt="Client logo ${i+1}" loading="lazy" decoding="async"></div>`).join("")});
 
 if(menu&&nav){nav.addEventListener('click',e=>{if(e.target.closest('a')){nav.classList.remove('open');menu.setAttribute('aria-expanded','false')}});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&nav.classList.contains('open')){nav.classList.remove('open');menu.setAttribute('aria-expanded','false');menu.focus()}})}
+
+// Match each video frame to the source dimensions, including portrait reels.
+document.querySelectorAll('video').forEach(video => {
+  const frame = video.closest('.project-media, .sofa-stage, figure');
+  if (frame?.classList.contains('project-media')) frame.classList.add('video-frame');
+  const fit = (width, height) => {
+    if (width > 0 && height > 0) frame?.style.setProperty('--video-ratio', String(width / height));
+  };
+  video.addEventListener('loadedmetadata', () => fit(video.videoWidth, video.videoHeight));
+  if (video.videoWidth) fit(video.videoWidth, video.videoHeight);
+  else if (video.poster) {
+    const poster = new Image();
+    poster.onload = () => { if (!video.videoWidth) fit(poster.naturalWidth, poster.naturalHeight); };
+    poster.src = video.poster;
+  }
+  video.muted = true;
+  video.defaultMuted = true;
+  video.autoplay = true;
+  video.loop = true;
+  video.playsInline = true;
+  video.controls = true;
+  video.preload = 'metadata';
+  video.play().catch(() => {});
+});
