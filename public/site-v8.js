@@ -1,6 +1,6 @@
-const navItems=[["Work","/work.html"],["Services","/#services"],["Pricing","/#pricing"],["About","/about.html"]];
+const navItems=[["Work","/work.html"],["Videos","/videos"],["Designs","/designs"],["Services","/#services"],["Pricing","/#pricing"],["About","/about.html"]];
 function header(){const p=location.pathname;return `<div class="scroll-progress" aria-hidden="true"><span></span></div><header class="site-header"><div class="header-inner"><a class="brand" href="/"><span class="brand-mark">MP</span><span class="brand-copy"><strong>Mohit Parmar</strong><small>Creative Strategy · Performance · CRO</small></span></a><button class="menu" aria-controls="site-nav" aria-expanded="false">Menu</button><nav class="nav" id="site-nav" aria-label="Main navigation">${navItems.map(([n,h])=>`<a href="${h}" ${p===h?'aria-current="page"':''}>${n}</a>`).join("")}<a class="nav-cta" href="/contact.html?intent=consultation">Book a Consultation</a></nav></div></header>`}
-function footer(){return `<footer class="footer"><div class="footer-inner"><span>© ${new Date().getFullYear()} Mohit Parmar</span><div class="footer-nav"><a href="/work.html">Work</a><a href="/about.html">About</a><a href="/insights.html">Insights</a><a href="/contact.html?intent=consultation">Book a Consultation</a></div><span>Mumbai · Working worldwide</span><a href="mailto:mohit.parmar110@gmail.com">Email Mohit</a><a href="/privacy-policy.html">Privacy</a></div></footer>`}
+function footer(){return `<footer class="footer"><div class="footer-inner"><span>© ${new Date().getFullYear()} Mohit Parmar</span><div class="footer-nav"><a href="/work.html">Work</a><a href="/videos">Videos</a><a href="/designs">Designs</a><a href="/about.html">About</a><a href="/insights.html">Insights</a><a href="/contact.html?intent=consultation">Book a Consultation</a></div><span>Mumbai · Working worldwide</span><a href="mailto:mohit.parmar110@gmail.com">Email Mohit</a><a href="/privacy-policy.html">Privacy</a></div></footer>`}
 document.querySelectorAll("[data-site-header]").forEach(el=>el.outerHTML=header());document.querySelectorAll("[data-site-footer]").forEach(el=>el.outerHTML=footer());
 const menu=document.querySelector(".menu"),nav=document.querySelector(".nav");if(menu&&nav)menu.addEventListener("click",()=>{const open=nav.classList.toggle("open");menu.setAttribute("aria-expanded",String(open))});
 const progress=document.querySelector(".scroll-progress span");function updateProgress(){if(!progress)return;const d=document.documentElement,max=d.scrollHeight-innerHeight;progress.style.width=(max>0?(scrollY/max)*100:0)+"%"}addEventListener("scroll",updateProgress,{passive:true});updateProgress();
@@ -11,7 +11,7 @@ document.querySelectorAll("[data-client-logos]").forEach(t=>{t.innerHTML=clientL
 if(menu&&nav){nav.addEventListener('click',e=>{if(e.target.closest('a')){nav.classList.remove('open');menu.setAttribute('aria-expanded','false')}});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&nav.classList.contains('open')){nav.classList.remove('open');menu.setAttribute('aria-expanded','false');menu.focus()}})}
 
 // Match each video frame to the source dimensions, including portrait reels.
-document.querySelectorAll('video').forEach(video => {
+document.querySelectorAll('video:not([data-manual-playback])').forEach(video => {
   const frame = video.closest('.project-media, .sofa-stage, figure');
   if (frame?.classList.contains('project-media')) frame.classList.add('video-frame');
   const fit = (width, height) => {
