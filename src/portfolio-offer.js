@@ -16,7 +16,7 @@ async function create(request,env){
  let b;try{b=await jsonBody(request);}catch{return fail("Invalid registration details.");}
  if(b.companyWebsite)return fail("Could not process registration.");
  const name=safeText(b.name,90),email=safeText(b.email,180).toLowerCase(),phone=safeText(b.phone,20),profession=safeText(b.profession,90),style=safeText(b.style||"Editorial",40),drive=safeText(b.drive,600);
- if(!/^[a-zA-Z][\s\S]{1,89}$/.test(name)||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||!/[0-9]{10,15}/.test(phone.replace(/[\s()+-]/g,""))||!profession||b.consent!==true||!validDrive(drive))return fail("Please check your name, email, WhatsApp number, consent and Drive URL.");
+ if(name.length<2||name.length>90||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||!/[0-9]{10,15}/.test(phone.replace(/[\s()+-]/g,""))||!profession||b.consent!==true||!validDrive(drive))return fail("Please check your name, email, WhatsApp number, consent and Drive URL.");
  const receipt="portfolio_"+crypto.randomUUID().replace(/-/g,"").slice(0,22);
  let response;
  try{response=await fetch("https://api.razorpay.com/v1/orders",{method:"POST",headers:{"Authorization":authHeader(env),"Content-Type":"application/json"},body:JSON.stringify({amount:AMOUNT,currency:"INR",receipt:receipt,notes:{service:"portfolio-website-cms",offer:"7499"}})});}catch{return fail("Payment gateway is temporarily unavailable.",502);}
@@ -46,7 +46,7 @@ async function verify(request,env){
  if(payment.status==="authorized"&&payment.captured!==true){
    try{const cap=await fetch("https://api.razorpay.com/v1/payments/"+encodeURIComponent(paymentId)+"/capture",{method:"POST",headers:{Authorization:authHeader(env),"Content-Type":"application/json"},body:JSON.stringify({amount:AMOUNT,currency:"INR"})});if(cap.ok)payment=await cap.json();}catch{}
  }
- if(payment.status!=="captured"||payment.captured!==true)return fail("Payment confirmation is pending. If charged, keep your Razorpay payment ID and contact us.",202);
+ if(payment.status!=="captured"||payment.captured!==true)return fail("Payment confirmation is pending. If charged, keep your Razorpay payment ID and contact us.",409);
  const existing=await env.AUDIT_KV.get(key,"json");if(!existing)return fail("Booking record not found.",404);
  if(existing.status==="paid"&&existing.uploadToken)return reply({bookingRef:existing.bookingRef,uploadToken:existing.uploadToken});
  const token=crypto.randomUUID()+crypto.randomUUID();
