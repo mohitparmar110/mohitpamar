@@ -2,6 +2,7 @@
 import { handleAudit } from "./audit.js";
 import { handleCreateOrder } from "./create-order.js";
 import { handleVerifyRazorpay } from "./verify-razorpay.js";
+import { handlePortfolioOffer } from "./portfolio-offer.js";
 
 const MEDIA_BASE = "https://media.mohitparmar.co.in";
 const IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "gif", "avif"]);
@@ -61,6 +62,7 @@ export default{
   async fetch(request,env,ctx){
     const url=new URL(request.url);
     if(request.method==="OPTIONS")return new Response(null,{headers:corsHeaders()});
+    if(url.pathname==="/portfolio-website"||url.pathname==="/portfolio-website/"||url.pathname.startsWith("/portfolio-website/api/")) return handlePortfolioOffer(request,env);
     if(url.pathname==="/api/works"&&request.method==="GET"){
       try{
         const cache=caches.default;
